@@ -4,6 +4,7 @@ using System.Threading;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Managers
 {
@@ -77,14 +78,27 @@ namespace Managers
             UIController.OnPauseGame += PauseTheGame;
             UIController.OnResumeGameWithNormalSpeed += ResumeTheGameWithNormalSpeed;
             UIController.OnResumeGameWithHighSpeed += ResumeTheGameWithHighSpeed;
+            InputManager.Instance.playerInputControls.CityViewActions.PauzeGame.performed += PauseTheGame;
+            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameNormalSpeed.performed +=
+                ResumeTheGameWithNormalSpeed;
+            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameHighSpeed.performed +=
+                ResumeTheGameWithHighSpeed;
         }
+
 
         private void UnsubscribeFromEvents()
         {
             UIController.OnPauseGame -= PauseTheGame;
             UIController.OnResumeGameWithNormalSpeed -= ResumeTheGameWithNormalSpeed;
             UIController.OnResumeGameWithHighSpeed -= ResumeTheGameWithHighSpeed;
+            InputManager.Instance.playerInputControls.CityViewActions.PauzeGame.performed -= PauseTheGame;
+            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameNormalSpeed.performed -=
+                ResumeTheGameWithNormalSpeed;
+            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameHighSpeed.performed -=
+                ResumeTheGameWithHighSpeed;
         }
+
+        #region TimeCycleControls
 
         private void PauseTheGame()
         {
@@ -107,9 +121,30 @@ namespace Managers
             StartTimeThread();
         }
 
+        #endregion
+
+        #region TimeCycleControlsFromInputManager
+
+        private void PauseTheGame(InputAction.CallbackContext obj)
+        {
+            PauseTheGame();
+        }
+        private void ResumeTheGameWithNormalSpeed(InputAction.CallbackContext obj)
+        {
+            ResumeTheGameWithNormalSpeed();
+        }
+        private void ResumeTheGameWithHighSpeed(InputAction.CallbackContext obj)
+        {
+            ResumeTheGameWithHighSpeed();
+        }
+
+        #endregion
+
+        #region TimeCycleJobSystem
+
         private void StartTimeThread()
         {
-            if (_timeThread != null && _timeThread.IsAlive)
+            if (_timeThread is { IsAlive: true })
             {
                 _timeThread.Abort();
             }
@@ -183,6 +218,8 @@ namespace Managers
                 CurrentYear[0] += 1;
             }
         }
+
+        #endregion
 
         [Serializable]
         private struct GameCalendar
