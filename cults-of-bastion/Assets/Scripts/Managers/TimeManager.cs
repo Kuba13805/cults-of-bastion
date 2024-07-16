@@ -1,140 +1,211 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Managers;
-using Unity.Burst;
+using System.Threading;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
-using UnityEngine.Serialization;
 
-public class TimeManager : MonoBehaviour
+namespace Managers
 {
-    [SerializeField]private GameCalendar gameCalendar;
-
-    public float currentTime;
-    public int currentDay;
-    public int currentMonth;
-    public int currentYear;
-    public float normalSpeed = 1f;
-    public float highSpeed = 0.5f;
-    
-    private bool _paused;
-    private Coroutine _timeCycleCoroutine;
-
-    #region TimeCylcleEvents
-
-    public static event Action<float> OnHourChanged;
-    public static event Action OnDayChanged;
-
-    #endregion
-    private void Start()
+    public class TimeManager : MonoBehaviour
     {
-        SubscribeToEvents();
-    }
+        [SerializeField] private GameCalendar gameCalendar;
 
-    private void OnDestroy()
-    {
-        UnsubscribeFromEvents();
-    }
+        public float currentTime;
+        public int currentDay;
+        public int currentMonth;
+        public int currentYear;
+        public float normalSpeed = 1f; // Real world seconds per game hour
+        public float highSpeed = 0.5f; // Real world seconds per game hour
 
-    private void SubscribeToEvents()
-    {
-        UIController.OnPauseGame += PauseTheGame;
-        UIController.OnResumeGameWithNormalSpeed += ResumeTheGameWithNormalSpeed;
-        UIController.OnResumeGameWithHighSpeed += ResumeTheGameWithHighSpeed;
-    }
+        private bool _paused;
+        private JobHandle _timeCycleJobHandle;
+        private TimeCycleJob _timeCycleJob;
+        private NativeArray<float> _jobCurrentTime;
+        private NativeArray<int> _jobCurrentDay;
+        private NativeArray<int> _jobCurrentMonth;
+        private NativeArray<int> _jobCurrentYear;
+        private NativeArray<int> _jobHoursInDay;
+        private NativeArray<int> _jobDaysInMonth;
+        private NativeArray<int> _jobMonthsInYear;
+        private float _currentSpeed;
+        private Thread _timeThread;
 
-    private void UnsubscribeFromEvents()
-    {
-        UIController.OnPauseGame -= PauseTheGame;
-        UIController.OnResumeGameWithNormalSpeed -= ResumeTheGameWithNormalSpeed;
-        UIController.OnResumeGameWithHighSpeed -= ResumeTheGameWithHighSpeed;
-    }
+        #region TimeCycleEvents
 
-    private void PauseTheGame()
-    {
-        _paused = true;
-        StopTimeCycle();
-    }
+        public static event Action<float> OnHourChanged;
+        public static event Action OnDayChanged;
 
-    private void ResumeTheGameWithNormalSpeed()
-    {
-        _paused = false;
-        StartTimeCycle(normalSpeed);
-    }
+        #endregion
 
-    private void ResumeTheGameWithHighSpeed()
-    {
-        _paused = false;
-        StartTimeCycle(highSpeed);
-    }
-
-    private void StartTimeCycle(float speed)
-    {
-        if (_timeCycleCoroutine != null)
+        private void Start()
         {
-            StopCoroutine(_timeCycleCoroutine);
+            _jobCurrentTime = new NativeArray<float>(1, Allocator.Persistent);
+            _jobCurrentDay = new NativeArray<int>(1, Allocator.Persistent);
+            _jobCurrentMonth = new NativeArray<int>(1, Allocator.Persistent);
+            _jobCurrentYear = new NativeArray<int>(1, Allocator.Persistent);
+            _jobHoursInDay = new NativeArray<int>(1, Allocator.Persistent);
+            _jobDaysInMonth = new NativeArray<int>(1, Allocator.Persistent);
+            _jobMonthsInYear = new NativeArray<int>(1, Allocator.Persistent);
+
+            _jobHoursInDay[0] = gameCalendar.hoursInDay;
+            _jobDaysInMonth[0] = gameCalendar.daysInMonth;
+            _jobMonthsInYear[0] = gameCalendar.monthsInYear;
+
+            SubscribeToEvents();
+            ResumeTheGameWithNormalSpeed(); // Start with normal speed
         }
 
-        _timeCycleCoroutine = StartCoroutine(TimeCycleCoroutine(speed));
-    }
+        private void OnDestroy()
+        {
+            _timeCycleJobHandle.Complete();
+            _timeThread.Abort();
 
-    private void StopTimeCycle()
-    {
-        if (_timeCycleCoroutine != null)
-        {
-            StopCoroutine(_timeCycleCoroutine);
-            _timeCycleCoroutine = null;
+            _jobCurrentTime.Dispose();
+            _jobCurrentDay.Dispose();
+            _jobCurrentMonth.Dispose();
+            _jobCurrentYear.Dispose();
+            _jobHoursInDay.Dispose();
+            _jobDaysInMonth.Dispose();
+            _jobMonthsInYear.Dispose();
+
+            UnsubscribeFromEvents();
         }
-    }
-    
-    private IEnumerator TimeCycleCoroutine(float speed)
-    {
-        while (!_paused)
+
+        private void SubscribeToEvents()
         {
-            yield return new WaitForSeconds(speed);
-            
-            currentTime += 1;
+            UIController.OnPauseGame += PauseTheGame;
+            UIController.OnResumeGameWithNormalSpeed += ResumeTheGameWithNormalSpeed;
+            UIController.OnResumeGameWithHighSpeed += ResumeTheGameWithHighSpeed;
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            UIController.OnPauseGame -= PauseTheGame;
+            UIController.OnResumeGameWithNormalSpeed -= ResumeTheGameWithNormalSpeed;
+            UIController.OnResumeGameWithHighSpeed -= ResumeTheGameWithHighSpeed;
+        }
+
+        private void PauseTheGame()
+        {
+            _paused = true;
+            _timeCycleJobHandle.Complete();
+            _timeThread.Abort();
+        }
+
+        private void ResumeTheGameWithNormalSpeed()
+        {
+            _paused = false;
+            _currentSpeed = normalSpeed;
+            StartTimeThread();
+        }
+
+        private void ResumeTheGameWithHighSpeed()
+        {
+            _paused = false;
+            _currentSpeed = highSpeed;
+            StartTimeThread();
+        }
+
+        private void StartTimeThread()
+        {
+            if (_timeThread != null && _timeThread.IsAlive)
+            {
+                _timeThread.Abort();
+            }
+            _timeThread = new Thread(TimeThreadMethod);
+            _timeThread.Start();
+        }
+
+        private void TimeThreadMethod()
+        {
+            while (!_paused)
+            {
+                Thread.Sleep((int)(_currentSpeed * 1000));
+                StartTimeCycleWithJobSystem();
+            }
+        }
+
+        private void StartTimeCycleWithJobSystem()
+        {
+            _timeCycleJobHandle.Complete();
+
+            _timeCycleJob = new TimeCycleJob
+            {
+                CurrentTime = _jobCurrentTime,
+                CurrentDay = _jobCurrentDay,
+                CurrentMonth = _jobCurrentMonth,
+                CurrentYear = _jobCurrentYear,
+                HoursInDay = _jobHoursInDay,
+                DaysInMonth = _jobDaysInMonth,
+                MonthsInYear = _jobMonthsInYear
+            };
+
+            _timeCycleJobHandle = _timeCycleJob.Schedule();
+            _timeCycleJobHandle.Complete();
+
+            currentTime = _jobCurrentTime[0];
+            currentDay = _jobCurrentDay[0];
+            currentMonth = _jobCurrentMonth[0];
+            currentYear = _jobCurrentYear[0];
+
             OnHourChanged?.Invoke(currentTime);
-
-            if (!(currentTime >= gameCalendar.hoursInDay)) continue;
-            
-            currentTime = 0;
-            currentDay += 1;
-            OnDayChanged?.Invoke();
-            if (currentDay <= gameCalendar.daysInMonth) continue;
-            
-            currentDay = 1;
-            currentMonth += 1;
-            if (currentMonth <= gameCalendar.monthsInYear) continue;
-            
-            currentMonth = 1;
-            currentYear += 1;
+            if (currentTime == 0)
+            {
+                OnDayChanged?.Invoke();
+            }
         }
-    }
 
-    [Serializable]
-    private struct GameCalendar
-    {
-        public int hoursInDay;
-        public int daysInMonth;
-        public int monthsInYear;
-
-        public Dictionary<int, string> Months => new()
+        private struct TimeCycleJob : IJob
         {
-            { 1, "month_1" },
-            { 2, "month_2" },
-            { 3, "month_3" },
-            { 4, "month_4" },
-            { 5, "month_5" },
-            { 6, "month_6" },
-            { 7, "month_7" },
-            { 8, "month_8" },
-            { 9, "month_9" },
-            { 10, "month_10" },
-            { 11, "month_11" },
-            { 12, "month_12" }
-        };
+            public NativeArray<float> CurrentTime;
+            public NativeArray<int> CurrentDay;
+            public NativeArray<int> CurrentMonth;
+            public NativeArray<int> CurrentYear;
+            public NativeArray<int> HoursInDay;
+            public NativeArray<int> DaysInMonth;
+            public NativeArray<int> MonthsInYear;
+
+            public void Execute()
+            {
+                CurrentTime[0] += 1;
+
+                if (!(CurrentTime[0] >= HoursInDay[0])) return;
+                CurrentTime[0] = 0;
+                CurrentDay[0] += 1;
+
+                if (CurrentDay[0] <= DaysInMonth[0]) return;
+                CurrentDay[0] = 1;
+                CurrentMonth[0] += 1;
+
+                if (CurrentMonth[0] <= MonthsInYear[0]) return;
+                CurrentMonth[0] = 1;
+                CurrentYear[0] += 1;
+            }
+        }
+
+        [Serializable]
+        private struct GameCalendar
+        {
+            public int hoursInDay;
+            public int daysInMonth;
+            public int monthsInYear;
+
+            public Dictionary<int, string> Months => new()
+            {
+                { 1, "month_1" },
+                { 2, "month_2" },
+                { 3, "month_3" },
+                { 4, "month_4" },
+                { 5, "month_5" },
+                { 6, "month_6" },
+                { 7, "month_7" },
+                { 8, "month_8" },
+                { 9, "month_9" },
+                { 10, "month_10" },
+                { 11, "month_11" },
+                { 12, "month_12" }
+            };
+        }
     }
 }
