@@ -145,6 +145,20 @@ public class CityViewCameraControler : MonoBehaviour
 
             focusPointTransform.position += movement * _currentSpeed * Time.deltaTime;
 
+            RaycastHit hit;
+            if (Physics.Raycast(focusPointTransform.position + Vector3.up * 10f, Vector3.down, out hit, 20f, LayerMask.GetMask("Terrain")))
+            {
+                Debug.Log("Hit terrain at height: " + hit.point.y);
+
+                Vector3 newPosition = focusPointTransform.position;
+                newPosition.y = hit.point.y + (focusPointTransform.position.y - focusPointTransform.position.y); // Adjust the height based on terrain and the original offset
+                focusPointTransform.position = newPosition;
+            }
+            else
+            {
+                Debug.LogWarning("Raycast did not hit the terrain");
+            }
+
             yield return null;
         }
     }
