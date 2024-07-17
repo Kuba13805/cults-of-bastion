@@ -31,10 +31,16 @@ public class CityViewCameraControler : MonoBehaviour
     private float _targetSpeed = 0.0f;
     private float _accelerationRate;
     private float _decelerationRate;
+    private float _currentZoomSpeed = 0.0f;
+    private float _currentRotationSpeed = 0.0f;
 
     private Coroutine _cameraMovementCoroutine;
     private Coroutine _cameraRotationCoroutine;
     private Coroutine _cameraZoomCoroutine;
+    private Coroutine _decelerateZoomCoroutine;
+    private Coroutine _decelerateMovementCoroutine;
+    private Coroutine _decelerateRotationCoroutine;
+
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
@@ -98,12 +104,12 @@ public class CityViewCameraControler : MonoBehaviour
         _playerInputControls.CityViewActions.SwitchRotation.canceled -= DoNotAllowRotation;
     }
 
-
     #region CameraMovement
 
     private void ObserveForCameraMovement(InputAction.CallbackContext obj)
     {
         if (_cameraMovementCoroutine != null) StopCoroutine(_cameraMovementCoroutine);
+        if (_decelerateMovementCoroutine != null) StopCoroutine(_decelerateMovementCoroutine);
         _cameraMovementCoroutine = StartCoroutine(MoveCamera());
     }
     
@@ -113,6 +119,7 @@ public class CityViewCameraControler : MonoBehaviour
         
         StopCoroutine(_cameraMovementCoroutine);
         _cameraMovementCoroutine = null;
+        _decelerateMovementCoroutine = StartCoroutine(DecelerateMovement());
     }
     private IEnumerator MoveCamera()
     {
@@ -145,23 +152,30 @@ public class CityViewCameraControler : MonoBehaviour
 
             focusPointTransform.position += movement * _currentSpeed * Time.deltaTime;
 
-            RaycastHit hit;
-            if (Physics.Raycast(focusPointTransform.position + Vector3.up * 10f, Vector3.down, out hit, 20f, LayerMask.GetMask("Terrain")))
+            if (Physics.Raycast(focusPointTransform.position + Vector3.up * 10f, Vector3.down, out var hit, 20f, LayerMask.GetMask("Terrain")))
             {
-                Debug.Log("Hit terrain at height: " + hit.point.y);
-
-                Vector3 newPosition = focusPointTransform.position;
+                var newPosition = focusPointTransform.position;
                 newPosition.y = hit.point.y + (focusPointTransform.position.y - focusPointTransform.position.y); // Adjust the height based on terrain and the original offset
                 focusPointTransform.position = newPosition;
-            }
-            else
-            {
-                Debug.LogWarning("Raycast did not hit the terrain");
             }
 
             yield return null;
         }
     }
+    
+    private IEnumerator DecelerateMovement()
+    {
+        while (_currentSpeed > 0)
+        {
+            _currentSpeed -= _decelerationRate * Time.deltaTime;
+            if (_currentSpeed < 0)
+            {
+                _currentSpeed = 0;
+            }
+            yield return null;
+        }
+    }
+
     private void FocusOnPoint(Vector3 targetPosition)
     {
         StartCoroutine(MoveCameraToPoint(targetPosition));
@@ -207,6 +221,7 @@ public class CityViewCameraControler : MonoBehaviour
         if (!_isAllowedToRotate) return;
         
         if (_cameraRotationCoroutine != null) StopCoroutine(_cameraRotationCoroutine);
+        if (_decelerateRotationCoroutine != null) StopCoroutine(_decelerateRotationCoroutine);
         _cameraRotationCoroutine = StartCoroutine(RotateCamera());
     }
     
@@ -218,18 +233,32 @@ public class CityViewCameraControler : MonoBehaviour
         
         StopCoroutine(_cameraRotationCoroutine);
         _cameraRotationCoroutine = null;
+        _decelerateRotationCoroutine = StartCoroutine(DecelerateRotation());
     }
-    
-
 
     private IEnumerator RotateCamera()
     {
         while (true)
         {
             var inputRotation = _playerInputControls.CityViewActions.RotateCityCamera.ReadValue<Vector2>().x;
+            _currentRotationSpeed = inputRotation * cameraRotationSpeed;
         
-            transform.rotation = Quaternion.Euler(0f, inputRotation * cameraRotationSpeed + transform.rotation.eulerAngles.y, 0);
+            transform.rotation = Quaternion.Euler(0f, _currentRotationSpeed + transform.rotation.eulerAngles.y, 0);
 
+            yield return null;
+        }
+    }
+
+    private IEnumerator DecelerateRotation()
+    {
+        while (_currentRotationSpeed > 0)
+        {
+            _currentRotationSpeed -= _decelerationRate * Time.deltaTime;
+            if (_currentRotationSpeed < 0)
+            {
+                _currentRotationSpeed = 0;
+            }
+            transform.rotation = Quaternion.Euler(0f, _currentRotationSpeed + transform.rotation.eulerAngles.y, 0);
             yield return null;
         }
     }
@@ -241,6 +270,7 @@ public class CityViewCameraControler : MonoBehaviour
     private void ObserveForCameraZoom(InputAction.CallbackContext obj)
     {
         if (_cameraZoomCoroutine != null) StopCoroutine(_cameraZoomCoroutine);
+        if (_decelerateZoomCoroutine != null) StopCoroutine(_decelerateZoomCoroutine);
         _cameraZoomCoroutine = StartCoroutine(ZoomCamera());
     }
     
@@ -253,6 +283,7 @@ public class CityViewCameraControler : MonoBehaviour
         
         StopCoroutine(_cameraZoomCoroutine);
         _cameraZoomCoroutine = null;
+        _decelerateZoomCoroutine = StartCoroutine(DecelerateZoom());
     }
 
     private IEnumerator ZoomCamera()
@@ -262,6 +293,7 @@ public class CityViewCameraControler : MonoBehaviour
             Vector3 zoomDir = _followOffset.normalized;
         
             var inputZoom = _playerInputControls.CityViewActions.ZoomCityCamera.ReadValue<Vector2>().y;
+            _currentZoomSpeed = inputZoom * cameraZoomSpeed;
 
             switch (inputZoom)
             {
@@ -292,6 +324,20 @@ public class CityViewCameraControler : MonoBehaviour
             yield return null;
         }
     }
+
+    private IEnumerator DecelerateZoom()
+    {
+        while (_currentZoomSpeed > 0)
+        {
+            _currentZoomSpeed -= _decelerationRate * Time.deltaTime;
+            if (_currentZoomSpeed < 0)
+            {
+                _currentZoomSpeed = 0;
+            }
+            yield return null;
+        }
+    }
+
     private IEnumerator ZoomOnFocusedLocation(float ZoomValueOnLocationFocus)
     {
         Vector3 zoomDir = _followOffset.normalized;
