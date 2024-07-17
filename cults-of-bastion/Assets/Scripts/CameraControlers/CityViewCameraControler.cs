@@ -7,11 +7,8 @@ using UnityEngine.InputSystem;
 public class CityViewCameraControler : MonoBehaviour
 {
     [SerializeField] private CinemachineCamera virtualCamera;
-    [SerializeField] private float cameraMovementSpeed;
     [SerializeField] private float maxCameraMovementSpeed;
     [SerializeField] private float minCameraMovementSpeed;
-    
-    private float _speedChange = 1f;
     
     [SerializeField] private float accelerationTime;
     [SerializeField] private float decelerationTime;
@@ -30,10 +27,10 @@ public class CityViewCameraControler : MonoBehaviour
     private bool _isMoving;
     private bool _isAllowedToRotate;
     
-    private float currentSpeed = 0.0f;
-    private float targetSpeed = 0.0f;
-    private float accelerationRate;
-    private float decelerationRate;
+    private float _currentSpeed = 0.0f;
+    private float _targetSpeed = 0.0f;
+    private float _accelerationRate;
+    private float _decelerationRate;
 
     private Coroutine _cameraMovementCoroutine;
     private Coroutine _cameraRotationCoroutine;
@@ -52,8 +49,8 @@ public class CityViewCameraControler : MonoBehaviour
         _followOffset = _cinemachineCameraOffsetComponent.Offset;
         
         
-        accelerationRate = maxCameraMovementSpeed / accelerationTime;
-        decelerationRate = maxCameraMovementSpeed / decelerationTime;
+        _accelerationRate = maxCameraMovementSpeed / accelerationTime;
+        _decelerationRate = maxCameraMovementSpeed / decelerationTime;
         
         SubscribeToEvents();
     }
@@ -124,29 +121,29 @@ public class CityViewCameraControler : MonoBehaviour
             var inputVector = _playerInputControls.CityViewActions.MoveCityCamera.ReadValue<Vector2>();
             bool hasInput = inputVector != Vector2.zero;
 
-            targetSpeed = hasInput ? maxCameraMovementSpeed : 0.0f;
+            _targetSpeed = hasInput ? maxCameraMovementSpeed : 0.0f;
 
-            if (currentSpeed < targetSpeed)
+            if (_currentSpeed < _targetSpeed)
             {
-                currentSpeed += accelerationRate * Time.deltaTime;
-                if (currentSpeed > targetSpeed)
+                _currentSpeed += _accelerationRate * Time.deltaTime;
+                if (_currentSpeed > _targetSpeed)
                 {
-                    currentSpeed = targetSpeed;
+                    _currentSpeed = _targetSpeed;
                 }
             }
-            else if (currentSpeed > targetSpeed)
+            else if (_currentSpeed > _targetSpeed)
             {
-                currentSpeed -= decelerationRate * Time.deltaTime;
-                if (currentSpeed < targetSpeed)
+                _currentSpeed -= _decelerationRate * Time.deltaTime;
+                if (_currentSpeed < _targetSpeed)
                 {
-                    currentSpeed = targetSpeed;
+                    _currentSpeed = _targetSpeed;
                 }
             }
 
             var focusPointTransform = transform;
             var movement = focusPointTransform.forward * inputVector.y + focusPointTransform.right * inputVector.x;
 
-            focusPointTransform.position += movement * currentSpeed * Time.deltaTime;
+            focusPointTransform.position += movement * _currentSpeed * Time.deltaTime;
 
             yield return null;
         }
@@ -272,7 +269,7 @@ public class CityViewCameraControler : MonoBehaviour
             }
         
             float zoomRatio = (_followOffset.magnitude + followOffsetMin) / (followOffsetMax + followOffsetMin);
-            cameraMovementSpeed = Mathf.Lerp(maxCameraMovementSpeed, minCameraMovementSpeed, zoomRatio);
+            _currentSpeed = Mathf.Lerp(maxCameraMovementSpeed, minCameraMovementSpeed, zoomRatio);
 
             _cinemachineCameraOffsetComponent.Offset =
                 Vector3.Lerp(_cinemachineCameraOffsetComponent.Offset, new Vector3(0f, _cinemachineCameraOffsetComponent.Offset.y,_followOffset.z),
@@ -297,7 +294,7 @@ public class CityViewCameraControler : MonoBehaviour
             _followOffset = zoomDir * currentZoom;
 
             float zoomRatio = (currentZoom - followOffsetMin) / (followOffsetMax - followOffsetMin);
-            cameraMovementSpeed = Mathf.Lerp(maxCameraMovementSpeed, minCameraMovementSpeed, zoomRatio);
+            _currentSpeed = Mathf.Lerp(maxCameraMovementSpeed, minCameraMovementSpeed, zoomRatio);
 
             _cinemachineCameraOffsetComponent.Offset =
                 Vector3.Lerp(new Vector3(0f, _cinemachineCameraOffsetComponent.Offset.y, _cinemachineCameraOffsetComponent.Offset.z), new Vector3(0f, _cinemachineCameraOffsetComponent.Offset.y,_followOffset.z),
