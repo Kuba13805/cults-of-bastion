@@ -1,5 +1,6 @@
 using System.Collections;
 using Managers;
+using Locations;
 using Unity.Cinemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -23,16 +24,15 @@ public class CityViewCameraControler : MonoBehaviour
     private CinemachineCameraOffset _cinemachineCameraOffsetComponent;
     
     private PlayerInputControls _playerInputControls;
-
-    private bool _isMoving;
+    
     private bool _isAllowedToRotate;
     
-    private float _currentSpeed = 0.0f;
-    private float _targetSpeed = 0.0f;
+    private float _currentSpeed;
+    private float _targetSpeed;
     private float _accelerationRate;
     private float _decelerationRate;
-    private float _currentZoomSpeed = 0.0f;
-    private float _currentRotationSpeed = 0.0f;
+    private float _currentZoomSpeed;
+    private float _currentRotationSpeed;
 
     private Coroutine _cameraMovementCoroutine;
     private Coroutine _cameraRotationCoroutine;
@@ -63,6 +63,8 @@ public class CityViewCameraControler : MonoBehaviour
 
     private void SubscribeToEvents()
     {
+        Location.OnFocusOnLocation += OnFocusOnLocation;
+        
         _playerInputControls.CityViewActions.MoveCityCamera.started += ObserveForCameraMovement;
 
         _playerInputControls.CityViewActions.MoveCityCamera.canceled += ObserveForCameraStop;
@@ -175,6 +177,11 @@ public class CityViewCameraControler : MonoBehaviour
             yield return null;
         }
     }
+    
+    private void OnFocusOnLocation(Vector3 position)
+    {
+        FocusOnPoint(position);
+    }
 
     private void FocusOnPoint(Vector3 targetPosition)
     {
@@ -184,8 +191,6 @@ public class CityViewCameraControler : MonoBehaviour
 
     private IEnumerator MoveCameraToPoint(Vector3 targetPosition)
     {
-        _isMoving = true;
-        
         float elapsedTime = 0f;
         Vector3 startingPosition = transform.position;
 
@@ -198,8 +203,6 @@ public class CityViewCameraControler : MonoBehaviour
         }
 
         transform.position = targetPosition;
-
-        _isMoving = false;
     }
 
     #endregion

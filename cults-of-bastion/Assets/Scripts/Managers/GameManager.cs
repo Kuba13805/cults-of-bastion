@@ -25,5 +25,9 @@ namespace Managers
     {
         Menu,
         InGameCityMap,
+        Loading,
+        Saving,
+        GameOver,
+        Paused
     }
 }
