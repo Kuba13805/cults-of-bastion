@@ -2,6 +2,7 @@ using UnityEngine;
 
 namespace Locations
 {
+   [System.Serializable]
    public struct LocationType
    {
       public string TypeName;
@@ -10,10 +11,10 @@ namespace Locations
    
       //locationInteractions
       
-      public LocationType(string typeName, string typeDescription)
-      {
-         TypeName = typeName;
-         TypeDescription = typeDescription;
-      }
+      // public LocationType(string typeName, string typeDescription)
+      // {
+      //    TypeName = typeName;
+      //    TypeDescription = typeDescription;
+      // }
    }
 }

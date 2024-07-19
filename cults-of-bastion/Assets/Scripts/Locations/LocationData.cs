@@ -1,3 +1,5 @@
+using System;
+
 namespace Locations
 {
     [System.Serializable]
@@ -5,6 +7,8 @@ namespace Locations
     {
         public int locationID;
         public string locationName;
-        public LocationType LocationType;
+        public string locationTypeName;
+        
+        [NonSerialized] public LocationType LocationType;
     }
 }

@@ -54,13 +54,12 @@ namespace Managers
             _jobMonthsInYear[0] = gameCalendar.monthsInYear;
 
             SubscribeToEvents();
-            ResumeTheGameWithNormalSpeed(); // Start with normal speed
         }
 
         private void OnDestroy()
         {
             _timeCycleJobHandle.Complete();
-            _timeThread.Abort();
+            if(_timeThread is { IsAlive: true}) _timeThread.Abort();
 
             _jobCurrentTime.Dispose();
             _jobCurrentDay.Dispose();

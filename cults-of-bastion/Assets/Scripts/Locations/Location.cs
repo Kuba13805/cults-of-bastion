@@ -15,7 +15,9 @@ namespace Locations
 
         #region Events
 
+        public static event Action<LocationData> OnSelectLocation;
         public static event Action<Vector3> OnFocusOnLocation;
+        public static event Action<LocationData> OnInteractWithLocation;
 
         #endregion
 
@@ -61,17 +63,21 @@ namespace Locations
 
         private void SelectLocation(InputAction.CallbackContext callbackContext)
         {
-            Debug.Log("Select Location...");
+            if(!_pointerOver) return;
+            OnSelectLocation?.Invoke(locationData);
+            Debug.Log($"Location selected: {locationData.locationName} of type {locationData.LocationType.TypeName} - {locationData.LocationType.TypeDescription}");
         }
 
         private void FocusOnLocation(InputAction.CallbackContext callbackContext)
         {
+            if(!_pointerOver) return;
             OnFocusOnLocation?.Invoke(transform.position);
         }
 
         private void InteractWithLocation(InputAction.CallbackContext callbackContext)
         {
-            Debug.Log("Interact With Location...");
+            if(!_pointerOver) return;
+            OnInteractWithLocation?.Invoke(locationData);
         }
     }
 }

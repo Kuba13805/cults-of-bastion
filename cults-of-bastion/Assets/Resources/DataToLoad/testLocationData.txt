@@ -1,0 +1,19 @@
+{
+  "Locations": [
+    {
+      "locationID": 1,
+      "locationName": "Green House",
+      "locationTypeName": "House"
+    }
+  ],
+  "LocationTypes": [
+      {
+        "TypeName": "House",
+        "TypeDescription": "A single house for one or two people."
+      },
+      {
+            "TypeName": "Bakery",
+            "TypeDescription": "Normal bakery."
+      }
+    ]
+}
