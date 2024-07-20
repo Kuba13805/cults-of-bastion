@@ -6,7 +6,7 @@ namespace Managers
     {
         public static InputManager Instance { get; private set; }
 
-        public PlayerInputControls playerInputControls;
+        public PlayerInputControls PlayerInputControls;
         
         private void Awake()
         {
@@ -23,8 +23,8 @@ namespace Managers
         }
         private void CreateNewInput()
         {
-            playerInputControls = new PlayerInputControls();
-            playerInputControls.Enable();
+            PlayerInputControls = new PlayerInputControls();
+            PlayerInputControls.Enable();
         }
     }
 }

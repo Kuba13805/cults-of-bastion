@@ -77,10 +77,10 @@ namespace Managers
             UIController.OnPauseGame += PauseTheGame;
             UIController.OnResumeGameWithNormalSpeed += ResumeTheGameWithNormalSpeed;
             UIController.OnResumeGameWithHighSpeed += ResumeTheGameWithHighSpeed;
-            InputManager.Instance.playerInputControls.CityViewActions.PauzeGame.performed += PauseTheGame;
-            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameNormalSpeed.performed +=
+            InputManager.Instance.PlayerInputControls.CityViewActions.PauzeGame.performed += PauseTheGame;
+            InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameNormalSpeed.performed +=
                 ResumeTheGameWithNormalSpeed;
-            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameHighSpeed.performed +=
+            InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed +=
                 ResumeTheGameWithHighSpeed;
         }
 
@@ -90,10 +90,10 @@ namespace Managers
             UIController.OnPauseGame -= PauseTheGame;
             UIController.OnResumeGameWithNormalSpeed -= ResumeTheGameWithNormalSpeed;
             UIController.OnResumeGameWithHighSpeed -= ResumeTheGameWithHighSpeed;
-            InputManager.Instance.playerInputControls.CityViewActions.PauzeGame.performed -= PauseTheGame;
-            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameNormalSpeed.performed -=
+            InputManager.Instance.PlayerInputControls.CityViewActions.PauzeGame.performed -= PauseTheGame;
+            InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameNormalSpeed.performed -=
                 ResumeTheGameWithNormalSpeed;
-            InputManager.Instance.playerInputControls.CityViewActions.ResumeGameHighSpeed.performed -=
+            InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed -=
                 ResumeTheGameWithHighSpeed;
         }
 
@@ -103,7 +103,11 @@ namespace Managers
         {
             _paused = true;
             _timeCycleJobHandle.Complete();
-            _timeThread.Abort();
+            if (_timeThread is { IsAlive: true })
+            {
+                _timeThread.Abort();
+            }
+
         }
 
         private void ResumeTheGameWithNormalSpeed()

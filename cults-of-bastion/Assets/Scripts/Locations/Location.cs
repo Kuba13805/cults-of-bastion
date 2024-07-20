@@ -38,34 +38,34 @@ namespace Locations
 
         private void UnsubscribeFromEvents()
         {
-            InputManager.Instance.playerInputControls.CityViewActions.SelectLocation.performed -= SelectLocation;
-            InputManager.Instance.playerInputControls.CityViewActions.FocusOnLocation.performed -= FocusOnLocation;
-            InputManager.Instance.playerInputControls.CityViewActions.InteractWithLocation.performed -= InteractWithLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.SelectLocation.performed -= SelectLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.FocusOnLocation.performed -= FocusOnLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.InteractWithLocation.performed -= InteractWithLocation;
         }
 
         public void OnPointerEnter(PointerEventData eventData)
         {
             _pointerOver = true;
             
-            InputManager.Instance.playerInputControls.CityViewActions.SelectLocation.performed += SelectLocation;
-            InputManager.Instance.playerInputControls.CityViewActions.FocusOnLocation.performed += FocusOnLocation;
-            InputManager.Instance.playerInputControls.CityViewActions.InteractWithLocation.performed += InteractWithLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.SelectLocation.performed += SelectLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.FocusOnLocation.performed += FocusOnLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.InteractWithLocation.performed += InteractWithLocation;
         }
 
         public void OnPointerExit(PointerEventData eventData)
         {
             _pointerOver = false;
             
-            InputManager.Instance.playerInputControls.CityViewActions.SelectLocation.performed -= SelectLocation;
-            InputManager.Instance.playerInputControls.CityViewActions.FocusOnLocation.performed -= FocusOnLocation;
-            InputManager.Instance.playerInputControls.CityViewActions.InteractWithLocation.performed -= InteractWithLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.SelectLocation.performed -= SelectLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.FocusOnLocation.performed -= FocusOnLocation;
+            InputManager.Instance.PlayerInputControls.CityViewActions.InteractWithLocation.performed -= InteractWithLocation;
         }
 
         private void SelectLocation(InputAction.CallbackContext callbackContext)
         {
             if(!_pointerOver) return;
             OnSelectLocation?.Invoke(locationData);
-            Debug.Log($"Location selected: {locationData.locationName} of type {locationData.LocationType.TypeName} - {locationData.LocationType.TypeDescription}");
+            Debug.Log($"Location selected: {locationData.locationName} of type {locationData.LocationType.typeName} with owner {locationData.LocationOwner.characterName} - {locationData.LocationType.typeDescription}");
         }
 
         private void FocusOnLocation(InputAction.CallbackContext callbackContext)

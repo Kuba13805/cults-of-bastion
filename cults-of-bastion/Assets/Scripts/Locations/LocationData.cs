@@ -1,8 +1,9 @@
 using System;
+using Characters;
 
 namespace Locations
 {
-    [System.Serializable]
+    [Serializable]
     public class LocationData
     {
         public int locationID;
@@ -10,5 +11,6 @@ namespace Locations
         public string locationTypeName;
         
         [NonSerialized] public LocationType LocationType;
+        [NonSerialized] public Character LocationOwner;
     }
 }

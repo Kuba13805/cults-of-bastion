@@ -1,19 +1,36 @@
 {
+  "LocationTypes": [
+    {
+      "typeName": "House",
+      "typeDescription": "A single house for one or two people."
+    },
+    {
+      "typeName": "Bakery",
+      "typeDescription": "Normal bakery."
+    }
+  ],
   "Locations": [
     {
       "locationID": 1,
       "locationName": "Green House",
       "locationTypeName": "House"
+    },
+    {
+      "locationID": 2,
+      "locationName": "Blue Bakery",
+      "locationTypeName": "Bakery"
     }
   ],
-  "LocationTypes": [
-      {
-        "TypeName": "House",
-        "TypeDescription": "A single house for one or two people."
-      },
-      {
-            "TypeName": "Bakery",
-            "TypeDescription": "Normal bakery."
-      }
-    ]
+  "CharacterConstructors": [
+    {
+      "name": "Anthony",
+      "gender": "Male",
+      "ownLocationIds": [1, 2]
+    },
+    {
+      "name": "Sara",
+      "gender": "Female",
+      "ownLocationIds": []
+    }
+  ]
 }
