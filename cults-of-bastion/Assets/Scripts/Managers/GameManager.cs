@@ -1,4 +1,5 @@
 using System;
+using Mono.Cecil;
 using UnityEngine;
 
 namespace Managers
@@ -9,6 +10,8 @@ namespace Managers
         
         public static event Action<GameState> OnGameStateChanged;
 
+        private GameData _gameData;
+
         private void Start()
         {
             ChangeGameState(GameState.Menu);
@@ -18,6 +21,26 @@ namespace Managers
         {
             _currentGameState = state;
             OnGameStateChanged?.Invoke(state);
+        }
+
+        private void InitializeGame()
+        {
+            var cityConfig = Resources.Load<TextAsset>("DataToLoad/testLocationData");
+            if(cityConfig == null) return;
+
+            var parsedCityConfigData = JsonUtility.FromJson<GameData>(cityConfig.text);
+
+            if (parsedCityConfigData == null)
+            {
+                throw new Exception("Failed to parse city config data.");
+            }
+
+            _gameData = new GameData
+            {
+                LocationTypes = parsedCityConfigData.LocationTypes,
+                Locations = parsedCityConfigData.Locations,
+                CharacterConstructors = parsedCityConfigData.CharacterConstructors
+            };
         }
     }
     

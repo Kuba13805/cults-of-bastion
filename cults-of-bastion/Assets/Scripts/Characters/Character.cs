@@ -6,6 +6,7 @@ namespace Characters
    [System.Serializable]
    public class Character
    {
+      public int characterID;
       public string characterName;
       public string characterSurname;
       public string characterNickname;
