@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters;
@@ -13,14 +14,51 @@ namespace Managers
         private GameData _gameData;
 
         [SerializeField] private int maxCharacters;
+        
+        public static event Action OnCharactersLoaded;
 
-        private void Start()
+        private void Awake()
+        {
+            InitializeCharacterIDs();
+            SubscribeToEvents();
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromEvents();
+        }
+
+        private void SubscribeToEvents()
+        {
+            GameManager.OnGameDataLoaded += StartCharacterLoading;
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            GameManager.OnGameDataLoaded -= StartCharacterLoading;
+        }
+        private void InitializeCharacterIDs()
         {
             for (int i = 1; i <= maxCharacters; i++)
             {
                 _characterIDsAvailable.Enqueue(i);
             }
         }
+
+        private void AddNewCharacter()
+        {
+            
+        }
+
+        private void RemoveCharacter(int id)
+        {
+            if (id <= 0) throw new ArgumentOutOfRangeException(nameof(id));
+            _gameData.Characters.Remove(_gameData.Characters.Find(character => character.characterID == id));
+            ReleaseCharacterID(id);
+        }
+
+        #region HandleCharacterIDs
+
         private int GetNewCharacterID()
         {
             if (_characterIDsAvailable.Count <= 0) return -1;
@@ -38,7 +76,18 @@ namespace Managers
             _characterIDsAvailable.Enqueue(id);
         }
 
-        private void LoadCharacters()
+        #endregion
+
+        #region CharLoadingFromFile
+        private void StartCharacterLoading(GameData gameData)
+        {
+            _gameData = gameData;
+            StartCoroutine(LoadCharacters());
+            StartCoroutine(InjectCharactersToLocationData());
+            OnCharactersLoaded?.Invoke();
+        }
+
+        private IEnumerator LoadCharacters()
         {
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
@@ -59,11 +108,13 @@ namespace Managers
                 }
             
                 _gameData.Characters.Add(character);
-                Debug.Log($"Loaded {character.characterGender} character: {character.characterName} with {character.characterOwnedLocations.Count} owned locations.");
+                Debug.Log($"Loaded {character.characterGender} character: {character.characterName}, id: {character.characterID} with {character.characterOwnedLocations.Count} owned locations.");
             }
+
+            yield return null;
         }
         
-        private void InjectCharactersToLocationData()
+        private IEnumerator InjectCharactersToLocationData()
         {
             foreach (var character in _gameData.Characters)
             {
@@ -72,6 +123,10 @@ namespace Managers
                     locationData.LocationOwner = character;
                 }
             }
+
+            yield return null;
         }
+
+        #endregion
     }
 }

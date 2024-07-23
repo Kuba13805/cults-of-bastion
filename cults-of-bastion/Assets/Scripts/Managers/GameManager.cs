@@ -9,12 +9,14 @@ namespace Managers
         private GameState _currentGameState;
         
         public static event Action<GameState> OnGameStateChanged;
+        public static event Action<GameData> OnGameDataLoaded; 
 
         private GameData _gameData;
 
         private void Start()
         {
-            ChangeGameState(GameState.Menu);
+            ChangeGameState(GameState.InGameCityMap);
+            InitializeGame();
         }
 
         private void ChangeGameState(GameState state)
@@ -41,6 +43,7 @@ namespace Managers
                 Locations = parsedCityConfigData.Locations,
                 CharacterConstructors = parsedCityConfigData.CharacterConstructors
             };
+            OnGameDataLoaded?.Invoke(_gameData);
         }
     }
     

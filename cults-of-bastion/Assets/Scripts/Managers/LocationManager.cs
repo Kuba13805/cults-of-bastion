@@ -1,3 +1,5 @@
+using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters;
@@ -10,37 +12,52 @@ namespace Managers
     {
         public List<Location> locations;
         private GameData _gameData;
-    
-        [SerializeField] private TextAsset _jsonFile;
 
+        private bool _isCharacterDataLoaded;
         private void Start()
         {
-            LoadData();
+            SubscribeToEvents();
         }
 
-        private void LoadData()
+        private void OnDestroy()
         {
-            if (_jsonFile == null) return;
-        
-            var parsedData = JsonUtility.FromJson<GameData>(_jsonFile.text);
-            if (parsedData == null)
-            {
-                Debug.LogError("Failed to parse JSON data.");
-                return;
-            }
+            UnsubscribeFromEvents();
+        }
 
-            _gameData = new GameData
-            {
-                LocationTypes = parsedData.LocationTypes,
-                Locations = parsedData.Locations,
-                CharacterConstructors = parsedData.CharacterConstructors
-            };
+        private void SubscribeToEvents()
+        {
+            GameManager.OnGameDataLoaded += StartLocationLoading;
+            CharacterManager.OnCharactersLoaded += AllowDataInjection;
+        }
 
+        private void UnsubscribeFromEvents()
+        {
+            GameManager.OnGameDataLoaded -= StartLocationLoading;
+            CharacterManager.OnCharactersLoaded -= AllowDataInjection;
+        }
+
+        private void AllowDataInjection()
+        {
+            _isCharacterDataLoaded = true;
+        }
+
+        private void StartLocationLoading(GameData gameData)
+        {
+            _gameData = gameData;
+            StartCoroutine(LoadData());
+        }
+
+        private IEnumerator LoadData()
+        {
             LoadLocationTypes();
         
             AssignLocationTypeToLocationData();
 
+            yield return new WaitUntil(() => _isCharacterDataLoaded);
+
             InjectLocationDataToWorldLocations();
+            
+            Debug.Log("Locations loaded.");
         }
     
         private void InjectLocationDataToWorldLocations()
