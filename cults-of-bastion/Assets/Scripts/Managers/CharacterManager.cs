@@ -9,8 +9,8 @@ namespace Managers
 {
     public class CharacterManager : MonoBehaviour
     {
-        private HashSet<int> _characterIDsInUse = new();
-        private Queue<int> _characterIDsAvailable = new();
+        private readonly HashSet<int> _characterIDsInUse = new();
+        private readonly Queue<int> _characterIDsAvailable = new();
         private GameData _gameData;
 
         [SerializeField] private int maxCharacters;
@@ -45,9 +45,11 @@ namespace Managers
             }
         }
 
-        private void AddNewCharacter()
+        private void AddNewCharacter(Character character)
         {
-            
+            character.characterID = GetNewCharacterID();
+            _gameData.Characters.Add(character);
+            Debug.Log($"Character {character.characterName} {character.characterSurname} vel {character.characterNickname} at {character.characterAge} added with id {character.characterID}");
         }
 
         private void RemoveCharacter(int id)
@@ -84,6 +86,7 @@ namespace Managers
             _gameData = gameData;
             StartCoroutine(LoadCharacters());
             StartCoroutine(InjectCharactersToLocationData());
+            StartCoroutine(GenerateOwnersForEmptyLocations());
             OnCharactersLoaded?.Invoke();
         }
 
@@ -91,6 +94,7 @@ namespace Managers
         {
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
+                if(characterConstructor.ownLocationIds.Count == 0) continue;
                 var character = new Character
                 {
                     characterName = characterConstructor.name,
@@ -123,10 +127,25 @@ namespace Managers
                     locationData.LocationOwner = character;
                 }
             }
-
             yield return null;
         }
 
+        private IEnumerator GenerateOwnersForEmptyLocations()
+        {
+            foreach (var location in _gameData.Locations.Where(location => location.LocationOwner == null))
+            {
+                location.LocationOwner = GenerateCharacterForLocation();
+                Debug.Log($"Character {location.LocationOwner.characterName} {location.LocationOwner.characterSurname} added to {location.locationName}");
+            }
+            yield return null;
+        }
+        private Character GenerateCharacterForLocation()
+        {
+            var newCharacterGenerator = new CharacterGenerator();
+            var character = newCharacterGenerator.GenerateCharacter();
+            AddNewCharacter(character);
+            return character;
+        }
         #endregion
     }
 }

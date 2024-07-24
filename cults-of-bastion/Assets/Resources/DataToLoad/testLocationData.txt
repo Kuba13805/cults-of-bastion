@@ -7,6 +7,10 @@
     {
       "typeName": "Bakery",
       "typeDescription": "Normal bakery."
+    },
+    {
+      "typeName": "Pharmacy",
+      "typeDescription": "An old pharmacy in the middle of the city."
     }
   ],
   "Locations": [
@@ -19,18 +23,28 @@
       "locationID": 2,
       "locationName": "Blue Bakery",
       "locationTypeName": "Bakery"
+    },
+    {
+      "locationID": 3,
+      "locationName": "Pharmacy",
+      "locationTypeName": "Pharmacy"
+    },
+    {
+      "locationID": 4,
+      "locationName": "Oak St. 54",
+      "locationTypeName": "House"
     }
   ],
   "CharacterConstructors": [
     {
       "name": "Anthony",
       "gender": "Male",
-      "ownLocationIds": [1, 2]
+      "ownLocationIds": [1]
     },
     {
       "name": "Sara",
       "gender": "Female",
-      "ownLocationIds": []
+      "ownLocationIds": [2]
     }
   ]
 }
