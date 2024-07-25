@@ -14,6 +14,12 @@ namespace Managers
         private GameData _gameData;
 
         private bool _isCharacterDataLoaded;
+
+        private void OnEnable()
+        {
+            Location.OnRegisterEmptyLocation += RegisterNewEmptyLocation;
+        }
+
         private void Start()
         {
             SubscribeToEvents();
@@ -32,8 +38,14 @@ namespace Managers
 
         private void UnsubscribeFromEvents()
         {
+            Location.OnRegisterEmptyLocation -= RegisterNewEmptyLocation;
             GameManager.OnGameDataLoaded -= StartLocationLoading;
             CharacterManager.OnCharactersLoaded -= AllowDataInjection;
+        }
+
+        private void RegisterNewEmptyLocation(Location location)
+        {
+            locations.Add(location);
         }
 
         private void AllowDataInjection()

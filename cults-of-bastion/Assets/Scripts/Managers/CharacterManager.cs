@@ -49,7 +49,8 @@ namespace Managers
         {
             character.characterID = GetNewCharacterID();
             _gameData.Characters.Add(character);
-            Debug.Log($"Character {character.characterName} {character.characterSurname} vel {character.characterNickname} at {character.characterAge} added with id {character.characterID}");
+            Debug.Log($"Character {character.characterName} {character.characterSurname} vel {character.characterNickname} at {character.characterAge} " +
+                      $"added with id {character.characterID}. {Strength.Name}: {character.CharacterStats.Strength.Value} - {Strength.Desc}");
         }
 
         private void RemoveCharacter(int id)
@@ -112,7 +113,8 @@ namespace Managers
                 }
             
                 _gameData.Characters.Add(character);
-                Debug.Log($"Loaded {character.characterGender} character: {character.characterName}, id: {character.characterID} with {character.characterOwnedLocations.Count} owned locations.");
+                Debug.Log($"Loaded {character.characterGender} character: {character.characterName}, id: {character.characterID} " +
+                          $"with {character.characterOwnedLocations.Count} owned locations. {Strength.Name}: {character.CharacterStats.Strength.Value}");
             }
 
             yield return null;

@@ -18,12 +18,14 @@ namespace Locations
         public static event Action<LocationData> OnSelectLocation;
         public static event Action<Vector3> OnFocusOnLocation;
         public static event Action<LocationData> OnInteractWithLocation;
+        public static event Action<Location> OnRegisterEmptyLocation; 
 
         #endregion
 
         private void Start()
         {
             SubscribeToEvents();
+            OnRegisterEmptyLocation?.Invoke(this);
         }
 
         private void OnDestroy()
@@ -63,20 +65,20 @@ namespace Locations
 
         private void SelectLocation(InputAction.CallbackContext callbackContext)
         {
-            if(!_pointerOver) return;
+            if(!_pointerOver || locationData.locationID == 0) return;
             OnSelectLocation?.Invoke(locationData);
             Debug.Log($"Location selected: {locationData.locationName} of type {locationData.LocationType.typeName} with owner {locationData.LocationOwner.characterName} - {locationData.LocationType.typeDescription}");
         }
 
         private void FocusOnLocation(InputAction.CallbackContext callbackContext)
         {
-            if(!_pointerOver) return;
+            if(!_pointerOver || locationData.locationID == 0) return;
             OnFocusOnLocation?.Invoke(transform.position);
         }
 
         private void InteractWithLocation(InputAction.CallbackContext callbackContext)
         {
-            if(!_pointerOver) return;
+            if(!_pointerOver || locationData.locationID == 0) return;
             OnInteractWithLocation?.Invoke(locationData);
         }
     }

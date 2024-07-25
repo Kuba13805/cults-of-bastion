@@ -18,6 +18,7 @@ namespace Characters
             character.characterName = GetRandomCharacterName(character.characterGender == CharacterGender.Male ? _maleNames : _femaleNames);
             character.characterSurname = GetRandomCharacterSurname();
             character.characterNickname = GetRandomCharacterNickname(character.characterAge);
+            character.CharacterStats.Strength.Value = UnityEngine.Random.Range(10, 20);
             return character;
         }
         private int GetRandomCharacterAge()

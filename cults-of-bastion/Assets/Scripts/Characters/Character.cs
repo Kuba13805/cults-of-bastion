@@ -13,6 +13,8 @@ namespace Characters
       public int characterAge;
       public CharacterGender characterGender;
       public List<LocationData> characterOwnedLocations = new();
+      
+      public CharacterStats CharacterStats = new();
    }
 }
 public enum CharacterGender

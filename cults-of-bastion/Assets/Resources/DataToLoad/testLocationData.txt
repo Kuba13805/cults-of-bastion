@@ -33,6 +33,11 @@
       "locationID": 4,
       "locationName": "Oak St. 54",
       "locationTypeName": "House"
+    },
+    {
+      "locationID": 5,
+      "locationName": "Oak St. 30",
+      "locationTypeName": "Bakery"
     }
   ],
   "CharacterConstructors": [
