@@ -582,7 +582,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   locationData:
-    locationID: 3
+    locationID: 0
     locationName: 
     locationTypeName: 
   locationIndex: 3

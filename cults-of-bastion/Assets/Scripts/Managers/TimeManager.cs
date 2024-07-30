@@ -224,11 +224,9 @@ namespace Managers
         private void UpdateInGameTime(float time)
         {
             OnHourChanged?.Invoke(time);
-            ResourceChanger.ModifyMoney(10);
             if (time == 0)
             {
                 OnDayChanged?.Invoke(currentDay, currentMonth, currentYear);
-                ResourceChanger.ModifyInfluence(3.5f);
             }
         }
 

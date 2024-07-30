@@ -14,17 +14,18 @@ namespace Managers
         private GameData _gameData;
 
         private bool _isCharacterDataLoaded;
+        
+        public static event Action OnLocationManagerInitialized;
 
-        private void OnEnable()
-        {
-            Location.OnRegisterEmptyLocation += RegisterNewEmptyLocation;
-        }
-
-        private void Start()
+        private void Awake()
         {
             SubscribeToEvents();
         }
 
+        private void Start()
+        {
+            OnLocationManagerInitialized?.Invoke();
+        }
         private void OnDestroy()
         {
             UnsubscribeFromEvents();
@@ -32,6 +33,7 @@ namespace Managers
 
         private void SubscribeToEvents()
         {
+            Location.OnRegisterEmptyLocation += RegisterNewEmptyLocation;
             GameManager.OnGameDataLoaded += StartLocationLoading;
             CharacterManager.OnCharactersLoaded += AllowDataInjection;
         }
@@ -50,26 +52,33 @@ namespace Managers
 
         private void AllowDataInjection()
         {
+            Debug.Log("Allowing data injection.");
             _isCharacterDataLoaded = true;
         }
 
         private void StartLocationLoading(GameData gameData)
         {
             _gameData = gameData;
+            Debug.Log("Start location loading.");
             StartCoroutine(LoadData());
         }
 
         private IEnumerator LoadData()
         {
+            Debug.Log("Loading locations...");
             LoadLocationTypes();
         
             AssignLocationTypeToLocationData();
 
+            Debug.Log($"Waiting for characters to load...");
             yield return new WaitUntil(() => _isCharacterDataLoaded);
 
+            Debug.Log($"Characters loaded. Start injecting");
             InjectLocationDataToWorldLocations();
             
             Debug.Log("Locations loaded.");
+            
+            yield return null;
         }
     
         private void InjectLocationDataToWorldLocations()
@@ -78,6 +87,7 @@ namespace Managers
             {
                 location.locationData =
                     _gameData.Locations.Find(locationData => locationData.locationID == location.locationIndex);
+                Debug.Log($"Location {location.locationData.locationName} injected with {location.locationData.LocationType.typeName} type");
             }
         }
 

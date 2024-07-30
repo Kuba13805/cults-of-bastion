@@ -474,7 +474,7 @@ MonoBehaviour:
   currentMonth: 1
   currentYear: 1895
   normalSpeed: 1
-  highSpeed: 0.5
+  highSpeed: 0.05
 --- !u!4 &155481583
 Transform:
   m_ObjectHideFlags: 0

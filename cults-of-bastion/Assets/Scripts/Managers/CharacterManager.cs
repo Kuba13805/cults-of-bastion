@@ -16,11 +16,17 @@ namespace Managers
         [SerializeField] private int maxCharacters;
         
         public static event Action OnCharactersLoaded;
+        public static event Action OnCharacterManagerInitialized;
 
         private void Awake()
         {
             InitializeCharacterIDs();
             SubscribeToEvents();
+        }
+
+        private void Start()
+        {
+            OnCharacterManagerInitialized?.Invoke();
         }
 
         private void OnDestroy()
@@ -84,10 +90,12 @@ namespace Managers
         #region CharLoadingFromFile
         private void StartCharacterLoading(GameData gameData)
         {
+            Debug.Log($"Characters are being loaded.");
             _gameData = gameData;
             StartCoroutine(LoadCharacters());
             StartCoroutine(InjectCharactersToLocationData());
             StartCoroutine(GenerateOwnersForEmptyLocations());
+            Debug.Log($"Characters loading finished.");
             OnCharactersLoaded?.Invoke();
         }
 

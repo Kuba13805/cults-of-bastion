@@ -10,21 +10,19 @@ namespace Managers
         
         private void Awake()
         {
-            if (Instance != null && Instance != this)
-            {
-                Destroy(this);
-            }
-            else
-            {
-                Instance = this;
-            }
+            Instance = this;
             
             CreateNewInput();
+        }
+        private void OnDestroy()
+        {
+            PlayerInputControls.Disable();
         }
         private void CreateNewInput()
         {
             PlayerInputControls = new PlayerInputControls();
             PlayerInputControls.Enable();
         }
+
     }
 }

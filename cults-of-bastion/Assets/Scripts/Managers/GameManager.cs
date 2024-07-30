@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace Managers
@@ -11,11 +12,17 @@ namespace Managers
         public static event Action<GameData> OnGameDataLoaded; 
 
         private GameData _gameData;
+        private bool _locationManagerReady = false;
+        private bool _characterManagerReady = false;
+
+        private void Awake()
+        {
+            StartCoroutine(PrepareForInitialization());
+        }
 
         private void Start()
         {
             ChangeGameState(GameState.InGameCityMap);
-            InitializeGame();
         }
 
         private void ChangeGameState(GameState state)
@@ -24,6 +31,18 @@ namespace Managers
             OnGameStateChanged?.Invoke(state);
         }
 
+        private IEnumerator PrepareForInitialization()
+        {
+            
+            LocationManager.OnLocationManagerInitialized += () => _locationManagerReady = true;
+            CharacterManager.OnCharacterManagerInitialized += () => _characterManagerReady = true;
+            
+            Debug.Log("Waiting for managers to load.");
+            yield return new WaitUntil(() => _locationManagerReady && _characterManagerReady);
+            Debug.Log("Managers loaded. Start initializing game.");
+            InitializeGame();
+            
+        }
         private void InitializeGame()
         {
             var cityConfig = Resources.Load<TextAsset>("DataToLoad/testLocationData");
