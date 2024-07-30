@@ -23,18 +23,24 @@ namespace PlayerResources
             ResourceChanger.OnInfluenceModification -= ModifyPlayerInfluence;
         }
 
-        private static float ModifyResource(float valueToModify, float valueModifier) => valueToModify + valueModifier;
+        private static float ModifyResource(float valueToModify, float valueModifier)
+        {
+            var newValue = valueToModify + valueModifier;
+            return newValue;
+        }
 
         private void ModifyPlayerMoney(float moneyValue)
         {
-            playerMoney.Value = ModifyResource(playerMoney.Value, moneyValue);
-            OnPlayerMoneyChanged?.Invoke(moneyValue);
+            var newValue = ModifyResource(playerMoney.Value, moneyValue);
+            playerMoney.Value = newValue;
+            OnPlayerMoneyChanged?.Invoke(newValue);
         }
 
         private void ModifyPlayerInfluence(float influenceValue)
         {
-            playerInfluence.Value = ModifyResource(playerInfluence.Value, influenceValue);
-            OnPlayerInfluenceChanged?.Invoke(influenceValue);
+            var newValue = ModifyResource(playerInfluence.Value, influenceValue);
+            playerInfluence.Value = newValue;
+            OnPlayerInfluenceChanged?.Invoke(newValue);
         }
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PlayerResources;
 using UI;
 using Unity.Collections;
 using Unity.Jobs;
@@ -223,9 +224,11 @@ namespace Managers
         private void UpdateInGameTime(float time)
         {
             OnHourChanged?.Invoke(time);
+            ResourceChanger.ModifyMoney(10);
             if (time == 0)
             {
                 OnDayChanged?.Invoke(currentDay, currentMonth, currentYear);
+                ResourceChanger.ModifyInfluence(3.5f);
             }
         }
 

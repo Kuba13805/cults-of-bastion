@@ -15,6 +15,13 @@ namespace UI
         [SerializeField] private TextMeshProUGUI inGameTime;
 
         #endregion
+
+        #region PlayerResourcesVariables
+
+        [SerializeField] private TextMeshProUGUI playerMoney;
+        [SerializeField] private TextMeshProUGUI playerInfluence;
+
+        #endregion
         
         #region Events
 
@@ -69,11 +76,11 @@ namespace UI
 
         private void ModifyPlayerMoney(float amount)
         {
-            
+            playerMoney.text = $"{amount}$";
         }
         private void ModifyPlayerInfluence(float amount)
         {
-            
+            playerInfluence.text = $"{amount}";
         }
 
         #endregion
