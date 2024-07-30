@@ -1,6 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using System.Threading.Tasks;
+using UI;
 using Unity.Collections;
 using Unity.Jobs;
 using UnityEngine;
@@ -32,46 +34,33 @@ namespace Managers
         private float _currentSpeed;
         private Thread _timeThread;
 
+        private readonly object _lock = new object();
+        private SynchronizationContext _mainThreadContext;
+
         #region TimeCycleEvents
 
         public static event Action<float> OnHourChanged;
-        public static event Action OnDayChanged;
+        public static event Action<int, int, int> OnDayChanged;
 
         #endregion
 
         private void Start()
         {
-            _jobCurrentTime = new NativeArray<float>(1, Allocator.Persistent);
-            _jobCurrentDay = new NativeArray<int>(1, Allocator.Persistent);
-            _jobCurrentMonth = new NativeArray<int>(1, Allocator.Persistent);
-            _jobCurrentYear = new NativeArray<int>(1, Allocator.Persistent);
-            _jobHoursInDay = new NativeArray<int>(1, Allocator.Persistent);
-            _jobDaysInMonth = new NativeArray<int>(1, Allocator.Persistent);
-            _jobMonthsInYear = new NativeArray<int>(1, Allocator.Persistent);
+            _mainThreadContext = SynchronizationContext.Current;
 
-            _jobHoursInDay[0] = gameCalendar.hoursInDay;
-            _jobDaysInMonth[0] = gameCalendar.daysInMonth;
-            _jobMonthsInYear[0] = gameCalendar.monthsInYear;
-
+            CreateNewTimeJob();
             SubscribeToEvents();
+            
+            OnDayChanged?.Invoke(currentDay, currentMonth, currentYear);
+            OnHourChanged?.Invoke(currentTime);
         }
 
         private void OnDestroy()
         {
-            _timeCycleJobHandle.Complete();
-            if(_timeThread is { IsAlive: true}) _timeThread.Abort();
-
-            _jobCurrentTime.Dispose();
-            _jobCurrentDay.Dispose();
-            _jobCurrentMonth.Dispose();
-            _jobCurrentYear.Dispose();
-            _jobHoursInDay.Dispose();
-            _jobDaysInMonth.Dispose();
-            _jobMonthsInYear.Dispose();
-
+            DisposeTimeJob();
             UnsubscribeFromEvents();
         }
-
+        
         private void SubscribeToEvents()
         {
             UIController.OnPauseGame += PauseTheGame;
@@ -84,7 +73,6 @@ namespace Managers
                 ResumeTheGameWithHighSpeed;
         }
 
-
         private void UnsubscribeFromEvents()
         {
             UIController.OnPauseGame -= PauseTheGame;
@@ -96,6 +84,45 @@ namespace Managers
             InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed -=
                 ResumeTheGameWithHighSpeed;
         }
+        
+        #region TimeJobSystem
+
+        private void CreateNewTimeJob()
+        {
+            _jobCurrentTime = new NativeArray<float>(1, Allocator.Persistent);
+            _jobCurrentDay = new NativeArray<int>(1, Allocator.Persistent);
+            _jobCurrentMonth = new NativeArray<int>(1, Allocator.Persistent);
+            _jobCurrentYear = new NativeArray<int>(1, Allocator.Persistent);
+            _jobHoursInDay = new NativeArray<int>(1, Allocator.Persistent);
+            _jobDaysInMonth = new NativeArray<int>(1, Allocator.Persistent);
+            _jobMonthsInYear = new NativeArray<int>(1, Allocator.Persistent);
+
+            _jobHoursInDay[0] = gameCalendar.hoursInDay;
+            _jobDaysInMonth[0] = gameCalendar.daysInMonth;
+            _jobMonthsInYear[0] = gameCalendar.monthsInYear;
+            
+            _jobCurrentTime[0] = currentTime;
+            _jobCurrentDay[0] = currentDay;
+            _jobCurrentMonth[0] = currentMonth;
+            _jobCurrentYear[0] = currentYear;
+        }
+
+
+        private void DisposeTimeJob()
+        {
+            _timeCycleJobHandle.Complete();
+            if (_timeThread is { IsAlive: true }) _timeThread.Abort();
+
+            _jobCurrentTime.Dispose();
+            _jobCurrentDay.Dispose();
+            _jobCurrentMonth.Dispose();
+            _jobCurrentYear.Dispose();
+            _jobHoursInDay.Dispose();
+            _jobDaysInMonth.Dispose();
+            _jobMonthsInYear.Dispose();
+        }
+
+        #endregion
 
         #region TimeCycleControls
 
@@ -182,15 +209,23 @@ namespace Managers
             _timeCycleJobHandle = _timeCycleJob.Schedule();
             _timeCycleJobHandle.Complete();
 
-            currentTime = _jobCurrentTime[0];
-            currentDay = _jobCurrentDay[0];
-            currentMonth = _jobCurrentMonth[0];
-            currentYear = _jobCurrentYear[0];
-
-            OnHourChanged?.Invoke(currentTime);
-            if (currentTime == 0)
+            lock (_lock)
             {
-                OnDayChanged?.Invoke();
+                currentTime = _jobCurrentTime[0];
+                currentDay = _jobCurrentDay[0];
+                currentMonth = _jobCurrentMonth[0];
+                currentYear = _jobCurrentYear[0];
+            }
+
+            _mainThreadContext.Post(_ => UpdateInGameTime(currentTime), null);
+        }
+
+        private void UpdateInGameTime(float time)
+        {
+            OnHourChanged?.Invoke(time);
+            if (time == 0)
+            {
+                OnDayChanged?.Invoke(currentDay, currentMonth, currentYear);
             }
         }
 

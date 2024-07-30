@@ -470,9 +470,9 @@ MonoBehaviour:
     daysInMonth: 3
     monthsInYear: 3
   currentTime: 0
-  currentDay: 0
-  currentMonth: 0
-  currentYear: 0
+  currentDay: 1
+  currentMonth: 1
+  currentYear: 1895
   normalSpeed: 1
   highSpeed: 0.5
 --- !u!4 &155481583
@@ -578,6 +578,7 @@ GameObject:
   m_Component:
   - component: {fileID: 495198143}
   - component: {fileID: 495198142}
+  - component: {fileID: 495198144}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -612,6 +613,26 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &495198144
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 495198141}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb9b6b56931f4c4694a6c9901c39489c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerMoney:
+    ResourceName: resource_name
+    ResourceDesc: 
+    Value: 0
+  playerInfluence:
+    ResourceName: resource_name
+    ResourceDesc: 
+    Value: 0
 --- !u!1 &873174724
 GameObject:
   m_ObjectHideFlags: 0
