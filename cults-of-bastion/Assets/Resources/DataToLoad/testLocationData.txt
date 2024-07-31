@@ -1,15 +1,15 @@
 {
   "LocationTypes": [
     {
-      "typeName": "House",
+      "typeName": "location_type_house",
       "typeDescription": "A single house for one or two people."
     },
     {
-      "typeName": "Bakery",
+      "typeName": "location_type_bakery",
       "typeDescription": "Normal bakery."
     },
     {
-      "typeName": "Pharmacy",
+      "typeName": "location_type_pharmacy",
       "typeDescription": "An old pharmacy in the middle of the city."
     }
   ],
@@ -17,27 +17,27 @@
     {
       "locationID": 1,
       "locationName": "Green House",
-      "locationTypeName": "House"
+      "locationTypeName": "location_type_house"
     },
     {
       "locationID": 2,
       "locationName": "Blue Bakery",
-      "locationTypeName": "Bakery"
+      "locationTypeName": "location_type_bakery"
     },
     {
       "locationID": 3,
       "locationName": "Pharmacy",
-      "locationTypeName": "Pharmacy"
+      "locationTypeName": "location_type_pharmacy"
     },
     {
       "locationID": 4,
       "locationName": "Oak St. 54",
-      "locationTypeName": "House"
+      "locationTypeName": "location_type_house"
     },
     {
       "locationID": 5,
       "locationName": "Oak St. 30",
-      "locationTypeName": "Bakery"
+      "locationTypeName": "location_type_bakery"
     }
   ],
   "CharacterConstructors": [

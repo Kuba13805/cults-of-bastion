@@ -4,6 +4,7 @@ namespace PlayerInteractions
     {
         public ActionConditions Condition;
         public float Value;
+        public string StringValue;
         public bool ConditionMet;
     }
 
@@ -11,5 +12,6 @@ namespace PlayerInteractions
     {
         PlayerHasMoneyValue,
         PlayerHasInfluenceValue,
+        TargetLocationType,
     }
 }

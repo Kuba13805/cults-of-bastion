@@ -1,37 +1,115 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Locations;
 using Managers;
 using PlayerInteractions.LocationActions;
 using UnityEngine;
 
 namespace PlayerInteractions
 {
+    [RequireComponent(typeof(ActionConditionVerifier))]
     public class PlayerActionsController : MonoBehaviour
     {
         private ActionsData _actionsData;
+        private ActionConditionVerifier _actionConditionVerifier;
 
-        private Dictionary<string, LocationAction> _locationActionDict = new();
+        private readonly Dictionary<string, LocationAction> _locationActionDict = new();
+
+        #region Events
+
+        public static event Action<List<LocationAction>> OnCreateLocationActionsList; 
+
+        #endregion
         private void Awake()
         {
             SubscribeToEvents();
             LoadActions();
         }
 
+        private void Start()
+        {
+            _actionConditionVerifier = GetComponent<ActionConditionVerifier>();
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromEvents();
+        }
+
         private void SubscribeToEvents()
         {
-            
+            LocationManager.OnPassLocationData += StartActionListCoroutine;
         }
 
         private void UnsubscribeFromEvents()
         {
-            
+            LocationManager.OnPassLocationData -= StartActionListCoroutine;
         }
-        
+
+        #region PlayerActionsHandling
+
+        private void StartActionListCoroutine(LocationData locationData)
+        {
+            StartCoroutine(CreateLocationActionsList(locationData));
+        }
+
+        private IEnumerator CreateLocationActionsList(LocationData locationData)
+        {
+            var possibleActionList = new List<LocationAction>();
+            var tempActionList = _locationActionDict.Values.ToList();
+            foreach (var locationAction in tempActionList)
+            {
+                bool actionPossible = false;
+                yield return StartCoroutine(VerifyAction(locationAction, locationData, result => 
+                {
+                    actionPossible = result;
+                    locationAction.isActionPossible = result;
+                    Debug.Log($"Action {locationAction.actionName} is possible: {result}");
+                }));
+
+                if (locationAction.isActionPossible)
+                {
+                    possibleActionList.Add(locationAction);
+                }
+            }
+            OnCreateLocationActionsList?.Invoke(possibleActionList);
+        }
+
+        private IEnumerator VerifyAction(LocationAction locationAction, LocationData locationData, Action<bool> callback)
+        {
+            bool allConditionsMet = true;
+            foreach (var condition in locationAction.ActionConditions)
+            {
+                bool conditionMet = false;
+                yield return StartCoroutine(VerifyConditionWrapper(condition, locationData, result => conditionMet = result));
+
+                if (!conditionMet)
+                {
+                    allConditionsMet = false;
+                    break;
+                }
+            }
+            callback(allConditionsMet);
+        }
+
+        private IEnumerator VerifyConditionWrapper(ActionCondition condition, LocationData locationData, Action<bool> callback)
+        {
+            bool conditionMet = false;
+            _actionConditionVerifier.Verify(new List<ActionCondition> { condition }, result => conditionMet = result, locationData);
+            yield return new WaitUntil(() => conditionMet == true || conditionMet == false);
+            callback(conditionMet);
+        }
+
+        #endregion
+
+        #region PlayerActionsCreation
+
         private void LoadActions()
         {
             var actionsConfig = Resources.Load<TextAsset>("DataToLoad/testActions");
-            if(actionsConfig == null) return;
+            if (actionsConfig == null) return;
             
             var parsedActionsConfigData = JsonUtility.FromJson<ActionsData>(actionsConfig.text);
             if (parsedActionsConfigData == null)
@@ -89,12 +167,18 @@ namespace PlayerInteractions
                     condition.Condition = ActionConditions.PlayerHasInfluenceValue;
                     condition.Value = int.Parse(parsedConditionDefinition[2]);
                     break;
+                case ActionConditions.TargetLocationType:
+                    condition.Condition = ActionConditions.TargetLocationType;
+                    condition.StringValue = parsedConditionDefinition[2];
+                    break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(actionCondition), actionCondition, null);
             }
-            Debug.Log($"New condition added to action: {condition.Condition} with value: {condition.Value}");
+            Debug.Log($"New condition added to action: {condition.Condition} with value: {condition.Value} - {condition.StringValue}");
             return condition;
         }
+
+        #endregion
     }
 
     public class ActionsData

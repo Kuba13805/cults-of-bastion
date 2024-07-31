@@ -1,6 +1,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using Locations;
+using Managers;
 using PlayerResources;
 using UnityEngine;
 
@@ -8,79 +10,112 @@ namespace PlayerInteractions
 {
     public class ActionConditionVerifier : MonoBehaviour
     {
-        private List<ActionCondition> _conditions;
+        private List<ActionCondition> _conditions = new();
 
         #region Events
 
-        public static event Action<bool> OnActionConditionVerification; 
         public static event Action OnRequestPlayerMoneyValue;
         public static event Action OnRequestPlayerInfluenceValue;
 
         #endregion
 
-        private void Verify(List<ActionCondition> conditions)
+        public void Verify(List<ActionCondition> conditions, Action<bool> callback, params LocationData[] locationData)
         {
-            _conditions = conditions;
-            OnActionConditionVerification?.Invoke(StartVerification());
+            _conditions = new List<ActionCondition>(conditions);
+            StartCoroutine(StartVerificationCoroutine(callback, locationData[0]));
         }
 
-
-        private bool StartVerification()
+        private IEnumerator StartVerificationCoroutine(Action<bool> callback, LocationData locationData)
         {
-            foreach (var condition in _conditions)
+            int falseFlags = 0;
+
+            for (int i = 0; i < _conditions.Count; i++)
             {
-                switch (condition.Condition)
+                bool result = false;
+                yield return StartCoroutine(VerifyCondition(_conditions[i], locationData, isConditionMet => result = isConditionMet));
+                var condition = _conditions[i];
+                condition.ConditionMet = result;
+                _conditions[i] = condition;
+                if (!condition.ConditionMet)
                 {
-                    case ActionConditions.PlayerHasMoneyValue:
-                        StartCoroutine(VerifyPlayerHasMoneyValue(condition));
-                        if(!condition.ConditionMet) return false;
-                        break;
-                    case ActionConditions.PlayerHasInfluenceValue:
-                        StartCoroutine(VerifyPlayerHasInfluenceValue(condition));
-                        if(!condition.ConditionMet) return false;
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
+                    falseFlags++;
                 }
             }
-            return true;
+
+            bool allConditionsMet = falseFlags == 0;
+            callback?.Invoke(allConditionsMet);
+        }
+
+        private IEnumerator VerifyCondition(ActionCondition condition, LocationData locationData, Action<bool> resultCallback)
+        {
+            switch (condition.Condition)
+            {
+                case ActionConditions.PlayerHasMoneyValue:
+                    yield return StartCoroutine(VerifyPlayerHasMoneyValue(condition, resultCallback));
+                    break;
+                case ActionConditions.PlayerHasInfluenceValue:
+                    yield return StartCoroutine(VerifyPlayerHasInfluenceValue(condition, resultCallback));
+                    break;
+                case ActionConditions.TargetLocationType:
+                    yield return StartCoroutine(VerifyLocationType(locationData, condition, resultCallback));
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException();
+            }
         }
 
         #region ActionConditionVerifiers
 
-        private static IEnumerator VerifyPlayerHasMoneyValue(ActionCondition condition)
+        private IEnumerator VerifyPlayerHasMoneyValue(ActionCondition condition, Action<bool> resultCallback)
         {
             var playerMoneyValue = 0f;
             var receivedMoneyValue = false;
 
-            ResourceController.OnPassPlayerMoneyValue += value =>
+            void OnMoneyValueReceived(float value)
             {
                 receivedMoneyValue = true;
                 playerMoneyValue = value;
-            };
-            
+                ResourceController.OnPassPlayerMoneyValue -= OnMoneyValueReceived;
+            }
+
+            ResourceController.OnPassPlayerMoneyValue += OnMoneyValueReceived;
+
             OnRequestPlayerMoneyValue?.Invoke();
-            
             yield return new WaitUntil(() => receivedMoneyValue);
 
-            condition.ConditionMet = playerMoneyValue >= condition.Value;
+            bool conditionMet = playerMoneyValue >= condition.Value;
+
+            resultCallback(conditionMet);
         }
-        private static IEnumerator VerifyPlayerHasInfluenceValue(ActionCondition condition)
+
+        private IEnumerator VerifyPlayerHasInfluenceValue(ActionCondition condition, Action<bool> resultCallback)
         {
             var playerInfluenceValue = 0f;
             var receivedInfluenceValue = false;
 
-            ResourceController.OnPassPlayerInfluenceValue += value =>
+            void OnInfluenceValueReceived(float value)
             {
                 receivedInfluenceValue = true;
                 playerInfluenceValue = value;
-            };
-            
+                ResourceController.OnPassPlayerInfluenceValue -= OnInfluenceValueReceived;
+            }
+
+            ResourceController.OnPassPlayerInfluenceValue += OnInfluenceValueReceived;
+
             OnRequestPlayerInfluenceValue?.Invoke();
-            
             yield return new WaitUntil(() => receivedInfluenceValue);
 
-            condition.ConditionMet = playerInfluenceValue >= condition.Value;
+            bool conditionMet = playerInfluenceValue >= condition.Value;
+
+            resultCallback(conditionMet);
+        }
+
+        private IEnumerator VerifyLocationType(LocationData locationData, ActionCondition condition, Action<bool> resultCallback)
+        {
+            bool conditionMet = condition.StringValue.Equals(locationData.LocationType.typeName);
+
+            resultCallback(conditionMet);
+            yield return null;
         }
 
         #endregion

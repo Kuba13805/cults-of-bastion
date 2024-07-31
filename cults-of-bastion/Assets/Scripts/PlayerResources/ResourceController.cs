@@ -24,6 +24,9 @@ namespace PlayerResources
             ResourceChanger.OnInfluenceModification += ModifyPlayerInfluence;
             ActionConditionVerifier.OnRequestPlayerMoneyValue += PassPlayerMoneyValue;
             ActionConditionVerifier.OnRequestPlayerInfluenceValue += PassPlayerInfluenceValue;
+            
+            OnPassPlayerInfluenceValue?.Invoke(playerInfluence.Value);
+            OnPassPlayerMoneyValue?.Invoke(playerMoney.Value);
         }
 
         private void OnDestroy()

@@ -15,6 +15,24 @@
       "conditions": [
         "PlayerHasInfluenceValue = 15"
       ]
+    },
+    {
+      "name": "buy_bread",
+      "description": "buy_bread_desc",
+      "duration": 2,
+      "conditions": [
+        "PlayerHasMoneyValue = 2",
+        "TargetLocationType = location_type_bakery"
+      ]
+    },
+    {
+      "name": "spread_rumors",
+      "description": "spread_rumors_desc",
+      "duration": 3,
+      "conditions": [
+        "PlayerHasInfluenceValue = 6",
+        "TargetLocationType = location_type_house"
+      ]
     }
   ]
 }
