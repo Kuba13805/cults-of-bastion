@@ -1,0 +1,20 @@
+{
+  "LocationActionConstructors": [
+    {
+      "name": "buy_stuff",
+      "description": "buy_stuff_desc",
+      "duration": 8,
+      "conditions": [
+        "PlayerHasMoneyValue = 10"
+      ]
+    },
+    {
+      "name": "influence_location",
+      "description": "influence_location_desc",
+      "duration": 6,
+      "conditions": [
+        "PlayerHasInfluenceValue = 15"
+      ]
+    }
+  ]
+}

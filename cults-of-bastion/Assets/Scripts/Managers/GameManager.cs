@@ -12,8 +12,8 @@ namespace Managers
         public static event Action<GameData> OnGameDataLoaded; 
 
         private GameData _gameData;
-        private bool _locationManagerReady = false;
-        private bool _characterManagerReady = false;
+        private bool _locationManagerReady;
+        private bool _characterManagerReady;
 
         private void Awake()
         {

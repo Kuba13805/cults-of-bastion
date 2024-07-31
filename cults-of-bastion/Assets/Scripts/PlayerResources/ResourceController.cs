@@ -1,4 +1,5 @@
 using System;
+using PlayerInteractions;
 using UnityEngine;
 
 namespace PlayerResources
@@ -8,20 +9,32 @@ namespace PlayerResources
         public ResourceMoney playerMoney;
         public ResourceInfluence playerInfluence;
 
+        #region MyRegion
+
         public static event Action<float> OnPlayerMoneyChanged;
         public static event Action<float> OnPlayerInfluenceChanged;
+        public static event Action<float> OnPassPlayerMoneyValue;
+        public static event Action<float> OnPassPlayerInfluenceValue;
+
+        #endregion
 
         private void Start()
         {
             ResourceChanger.OnMoneyModification += ModifyPlayerMoney;
             ResourceChanger.OnInfluenceModification += ModifyPlayerInfluence;
+            ActionConditionVerifier.OnRequestPlayerMoneyValue += PassPlayerMoneyValue;
+            ActionConditionVerifier.OnRequestPlayerInfluenceValue += PassPlayerInfluenceValue;
         }
 
         private void OnDestroy()
         {
             ResourceChanger.OnMoneyModification -= ModifyPlayerMoney;
             ResourceChanger.OnInfluenceModification -= ModifyPlayerInfluence;
+            ActionConditionVerifier.OnRequestPlayerMoneyValue -= PassPlayerMoneyValue;
+            ActionConditionVerifier.OnRequestPlayerInfluenceValue -= PassPlayerInfluenceValue;
         }
+
+
 
         private static float ModifyResource(float valueToModify, float valueModifier)
         {
@@ -42,5 +55,18 @@ namespace PlayerResources
             playerInfluence.Value = newValue;
             OnPlayerInfluenceChanged?.Invoke(newValue);
         }
+
+        #region ConditionsHandling
+
+        private void PassPlayerMoneyValue()
+        {
+            OnPassPlayerMoneyValue?.Invoke(playerMoney.Value);
+        }
+        private void PassPlayerInfluenceValue()
+        {
+            OnPassPlayerInfluenceValue?.Invoke(playerInfluence.Value);
+        }
+
+        #endregion
     }
 }
