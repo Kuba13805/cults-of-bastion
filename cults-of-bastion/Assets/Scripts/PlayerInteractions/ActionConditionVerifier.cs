@@ -2,7 +2,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using Locations;
-using Managers;
 using PlayerResources;
 using UnityEngine;
 
@@ -19,20 +18,20 @@ namespace PlayerInteractions
 
         #endregion
 
-        public void Verify(List<ActionCondition> conditions, Action<bool> callback, params LocationData[] locationData)
+        public void Verify(IEnumerable<ActionCondition> conditions, Action<bool> callback, params LocationData[] locationData)
         {
             _conditions = new List<ActionCondition>(conditions);
             StartCoroutine(StartVerificationCoroutine(callback, locationData[0]));
         }
 
-        private IEnumerator StartVerificationCoroutine(Action<bool> callback, LocationData locationData)
+        private IEnumerator StartVerificationCoroutine(Action<bool> callback, params LocationData[] locationData)
         {
             int falseFlags = 0;
 
             for (int i = 0; i < _conditions.Count; i++)
             {
                 bool result = false;
-                yield return StartCoroutine(VerifyCondition(_conditions[i], locationData, isConditionMet => result = isConditionMet));
+                yield return StartCoroutine(VerifyCondition(_conditions[i], isConditionMet => result = isConditionMet, locationData[0]));
                 var condition = _conditions[i];
                 condition.ConditionMet = result;
                 _conditions[i] = condition;
@@ -46,7 +45,7 @@ namespace PlayerInteractions
             callback?.Invoke(allConditionsMet);
         }
 
-        private IEnumerator VerifyCondition(ActionCondition condition, LocationData locationData, Action<bool> resultCallback)
+        private IEnumerator VerifyCondition(ActionCondition condition, Action<bool> resultCallback, params LocationData[] locationData)
         {
             switch (condition.Condition)
             {
@@ -57,7 +56,7 @@ namespace PlayerInteractions
                     yield return StartCoroutine(VerifyPlayerHasInfluenceValue(condition, resultCallback));
                     break;
                 case ActionConditions.TargetLocationType:
-                    yield return StartCoroutine(VerifyLocationType(locationData, condition, resultCallback));
+                    yield return StartCoroutine(VerifyLocationType(locationData[0], condition, resultCallback));
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();

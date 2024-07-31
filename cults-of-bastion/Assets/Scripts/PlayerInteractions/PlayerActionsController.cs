@@ -5,6 +5,7 @@ using System.Linq;
 using Locations;
 using Managers;
 using PlayerInteractions.LocationActions;
+using UI;
 using UnityEngine;
 
 namespace PlayerInteractions
@@ -19,7 +20,8 @@ namespace PlayerInteractions
 
         #region Events
 
-        public static event Action<List<LocationAction>> OnCreateLocationActionsList; 
+        public static event Action<List<string>> OnPassPossiblePlayerActions;
+        public static event Action<List<BaseAction>> OnPassAllPlayerActions; 
 
         #endregion
         private void Awake()
@@ -41,49 +43,49 @@ namespace PlayerInteractions
         private void SubscribeToEvents()
         {
             LocationManager.OnPassLocationData += StartActionListCoroutine;
+            UIController.OnRequestAllPlayerActions += PassAllPlayerActions;
         }
+
 
         private void UnsubscribeFromEvents()
         {
             LocationManager.OnPassLocationData -= StartActionListCoroutine;
+            UIController.OnRequestAllPlayerActions -= PassAllPlayerActions;
         }
 
         #region PlayerActionsHandling
+        private void PassAllPlayerActions() => OnPassAllPlayerActions?.Invoke(new List<BaseAction>(_locationActionDict.Values.ToList()));
 
-        private void StartActionListCoroutine(LocationData locationData)
-        {
-            StartCoroutine(CreateLocationActionsList(locationData));
-        }
+        private void StartActionListCoroutine(LocationData locationData) => StartCoroutine(CreateLocationActionsList(locationData));
 
-        private IEnumerator CreateLocationActionsList(LocationData locationData)
+        private IEnumerator CreateLocationActionsList(params LocationData[] locationData)
         {
-            var possibleActionList = new List<LocationAction>();
+            var possibleActionList = new List<string>();
             var tempActionList = _locationActionDict.Values.ToList();
             foreach (var locationAction in tempActionList)
             {
-                bool actionPossible = false;
-                yield return StartCoroutine(VerifyAction(locationAction, locationData, result => 
+                yield return StartCoroutine(VerifyAction(locationAction, result => 
                 {
-                    actionPossible = result;
+                    _ = result;
                     locationAction.isActionPossible = result;
                     Debug.Log($"Action {locationAction.actionName} is possible: {result}");
-                }));
+                }, locationData[0]));
 
                 if (locationAction.isActionPossible)
                 {
-                    possibleActionList.Add(locationAction);
+                    possibleActionList.Add(locationAction.actionName);
                 }
             }
-            OnCreateLocationActionsList?.Invoke(possibleActionList);
+            OnPassPossiblePlayerActions?.Invoke(possibleActionList);
         }
 
-        private IEnumerator VerifyAction(LocationAction locationAction, LocationData locationData, Action<bool> callback)
+        private IEnumerator VerifyAction(BaseAction locationAction, Action<bool> callback, params LocationData[] locationData)
         {
             bool allConditionsMet = true;
             foreach (var condition in locationAction.ActionConditions)
             {
                 bool conditionMet = false;
-                yield return StartCoroutine(VerifyConditionWrapper(condition, locationData, result => conditionMet = result));
+                yield return StartCoroutine(VerifyConditionWrapper(condition, locationData[0], result => conditionMet = result));
 
                 if (!conditionMet)
                 {
@@ -136,7 +138,7 @@ namespace PlayerInteractions
                     actionDescription = locationAction.description,
                 };
 
-                foreach (var newCondition in locationAction.conditions.Select(definedCondition => CreateActionCondition(definedCondition)))
+                foreach (var newCondition in locationAction.conditions.Select(CreateActionCondition))
                 {
                     newAction.ActionConditions.Add(newCondition);
                 }

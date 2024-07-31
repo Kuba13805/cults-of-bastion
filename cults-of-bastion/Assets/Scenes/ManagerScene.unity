@@ -127,10 +127,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 14717222}
-  - component: {fileID: 14717221}
   - component: {fileID: 14717223}
+  - component: {fileID: 14717221}
   m_Layer: 0
-  m_Name: PlayerActionControllerAndVerifier
+  m_Name: PlayerActionController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -685,7 +685,7 @@ MonoBehaviour:
   playerMoney:
     ResourceName: resource_name
     ResourceDesc: 
-    Value: 0
+    Value: 10
   playerInfluence:
     ResourceName: resource_name
     ResourceDesc: 

@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
 using Managers;
+using PlayerInteractions;
+using PlayerInteractions.LocationActions;
 using PlayerResources;
 using TMPro;
 using UnityEngine;
@@ -23,11 +26,15 @@ namespace UI
 
         #endregion
         
+        
         #region Events
 
         public static event Action OnPauseGame;
         public static event Action OnResumeGameWithNormalSpeed;
         public static event Action OnResumeGameWithHighSpeed;
+        
+        public static event Action OnRequestAllPlayerActions;
+        public static event Action<List<BaseAction>> OnPassAllPlayerActions;
 
         #endregion
 
@@ -45,6 +52,8 @@ namespace UI
             ResourceController.OnPlayerInfluenceChanged += ModifyPlayerInfluence;
             TimeManager.OnDayChanged += UpdateInGameDate;
             TimeManager.OnHourChanged += UpdateInGameTime;
+            PlayerInteractionsPanel.OnGetAllPlayerActions += RequestAllPlayerActions;
+            PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
         }
         private void UnsubscribeFromEvents()
         {
@@ -52,6 +61,8 @@ namespace UI
             ResourceController.OnPlayerInfluenceChanged -= ModifyPlayerInfluence;
             TimeManager.OnDayChanged -= UpdateInGameDate;
             TimeManager.OnHourChanged -= UpdateInGameTime;
+            PlayerInteractionsPanel.OnGetAllPlayerActions -= RequestAllPlayerActions;
+            PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
         }
 
         #region GameSpeedChanges
@@ -95,6 +106,13 @@ namespace UI
         {
             inGameDate.text = $"{day}/{month}/{year}";
         }
+
+        #endregion
+
+        #region PlayerActions
+
+        private static void RequestAllPlayerActions() => OnRequestAllPlayerActions?.Invoke();
+        private static void PassAllPlayerActions(List<BaseAction> baseActions) => OnPassAllPlayerActions?.Invoke(baseActions);
 
         #endregion
     }
