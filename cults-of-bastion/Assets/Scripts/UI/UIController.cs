@@ -5,6 +5,7 @@ using PlayerInteractions;
 using PlayerInteractions.LocationActions;
 using PlayerResources;
 using TMPro;
+using UI.PlayerInteractions;
 using UnityEngine;
 using UnityEngine.Serialization;
 
@@ -52,7 +53,7 @@ namespace UI
             ResourceController.OnPlayerInfluenceChanged += ModifyPlayerInfluence;
             TimeManager.OnDayChanged += UpdateInGameDate;
             TimeManager.OnHourChanged += UpdateInGameTime;
-            PlayerInteractionsPanel.OnGetAllPlayerActions += RequestAllPlayerActions;
+            PlayerInteractionsContentController.OnGetAllPlayerActions += RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
         }
         private void UnsubscribeFromEvents()
@@ -61,7 +62,7 @@ namespace UI
             ResourceController.OnPlayerInfluenceChanged -= ModifyPlayerInfluence;
             TimeManager.OnDayChanged -= UpdateInGameDate;
             TimeManager.OnHourChanged -= UpdateInGameTime;
-            PlayerInteractionsPanel.OnGetAllPlayerActions -= RequestAllPlayerActions;
+            PlayerInteractionsContentController.OnGetAllPlayerActions -= RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
         }
 
