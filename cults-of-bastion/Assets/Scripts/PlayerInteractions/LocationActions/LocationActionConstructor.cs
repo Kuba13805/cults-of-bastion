@@ -8,6 +8,9 @@ namespace PlayerInteractions.LocationActions
         public string name;
         public string description;
         public int duration;
+        public List<string> actionTypes;
         public List<string> conditions;
+        public List<string> effects;
+        public List<string> costs;
     }
 }

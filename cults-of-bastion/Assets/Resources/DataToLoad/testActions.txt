@@ -4,34 +4,93 @@
       "name": "buy_stuff",
       "description": "buy_stuff_desc",
       "duration": 8,
+      "actionTypes": [
+        "Personal",
+        "Immediate"
+      ],
       "conditions": [
         "PlayerHasMoneyValue = 10"
+      ],
+      "costs": [
+        "RemoveMoney = 10"
+      ],
+      "effects": [
+        "AddInfluence = 2"
       ]
     },
     {
       "name": "influence_location",
       "description": "influence_location_desc",
       "duration": 6,
+      "actionTypes": [
+         "Organization",
+         "TimeBasedNonLimited"
+      ],
       "conditions": [
         "PlayerHasInfluenceValue = 15"
+      ],
+      "costs": [
+         "RemoveInfluence = 4"
+      ],
+      "effects": [
+         "AddInfluence = 2",
+         "AddMoney = 4"
       ]
     },
     {
       "name": "buy_bread",
       "description": "buy_bread_desc",
-      "duration": 2,
+      "actionTypes": [
+        "Personal",
+        "Immediate"
+      ],
       "conditions": [
         "PlayerHasMoneyValue = 2",
         "TargetLocationType = location_type_bakery"
+      ],
+      "costs": [
+         "RemoveMoney = 2"
       ]
     },
     {
       "name": "spread_rumors",
       "description": "spread_rumors_desc",
       "duration": 3,
+      "actionTypes": [
+        "Organization",
+        "TimeBased"
+      ],
       "conditions": [
         "PlayerHasInfluenceValue = 6",
         "TargetLocationType = location_type_house"
+      ],
+      "costs": [
+        "RemoveInfluence = 6"
+      ],
+      "effects": [
+         "AddMoney = 6"
+      ]
+    },
+    {
+      "name": "get_money",
+      "description": "get_money_desc",
+      "actionTypes": [
+        "Personal",
+        "Immediate"
+      ],
+      "effects": [
+        "AddMoney = 6"
+      ]
+    },
+    {
+      "name": "get_influence",
+      "description": "get_influence_desc",
+      "actionTypes": [
+        "Personal",
+        "Immediate"
+      ],
+      "effects": [
+        "AddInfluence = 3"
       ]
     }
   ]

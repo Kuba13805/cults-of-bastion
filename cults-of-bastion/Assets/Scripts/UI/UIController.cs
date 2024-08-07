@@ -2,12 +2,10 @@ using System;
 using System.Collections.Generic;
 using Managers;
 using PlayerInteractions;
-using PlayerInteractions.LocationActions;
 using PlayerResources;
 using TMPro;
 using UI.PlayerInteractions;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UI
 {
@@ -36,6 +34,7 @@ namespace UI
         
         public static event Action OnRequestAllPlayerActions;
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
+        public static event Action<string> OnInvokeActionExecution; 
 
         #endregion
 
@@ -65,6 +64,7 @@ namespace UI
             PlayerInteractionsContentController.OnGetAllPlayerActions -= RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
         }
+        
 
         #region GameSpeedChanges
 

@@ -150,6 +150,7 @@ GameObject:
   - component: {fileID: 369881417078204102}
   - component: {fileID: 6675731626600095329}
   - component: {fileID: 7982858688712332391}
+  - component: {fileID: -4903283476808080490}
   m_Layer: 5
   m_Name: ActionButton
   m_TagString: Untagged
@@ -258,4 +259,29 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 6675731626600095329}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: -4903283476808080490}
+        m_TargetAssemblyTypeName: UI.PlayerInteractions.PlayerInteractionButton,
+          Assembly-CSharp
+        m_MethodName: InvokeAction
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &-4903283476808080490
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5699333977624576793}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bce0a99eea6c407191b73ea16dd29391, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 

@@ -4,5 +4,6 @@ namespace PlayerInteractions
     {
         public void Execute();
         public void Cancel();
+        public void StopExecuting();
     }
 }

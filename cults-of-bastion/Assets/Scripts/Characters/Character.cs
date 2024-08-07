@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Locations;
+using PlayerInteractions;
 
 namespace Characters
 {
@@ -12,6 +13,7 @@ namespace Characters
       public string characterNickname;
       public int characterAge;
       public CharacterGender characterGender;
+      public BaseAction CurrentAction;
       public List<LocationData> characterOwnedLocations = new();
       
       public CharacterStats CharacterStats = new();

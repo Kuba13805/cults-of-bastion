@@ -20,16 +20,24 @@ namespace UI.PlayerInteractions
         [SerializeField] private float yOffset;
     
         public static event Action OnGetAllPlayerActions;
+        public static event Action<string> OnInvokeActionExecution; 
 
         private void Start()
         {
             StartCoroutine(GetAllPlayerActions());
             PlayerActionsController.OnPassPossiblePlayerActions += ActivateLocationActionButtons;
+            PlayerInteractionButton.OnActionInvoked += InvokeActionExecution;
         }
 
         private void OnDestroy()
         {
             PlayerActionsController.OnPassPossiblePlayerActions -= ActivateLocationActionButtons;
+            PlayerInteractionButton.OnActionInvoked -= InvokeActionExecution;
+        }
+        private void InvokeActionExecution(string actionName)
+        {
+            ToggleActionPanel();
+            OnInvokeActionExecution?.Invoke(actionName);
         }
     
         private void InstantiateActionButtons()
@@ -42,7 +50,7 @@ namespace UI.PlayerInteractions
         private void InstantiateActionButton(BaseAction action)
         {
             var newButton = Instantiate(actionButtonPrefab, actionButtonParent);
-            newButton.GetComponentInChildren<TextMeshProUGUI>().text = action.actionName;
+            newButton.GetComponent<PlayerInteractionButton>().InitializeInteractionButton(action.actionName);
         
             _actionButtonList.Add(action.actionName, newButton.gameObject);
         }

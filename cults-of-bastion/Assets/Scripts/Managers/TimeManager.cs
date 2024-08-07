@@ -35,13 +35,16 @@ namespace Managers
         private float _currentSpeed;
         private Thread _timeThread;
 
-        private readonly object _lock = new object();
+        private readonly object _lock = new();
         private SynchronizationContext _mainThreadContext;
+
+        private int _passedDays;
 
         #region TimeCycleEvents
 
         public static event Action<float> OnHourChanged;
         public static event Action<int, int, int> OnDayChanged;
+        public static event Action OnWeekCycle;
 
         #endregion
 
@@ -227,7 +230,12 @@ namespace Managers
             if (time == 0)
             {
                 OnDayChanged?.Invoke(currentDay, currentMonth, currentYear);
+                _passedDays += 1;
             }
+
+            if (_passedDays != 7) return;
+            OnWeekCycle?.Invoke();
+            _passedDays = 0;
         }
 
         private struct TimeCycleJob : IJob
