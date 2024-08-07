@@ -89,13 +89,13 @@ namespace PlayerInteractions
             OnPassPossiblePlayerActions?.Invoke(possibleActionList);
         }
 
-        private IEnumerator VerifyAction(BaseAction locationAction, Action<bool> callback, params LocationData[] locationData)
+        private IEnumerator VerifyAction(BaseAction locationAction, Action<bool> callback, params object[] targetObjects)
         {
             bool allConditionsMet = true;
             foreach (var condition in locationAction.ActionConditions)
             {
                 bool conditionMet = false;
-                yield return StartCoroutine(VerifyConditionWrapper(condition, locationData[0], result => conditionMet = result));
+                yield return StartCoroutine(VerifyConditionWrapper(condition, targetObjects[0], result => conditionMet = result));
 
                 if (!conditionMet)
                 {
@@ -106,10 +106,10 @@ namespace PlayerInteractions
             callback(allConditionsMet);
         }
 
-        private IEnumerator VerifyConditionWrapper(ActionCondition condition, LocationData locationData, Action<bool> callback)
+        private IEnumerator VerifyConditionWrapper(ActionCondition condition, object targetObject, Action<bool> callback)
         {
             bool conditionMet = false;
-            _actionConditionVerifier.Verify(new List<ActionCondition> { condition }, result => conditionMet = result, locationData);
+            _actionConditionVerifier.Verify(new List<ActionCondition> { condition }, result => conditionMet = result, targetObject);
             yield return new WaitUntil(() => conditionMet == true || conditionMet == false);
             callback(conditionMet);
         }
@@ -356,7 +356,6 @@ namespace PlayerInteractions
                 
                 ApplyActionEffects(timeBasedAction);
                 timeBasedAction.actionInvoker.CurrentAction = null;
-                Debug.Log($"Action completed: {timeBasedAction.actionName}.");
                 tempActionList.Add(timeBasedAction);
             }
             foreach (var action in tempActionList)
@@ -500,6 +499,6 @@ namespace PlayerInteractions
 
     public class ActionsData
     {
-        public List<LocationActionConstructor> LocationActionConstructors = new();
+        public List<ActionConstructor> LocationActionConstructors = new();
     }
 }

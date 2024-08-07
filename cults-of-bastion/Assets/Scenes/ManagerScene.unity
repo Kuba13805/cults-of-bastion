@@ -685,7 +685,7 @@ MonoBehaviour:
   playerMoney:
     ResourceName: resource_name
     ResourceDesc: 
-    Value: 10
+    Value: 0
   playerInfluence:
     ResourceName: resource_name
     ResourceDesc: 

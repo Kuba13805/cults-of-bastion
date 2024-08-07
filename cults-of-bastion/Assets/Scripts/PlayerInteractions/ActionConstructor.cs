@@ -1,9 +1,9 @@
 using System.Collections.Generic;
 
-namespace PlayerInteractions.LocationActions
+namespace PlayerInteractions
 {
     [System.Serializable]
-    public struct LocationActionConstructor
+    public struct ActionConstructor
     {
         public string name;
         public string description;
