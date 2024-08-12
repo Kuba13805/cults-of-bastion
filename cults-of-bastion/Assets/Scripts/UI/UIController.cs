@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using Locations;
 using Managers;
 using PlayerInteractions;
 using PlayerResources;
@@ -34,7 +35,8 @@ namespace UI
         
         public static event Action OnRequestAllPlayerActions;
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
-        public static event Action<string> OnInvokeActionExecution; 
+        public static event Action<string> OnInvokeActionExecution;
+        public static event Action<LocationData> OnLocationSelection; 
 
         #endregion
 
@@ -54,6 +56,7 @@ namespace UI
             TimeManager.OnHourChanged += UpdateInGameTime;
             PlayerInteractionsContentController.OnGetAllPlayerActions += RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
+            LocationManager.OnPassLocationDataOnSelection += PassLocationDataOnSelection;
         }
         private void UnsubscribeFromEvents()
         {
@@ -63,8 +66,9 @@ namespace UI
             TimeManager.OnHourChanged -= UpdateInGameTime;
             PlayerInteractionsContentController.OnGetAllPlayerActions -= RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
+            LocationManager.OnPassLocationDataOnSelection -= PassLocationDataOnSelection;
         }
-        
+
 
         #region GameSpeedChanges
 
@@ -114,6 +118,11 @@ namespace UI
 
         private static void RequestAllPlayerActions() => OnRequestAllPlayerActions?.Invoke();
         private static void PassAllPlayerActions(List<BaseAction> baseActions) => OnPassAllPlayerActions?.Invoke(baseActions);
+
+        #endregion
+
+        #region InspectorDataPassing
+        private static void PassLocationDataOnSelection(LocationData locationData) => OnLocationSelection?.Invoke(locationData);
 
         #endregion
     }

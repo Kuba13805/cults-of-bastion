@@ -47,7 +47,7 @@ namespace PlayerInteractions
 
         private void SubscribeToEvents()
         {
-            LocationManager.OnPassLocationData += StartActionListCoroutine;
+            LocationManager.OnPassLocationDataOnInteraction += StartActionListCoroutine;
             UIController.OnRequestAllPlayerActions += PassAllPlayerActions;
             PlayerInteractionsContentController.OnInvokeActionExecution += InitializeActionCreation;
         }
@@ -55,7 +55,7 @@ namespace PlayerInteractions
 
         private void UnsubscribeFromEvents()
         {
-            LocationManager.OnPassLocationData -= StartActionListCoroutine;
+            LocationManager.OnPassLocationDataOnInteraction -= StartActionListCoroutine;
             UIController.OnRequestAllPlayerActions -= PassAllPlayerActions;
             TimeManager.OnHourChanged -= DecreaseActionsDuration;
             TimeManager.OnWeekCycle -= ExecuteTimeBasedNonLimitedActions;

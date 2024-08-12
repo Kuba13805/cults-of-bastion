@@ -16,7 +16,8 @@ namespace Managers
         private bool _isCharacterDataLoaded;
         
         public static event Action OnLocationManagerInitialized;
-        public static event Action<LocationData> OnPassLocationData; 
+        public static event Action<LocationData> OnPassLocationDataOnInteraction;
+        public static event Action<LocationData> OnPassLocationDataOnSelection; 
 
         private void Awake()
         {
@@ -37,7 +38,8 @@ namespace Managers
             Location.OnRegisterEmptyLocation += RegisterNewEmptyLocation;
             GameManager.OnGameDataLoaded += StartLocationLoading;
             CharacterManager.OnCharactersLoaded += AllowDataInjection;
-            Location.OnInteractWithLocation += PassLocationData;
+            Location.OnInteractWithLocation += PassLocationDataOnInteraction;
+            Location.OnSelectLocation += PassLocationDataOnSelection;
         }
 
         private void UnsubscribeFromEvents()
@@ -45,7 +47,8 @@ namespace Managers
             Location.OnRegisterEmptyLocation -= RegisterNewEmptyLocation;
             GameManager.OnGameDataLoaded -= StartLocationLoading;
             CharacterManager.OnCharactersLoaded -= AllowDataInjection;
-            Location.OnInteractWithLocation -= PassLocationData;
+            Location.OnInteractWithLocation -= PassLocationDataOnInteraction;
+            Location.OnSelectLocation -= PassLocationDataOnSelection;
         }
 
         #region LocationDataInjection
@@ -136,7 +139,9 @@ namespace Managers
 
         #region LocationActionsHandling
 
-        private static void PassLocationData(LocationData locationData) => OnPassLocationData?.Invoke(locationData);
+        private static void PassLocationDataOnInteraction(LocationData locationData) => OnPassLocationDataOnInteraction?.Invoke(locationData);
+        
+        private static void PassLocationDataOnSelection(LocationData locationData) => OnPassLocationDataOnSelection?.Invoke(locationData);
 
         #endregion
     }
