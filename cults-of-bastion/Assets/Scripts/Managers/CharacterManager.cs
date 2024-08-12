@@ -145,6 +145,7 @@ namespace Managers
             foreach (var location in _gameData.Locations.Where(location => location.LocationOwner == null))
             {
                 location.LocationOwner = GenerateCharacterForLocation();
+                location.LocationOwner.characterOwnedLocations.Add(location);
                 Debug.Log($"Character {location.LocationOwner.characterName} {location.LocationOwner.characterSurname} added to {location.locationName}");
             }
             yield return null;

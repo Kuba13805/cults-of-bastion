@@ -81,9 +81,9 @@ namespace UI.PlayerInspector
 
         private void ClearOwnedLocations()
         {
-            for (int i = 0; i < locationBoxParent.GetComponentsInChildren<Transform>().Length; i++)
+            for (int i = 0; i < locationBoxParent.GetComponentsInChildren<CharacterOwnedLocationButton>().Length; i++)
             {
-                Destroy(locationBoxParent.GetComponentsInChildren<Transform>()[i].gameObject);
+                Destroy(locationBoxParent.GetComponentsInChildren<CharacterOwnedLocationButton>()[i].gameObject);
             }
         }
     }

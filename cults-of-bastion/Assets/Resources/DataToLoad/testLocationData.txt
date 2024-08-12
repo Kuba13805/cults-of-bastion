@@ -44,7 +44,7 @@
     {
       "name": "Anthony",
       "gender": "Male",
-      "ownLocationIds": [1]
+      "ownLocationIds": [1, 3]
     },
     {
       "name": "Sara",
