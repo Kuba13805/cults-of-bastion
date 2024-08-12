@@ -27,11 +27,13 @@ namespace UI.PlayerInspector
         {
             UIController.OnLocationSelection += ShowSelectedLocation;
             LocationInspector.OnInvokeLocationOwnerInspector += ShowSelectedCharacter;
+            CharacterOwnedLocationButton.OnInvokeLocationInspector += ShowSelectedLocation;
         }
         private void UnsubscribeFromEvents()
         {
             UIController.OnLocationSelection -= ShowSelectedLocation;
             LocationInspector.OnInvokeLocationOwnerInspector -= ShowSelectedCharacter;
+            CharacterOwnedLocationButton.OnInvokeLocationInspector -= ShowSelectedLocation;
         }
         public void ToggleInspector()
         {
