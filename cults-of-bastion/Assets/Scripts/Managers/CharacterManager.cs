@@ -54,6 +54,7 @@ namespace Managers
         private void AddNewCharacter(Character character)
         {
             character.characterID = GetNewCharacterID();
+            if(character.characterID <= 0) return;
             _gameData.Characters.Add(character);
             Debug.Log($"Character {character.characterName} {character.characterSurname} vel {character.characterNickname} at {character.characterAge} " +
                       $"added with id {character.characterID}. {character.CharacterStats.Strength.Name}: {character.CharacterStats.Strength.Value} - {character.CharacterStats.Strength.Desc}");
@@ -103,7 +104,6 @@ namespace Managers
         {
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
-                if(characterConstructor.ownLocationIds.Count == 0) continue;
                 var character = new Character
                 {
                     characterName = characterConstructor.name,
@@ -114,6 +114,7 @@ namespace Managers
                     characterAge = characterConstructor.age,
                     characterID = GetNewCharacterID(),
                 };
+                if(character.characterID <= 0) continue;
 
                 foreach (var locationData in characterConstructor.ownLocationIds.SelectMany(t => _gameData.Locations.Where(locationData => locationData.locationID == t)))
                 {

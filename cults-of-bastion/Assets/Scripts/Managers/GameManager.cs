@@ -59,7 +59,11 @@ namespace Managers
             {
                 LocationTypes = parsedCityConfigData.LocationTypes,
                 Locations = parsedCityConfigData.Locations,
-                CharacterConstructors = parsedCityConfigData.CharacterConstructors
+                CharacterConstructors = parsedCityConfigData.CharacterConstructors,
+                Organizations = parsedCityConfigData.Organizations,
+                PlayerCharacter = parsedCityConfigData.PlayerCharacter,
+                PlayerOrganization = parsedCityConfigData.PlayerOrganization
+                
             };
             OnGameDataLoaded?.Invoke(_gameData);
         }
