@@ -766,13 +766,15 @@ MonoBehaviour:
   playerOrganization:
     organizationID: 0
     organizationName: 
+    organizationDescription: 
     organizationMembers: []
     organizationType:
       typeName: 
       typeDescription: 
-  allOrganizations: []
-  organizationTypes: []
-  maxOrganizations: 0
+  maxOrganizations: 6
+  references:
+    version: 2
+    RefIds: []
 --- !u!4 &1991412160
 Transform:
   m_ObjectHideFlags: 0

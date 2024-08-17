@@ -44,12 +44,14 @@
     {
       "name": "Anthony",
       "gender": "Male",
-      "ownLocationIds": [1, 3]
+      "ownLocationIds": [1, 3],
+      "organizationId": 1
     },
     {
       "name": "Sara",
       "gender": "Female",
-      "ownLocationIds": [2]
+      "ownLocationIds": [2],
+      "organizationId": 3
     }
   ],
   "OrganizationConstructors": [

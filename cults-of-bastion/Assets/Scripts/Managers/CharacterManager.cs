@@ -17,6 +17,7 @@ namespace Managers
         
         public static event Action OnCharactersLoaded;
         public static event Action OnCharacterManagerInitialized;
+        public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization; 
 
         private void Awake()
         {
@@ -102,6 +103,13 @@ namespace Managers
 
         private IEnumerator LoadCharacters()
         {
+            var organizationsLoadingFinished = false;
+            
+            Action onOrganizationsLoadingFinished = () => organizationsLoadingFinished = true;
+            OrganizationManager.OnOrganizationLoadingFinished += onOrganizationsLoadingFinished;
+            
+
+            yield return new WaitUntil(() => organizationsLoadingFinished);
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
                 if(_characterIDsAvailable.Count == 0) continue;
@@ -120,13 +128,30 @@ namespace Managers
                 {
                     character.characterOwnedLocations.Add(locationData);
                 }
-            
+
+                if (characterConstructor.organizationId > 0)
+                {
+                    StartCoroutine(AssignCharacterToOrganization(character, characterConstructor.organizationId));
+                }
+                
                 _gameData.Characters.Add(character);
                 Debug.Log($"Loaded {character.characterGender} character: {character.characterName}, id: {character.characterID} " +
                           $"with {character.characterOwnedLocations.Count} owned locations. {character.CharacterStats.Strength.Desc}: {character.CharacterStats.Strength.Value}");
             }
-
+            OrganizationManager.OnOrganizationLoadingFinished -= onOrganizationsLoadingFinished;
             yield return null;
+        }
+
+        private IEnumerator AssignCharacterToOrganization(Character character, int organizationID)
+        {
+            var isCharacterAssigned = false;
+            
+            Action onMemberAdded = () => isCharacterAssigned = true;
+            OrganizationManager.OnOrganizationMemberAdded += onMemberAdded;
+                
+            OnRequestCharacterAssigmentToOrganization?.Invoke(character, organizationID);
+            yield return new WaitUntil(() => isCharacterAssigned);
+            OrganizationManager.OnOrganizationMemberAdded -= onMemberAdded;
         }
         
         private IEnumerator InjectCharactersToLocationData()

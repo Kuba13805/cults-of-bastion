@@ -12,5 +12,6 @@ namespace Characters
         public int age;
         public string gender;
         public List<int> ownLocationIds;
+        public int organizationId;
     }
 }

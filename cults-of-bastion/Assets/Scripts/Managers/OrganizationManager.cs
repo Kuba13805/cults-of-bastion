@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Characters;
 using Organizations;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +23,8 @@ namespace Managers
         [SerializeField] private int maxOrganizations;
         
         public static event Action OnOrganizationManagerInitialized;
+        public static event Action OnOrganizationMemberAdded;
+        public static event Action OnOrganizationLoadingFinished;
 
         private void Awake()
         {
@@ -42,10 +45,12 @@ namespace Managers
         private void SubscribeToEvents()
         {
             GameManager.OnGameDataLoaded += StartOrganizationLoading;
+            CharacterManager.OnRequestCharacterAssigmentToOrganization += AssignCharacterToOrganization;
         }
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataLoaded -= StartOrganizationLoading;
+            CharacterManager.OnRequestCharacterAssigmentToOrganization -= AssignCharacterToOrganization;
         }
 
         private void InitializeOrganizationIDs()
@@ -94,6 +99,7 @@ namespace Managers
                 AddOrganization(organization);
                 Debug.Log($"Organization {organization.organizationName} added with id {organization.organizationID} and type {organization.organizationType.typeName}");
             }
+            OnOrganizationLoadingFinished?.Invoke();
             yield return null;
         }
         
@@ -128,6 +134,19 @@ namespace Managers
 
         #endregion
 
+        #region OrganizationMembersHandling
+
+        private void AssignCharacterToOrganization(Character character, int organizationID)
+        {
+            var tempOrganization = _allOrganizations.Find(organization => organization.organizationID == organizationID);
+            if (tempOrganization == null) return;
+            tempOrganization.organizationMembers.Add(character);
+            character.characterOrganization = tempOrganization;
+            OnOrganizationMemberAdded?.Invoke();
+            Debug.Log($"Character {character.characterName} assigned to organization {character.characterOrganization.organizationName} with id {organizationID}");
+        }
+
+        #endregion
 
         #region OrganizationTypeHandling
 

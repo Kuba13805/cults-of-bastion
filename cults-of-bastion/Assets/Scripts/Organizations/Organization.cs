@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using Characters;
+using UnityEngine;
 
 namespace Organizations
 {
@@ -9,7 +10,7 @@ namespace Organizations
         public int organizationID;
         public string organizationName;
         public string organizationDescription;
-        public List<Character> organizationMembers = new();
+        [SerializeReference] public List<Character> organizationMembers = new();
         public OrganizationType organizationType;
     }
 }
