@@ -1,3 +1,5 @@
+using UnityEngine.Serialization;
+
 namespace Organizations
 {
     [System.Serializable]
@@ -5,6 +7,7 @@ namespace Organizations
     {
         public string name;
         public string description;
-        public string type;
+        public string typeName;
+        public int id;
     }
 }

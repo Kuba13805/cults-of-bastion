@@ -1,0 +1,12 @@
+{
+  "OrganizationTypeConstructors": [
+    {
+        "typeName": "detective_organization_type",
+        "typeDescription": "detective_organization_type_desc"
+    },
+    {
+        "typeName": "cult_organization_type",
+        "typeDescription": "cult_organization_type_desc"
+    }
+  ]
+}

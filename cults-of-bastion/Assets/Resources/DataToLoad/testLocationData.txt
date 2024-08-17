@@ -51,5 +51,17 @@
       "gender": "Female",
       "ownLocationIds": [2]
     }
+  ],
+  "OrganizationConstructors": [
+    {
+        "name": "The Black Brotherhood",
+        "description": "black_brotherhood_desc",
+        "typeName": "cult_organization_type"
+    },
+    {
+        "name": "The Rooks",
+        "description": "rooks_desc",
+        "typeName": "detective_organization_type"
+    }
   ]
 }

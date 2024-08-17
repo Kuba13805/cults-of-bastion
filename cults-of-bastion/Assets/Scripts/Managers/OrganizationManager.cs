@@ -1,25 +1,38 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Organizations;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace Managers
 {
     public class OrganizationManager : MonoBehaviour
     {
-        public Organization playerOrganization;
-        public List<Organization> allOrganizations = new();
-        public List<OrganizationType> organizationTypes = new();
+        [SerializeField] private Organization playerOrganization;
+        private List<Organization> _allOrganizations = new();
+        private readonly Dictionary<string, OrganizationType> _organizationTypes = new();
         
         private readonly HashSet<int> _organizationIDsInUse = new();
         private readonly Queue<int> _organizationIDsAvailable = new();
         private GameData _gameData;
+        private OrganizationTypeData _organizationTypeData;
         
         [SerializeField] private int maxOrganizations;
         
-        private void Start()
+        public static event Action OnOrganizationManagerInitialized;
+
+        private void Awake()
         {
             SubscribeToEvents();
+            LoadOrganizationTypes();
+            InitializeOrganizationIDs();
+        }
+
+        private void Start()
+        {
+            OnOrganizationManagerInitialized?.Invoke();
         }
         private void OnDestroy()
         {
@@ -37,7 +50,7 @@ namespace Managers
 
         private void InitializeOrganizationIDs()
         {
-            for (int i = 0; i < maxOrganizations; i++)
+            for (int i = 1; i <= maxOrganizations; i++)
             {
                 _organizationIDsAvailable.Enqueue(i);
             }
@@ -45,28 +58,38 @@ namespace Managers
 
         private void StartOrganizationLoading(GameData gameData)
         {
-
+            _gameData = gameData;
+            StartCoroutine(LoadOrganizations());
         }
 
         private IEnumerator LoadOrganizations()
         {
+            Debug.Log(_gameData.OrganizationConstructors.Count);
             foreach (var organizationConstructor in _gameData.OrganizationConstructors)
             {
                 var organization = new Organization
                 {
                     organizationName = organizationConstructor.name,
-                    organizationID = GetNewOrganizationID(),
+                    organizationDescription = organizationConstructor.description,
                 };
-                if(organization.organizationID <= 0) continue;
+                if(_organizationIDsAvailable.Count == 0) continue;
+                
+                if (organization.organizationID == 0)
+                {
+                    organization.organizationID = GetNewOrganizationID();
+                }
+                AssignOrganizationType(organization, organizationConstructor);
                 AddOrganization(organization);
-                Debug.Log($"Organization {organization.organizationName} added with id {organization.organizationID}");
+                Debug.Log($"Organization {organization.organizationName} added with id {organization.organizationID} and type {organization.organizationType.typeName}");
             }
             yield return null;
         }
 
+        #region OrganizationAddingRemoving
+
         private void AddOrganization(Organization organization)
         {
-            allOrganizations.Add(organization);
+            _allOrganizations.Add(organization);
         }
 
         private int GetNewOrganizationID()
@@ -79,7 +102,8 @@ namespace Managers
         }
         private void RemoveOrganization(Organization organization)
         {
-            allOrganizations.Remove(organization);
+            ReleaseOrganizationID(organization.organizationID);
+            _allOrganizations.Remove(organization);
         }
         private void ReleaseOrganizationID(int id)
         {
@@ -88,9 +112,67 @@ namespace Managers
             _organizationIDsInUse.Remove(id);
             _organizationIDsAvailable.Enqueue(id);
         }
-        private IEnumerator LoadOrganizationTypes()
+
+        #endregion
+
+        #region OrganizationTypesAccessors
+
+        private void AssignOrganizationType(Organization organization, OrganizationConstructor organizationConstructor)
         {
-            yield return null;
+            if (string.IsNullOrEmpty(organizationConstructor.typeName))
+            {
+                Debug.LogWarning("No organization type assigned to organization " + organization.organizationName);
+            }
+
+            if (_organizationTypes.TryGetValue(organizationConstructor.typeName, out var organizationType))
+            {
+                organization.organizationType = organizationType;
+            }
+            else
+            {
+                Debug.LogWarning("No matching organization type found for " + organizationConstructor.typeName);
+            }
         }
+
+        #endregion
+
+        #region OrganizationTypesLoader
+
+        private void LoadOrganizationTypes()
+        {
+            var organizationTypeConfig = Resources.Load<TextAsset>("DataToLoad/organizationTypes");
+            if(organizationTypeConfig == null) return;
+
+            var parsedOrganizationTypeConfigData =
+                JsonUtility.FromJson<OrganizationTypeData>(organizationTypeConfig.text);
+            if (parsedOrganizationTypeConfigData == null)
+            {
+                throw new Exception("Failed to parse organization types config data.");
+            }
+            _organizationTypeData = new OrganizationTypeData
+            {
+                OrganizationTypeConstructors = parsedOrganizationTypeConfigData.OrganizationTypeConstructors
+            };
+            InitializeOrganizationTypes();
+        }
+        private void InitializeOrganizationTypes()
+        {
+            foreach (var organizationType in _organizationTypeData.OrganizationTypeConstructors.Select(organizationTypeConstructor => new OrganizationType
+                     {
+                         typeName = organizationTypeConstructor.typeName,
+                         typeDescription = organizationTypeConstructor.typeDescription
+                     }))
+            {
+                _organizationTypes.Add(organizationType.typeName, organizationType);
+                Debug.Log($"New organization type added: {organizationType.typeName}");
+            }
+        }
+
+        #endregion
+    }
+
+    public class OrganizationTypeData
+    {
+        public List<OrganizationType> OrganizationTypeConstructors = new();
     }
 }

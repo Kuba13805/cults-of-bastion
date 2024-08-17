@@ -20,8 +20,8 @@ namespace PlayerInteractions
         private ActionConditionVerifier _actionConditionVerifier;
 
         private readonly Dictionary<string, LocationAction> _locationActionDict = new();
-        private List<BaseAction> _currentTimeBasedActionList = new();
-        private List<BaseAction> _currentTimeBasedNonLimitedList= new();
+        private readonly List<BaseAction> _currentTimeBasedActionList = new();
+        private readonly List<BaseAction> _currentTimeBasedNonLimitedList= new();
 
         #region Events
 

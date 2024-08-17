@@ -8,6 +8,7 @@ namespace Organizations
     {
         public int organizationID;
         public string organizationName;
+        public string organizationDescription;
         public List<Character> organizationMembers = new();
         public OrganizationType organizationType;
     }

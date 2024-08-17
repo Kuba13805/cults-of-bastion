@@ -14,6 +14,7 @@ namespace Managers
         private GameData _gameData;
         private bool _locationManagerReady;
         private bool _characterManagerReady;
+        private bool _organizationManagerReady;
 
         private void Awake()
         {
@@ -36,9 +37,10 @@ namespace Managers
             
             LocationManager.OnLocationManagerInitialized += () => _locationManagerReady = true;
             CharacterManager.OnCharacterManagerInitialized += () => _characterManagerReady = true;
+            OrganizationManager.OnOrganizationManagerInitialized += () => _organizationManagerReady = true;
             
             Debug.Log("Waiting for managers to load.");
-            yield return new WaitUntil(() => _locationManagerReady && _characterManagerReady);
+            yield return new WaitUntil(() => _locationManagerReady && _characterManagerReady && _organizationManagerReady);
             Debug.Log("Managers loaded. Start initializing game.");
             InitializeGame();
             
@@ -60,7 +62,7 @@ namespace Managers
                 LocationTypes = parsedCityConfigData.LocationTypes,
                 Locations = parsedCityConfigData.Locations,
                 CharacterConstructors = parsedCityConfigData.CharacterConstructors,
-                Organizations = parsedCityConfigData.Organizations,
+                OrganizationConstructors = parsedCityConfigData.OrganizationConstructors,
                 PlayerCharacter = parsedCityConfigData.PlayerCharacter,
                 PlayerOrganization = parsedCityConfigData.PlayerOrganization
                 
