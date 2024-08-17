@@ -56,10 +56,21 @@
     {
         "name": "The Black Brotherhood",
         "description": "black_brotherhood_desc",
-        "typeName": "cult_organization_type"
+        "typeName": "cult_organization_type",
+        "id": 3
     },
     {
         "name": "The Rooks",
+        "description": "rooks_desc",
+        "typeName": "detective_organization_type"
+    },
+    {
+        "name": "The Rooks 2",
+        "description": "rooks_desc",
+        "typeName": "detective_organization_type"
+    },
+    {
+        "name": "The Rooks 3",
         "description": "rooks_desc",
         "typeName": "detective_organization_type"
     }

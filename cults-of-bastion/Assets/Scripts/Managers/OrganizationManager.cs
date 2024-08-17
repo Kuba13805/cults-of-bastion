@@ -15,7 +15,7 @@ namespace Managers
         private readonly Dictionary<string, OrganizationType> _organizationTypes = new();
         
         private readonly HashSet<int> _organizationIDsInUse = new();
-        private readonly Queue<int> _organizationIDsAvailable = new();
+        private Queue<int> _organizationIDsAvailable = new();
         private GameData _gameData;
         private OrganizationTypeData _organizationTypeData;
         
@@ -67,16 +67,28 @@ namespace Managers
             Debug.Log(_gameData.OrganizationConstructors.Count);
             foreach (var organizationConstructor in _gameData.OrganizationConstructors)
             {
+                if(_organizationIDsAvailable.Count == 0) continue;
                 var organization = new Organization
                 {
                     organizationName = organizationConstructor.name,
                     organizationDescription = organizationConstructor.description,
+                    organizationID = organizationConstructor.id
                 };
-                if(_organizationIDsAvailable.Count == 0) continue;
                 
                 if (organization.organizationID == 0)
                 {
                     organization.organizationID = GetNewOrganizationID();
+                }
+                else
+                {
+                    var tempAvailableIDs = new List<int>(_organizationIDsAvailable);
+                    if (tempAvailableIDs.Contains(organization.organizationID))
+                    {
+                        tempAvailableIDs.Remove(organization.organizationID);
+                        _organizationIDsAvailable = new Queue<int>(tempAvailableIDs);
+                    }
+
+                    _organizationIDsInUse.Add(organization.organizationID);
                 }
                 AssignOrganizationType(organization, organizationConstructor);
                 AddOrganization(organization);
@@ -84,6 +96,7 @@ namespace Managers
             }
             yield return null;
         }
+        
 
         #region OrganizationAddingRemoving
 
@@ -115,7 +128,8 @@ namespace Managers
 
         #endregion
 
-        #region OrganizationTypesAccessors
+
+        #region OrganizationTypeHandling
 
         private void AssignOrganizationType(Organization organization, OrganizationConstructor organizationConstructor)
         {
@@ -133,11 +147,6 @@ namespace Managers
                 Debug.LogWarning("No matching organization type found for " + organizationConstructor.typeName);
             }
         }
-
-        #endregion
-
-        #region OrganizationTypesLoader
-
         private void LoadOrganizationTypes()
         {
             var organizationTypeConfig = Resources.Load<TextAsset>("DataToLoad/organizationTypes");

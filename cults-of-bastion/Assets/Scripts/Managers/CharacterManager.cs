@@ -104,6 +104,7 @@ namespace Managers
         {
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
+                if(_characterIDsAvailable.Count == 0) continue;
                 var character = new Character
                 {
                     characterName = characterConstructor.name,
@@ -114,7 +115,6 @@ namespace Managers
                     characterAge = characterConstructor.age,
                     characterID = GetNewCharacterID(),
                 };
-                if(character.characterID <= 0) continue;
 
                 foreach (var locationData in characterConstructor.ownLocationIds.SelectMany(t => _gameData.Locations.Where(locationData => locationData.locationID == t)))
                 {
