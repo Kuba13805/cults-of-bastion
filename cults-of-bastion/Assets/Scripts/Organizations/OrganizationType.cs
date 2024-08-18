@@ -1,7 +1,7 @@
 namespace Organizations
 {
     [System.Serializable]
-    public class OrganizationType
+    public struct OrganizationType
     {
         public string typeName;
         public string typeDescription;

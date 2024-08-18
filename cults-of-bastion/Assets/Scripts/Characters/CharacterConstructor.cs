@@ -11,6 +11,8 @@ namespace Characters
         public string nickname;
         public int age;
         public string gender;
+        public string culture;
+        
         public List<int> ownLocationIds;
         public int organizationId;
     }

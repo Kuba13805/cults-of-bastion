@@ -1,0 +1,32 @@
+{
+  "CultureConstructors": [
+    {
+        "cultureName": "culture_british",
+        "cultureDescription": "culture_british_desc",
+        "cultureNamesMale": [
+            "Alastair 10", "Oswald 10", "Winston 10", "Albert 5", "John 20", "Elias 5"
+        ],
+        "cultureNamesFemale": [
+            "Maud 5", "Caroline 10", "Alberta 5", "Janine 10", "Ruth 10", "Elizabeth 10" 
+        ],
+        "cultureSurnames": [
+            "Abberton 10", "Cowen 10", "Moon 5", "Jephcots 5", "Powlett 10", "Steen 10", "Macks 10",
+            "Richey 5", "Wigram 10", "Harlow 5"
+        ]
+    },
+    {
+        "cultureName": "culture_german",
+        "cultureDescription": "culture_german_desc",
+        "cultureNamesMale": [
+            "Elmo 10", "Paul 10", "Karsten 10", "Kaleb 5", "Achim 20", "Hans 5"
+        ],
+        "cultureNamesFemale": [
+            "Leonore 5", "Karin 10", "Marina 5", "Anna-Lena 10", "Ruth 10", "Loreen 10" 
+        ],
+        "cultureSurnames": [
+            "Stein 10", "Faas 10", "Groth 5", "Huhn 5", "Rasche 10", "Henschel 10", "Freudenthal 10",
+            "Marks 5", "Kant 10", "Kirstein 5"
+        ]
+    }
+  ]
+}

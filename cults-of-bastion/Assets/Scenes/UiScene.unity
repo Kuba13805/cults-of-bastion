@@ -707,7 +707,7 @@ MonoBehaviour:
   inspectorGameObject: {fileID: 2032512031}
   locationInspectorContent: {fileID: 1066284191}
   characterInspectorContent: {fileID: 179645105}
-  organizationInspectorContent: {fileID: 0}
+  organizationInspectorContent: {fileID: 7827092}
 --- !u!1 &179645105
 GameObject:
   m_ObjectHideFlags: 0
@@ -772,6 +772,7 @@ MonoBehaviour:
   characterNameBox: {fileID: 1690591777}
   statBoxPrefab: {fileID: 980573607217866292, guid: 9e04f354749c1254ca554b5db1fb94c1, type: 3}
   statBoxParent: {fileID: 1344328230}
+  organizationButton: {fileID: 44813851}
   locationBoxPrefab: {fileID: 7186783505299063512, guid: f91beec652266274b868c1901cb2a622, type: 3}
   locationBoxParent: {fileID: 987070215}
 --- !u!1 &230259347
@@ -2141,8 +2142,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 38f60f559d293ae4b8a4051148f37941, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  locationNameBox: {fileID: 0}
-  locationTypeBox: {fileID: 0}
+  locationNameBox: {fileID: 483226903}
+  locationTypeBox: {fileID: 1532899581}
 --- !u!1 &1126202138
 GameObject:
   m_ObjectHideFlags: 0
@@ -3700,7 +3701,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &2032512032
 RectTransform:
   m_ObjectHideFlags: 0
@@ -3719,11 +3720,11 @@ RectTransform:
   - {fileID: 294570215}
   m_Father: {fileID: 125983647}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
-  m_AnchorMin: {x: 1, y: 0.5}
-  m_AnchorMax: {x: 1, y: 0.5}
+  m_AnchorMin: {x: 0, y: 0.5}
+  m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 300, y: 600}
-  m_Pivot: {x: 1, y: 0.5}
+  m_Pivot: {x: 0, y: 0.5}
 --- !u!114 &2032512033
 MonoBehaviour:
   m_ObjectHideFlags: 0

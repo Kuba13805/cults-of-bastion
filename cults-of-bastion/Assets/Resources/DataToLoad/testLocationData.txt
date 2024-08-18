@@ -45,13 +45,15 @@
       "name": "Anthony",
       "gender": "Male",
       "ownLocationIds": [1, 3],
-      "organizationId": 1
+      "organizationId": 1,
+      "culture": "culture_british"
     },
     {
       "name": "Sara",
       "gender": "Female",
       "ownLocationIds": [2],
-      "organizationId": 3
+      "organizationId": 3,
+      "culture": "culture_british"
     }
   ],
   "OrganizationConstructors": [

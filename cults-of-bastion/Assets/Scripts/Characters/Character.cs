@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Cultures;
 using Locations;
 using Organizations;
 using PlayerInteractions;
@@ -14,6 +15,8 @@ namespace Characters
       public string characterNickname;
       public int characterAge;
       public CharacterGender characterGender;
+      public Culture characterCulture;
+      
       public BaseAction CurrentAction;
       public List<LocationData> characterOwnedLocations = new();
       public Organization characterOrganization;

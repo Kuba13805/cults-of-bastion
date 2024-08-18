@@ -122,6 +122,10 @@ namespace Managers
         private void RemoveOrganization(Organization organization)
         {
             ReleaseOrganizationID(organization.organizationID);
+            foreach (var character in organization.organizationMembers)
+            {
+                character.characterOrganization = null;
+            }
             _allOrganizations.Remove(organization);
         }
         private void ReleaseOrganizationID(int id)
@@ -143,6 +147,14 @@ namespace Managers
             tempOrganization.organizationMembers.Add(character);
             Debug.Log($"Organization {tempOrganization.organizationName} added character {character.characterName} {character.characterSurname} with id {character.characterID}");
             OnOrganizationMemberAdded?.Invoke(tempOrganization);
+        }
+
+        private void RemoveCharacterFromOrganization(Character character)
+        {
+            var tempOrganization = _allOrganizations.Find(organization => organization.organizationID == character.characterOrganization.organizationID);
+            if (tempOrganization == null) return;
+            tempOrganization.organizationMembers.Remove(character);
+            Debug.Log($"Organization {tempOrganization.organizationName} removed character {character.characterName} {character.characterSurname} with id {character.characterID}");
         }
 
         #endregion
