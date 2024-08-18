@@ -23,7 +23,7 @@ namespace Managers
         [SerializeField] private int maxOrganizations;
         
         public static event Action OnOrganizationManagerInitialized;
-        public static event Action OnOrganizationMemberAdded;
+        public static event Action<Organization> OnOrganizationMemberAdded;
         public static event Action OnOrganizationLoadingFinished;
 
         private void Awake()
@@ -141,9 +141,8 @@ namespace Managers
             var tempOrganization = _allOrganizations.Find(organization => organization.organizationID == organizationID);
             if (tempOrganization == null) return;
             tempOrganization.organizationMembers.Add(character);
-            character.characterOrganization = tempOrganization;
-            OnOrganizationMemberAdded?.Invoke();
-            Debug.Log($"Character {character.characterName} assigned to organization {character.characterOrganization.organizationName} with id {organizationID}");
+            Debug.Log($"Organization {tempOrganization.organizationName} added character {character.characterName} {character.characterSurname} with id {character.characterID}");
+            OnOrganizationMemberAdded?.Invoke(tempOrganization);
         }
 
         #endregion

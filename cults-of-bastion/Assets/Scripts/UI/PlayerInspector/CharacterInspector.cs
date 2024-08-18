@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Characters;
+using Organizations;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -15,11 +16,14 @@ namespace UI.PlayerInspector
         [SerializeField] private TextMeshProUGUI characterNameBox;
         [SerializeField] private GameObject statBoxPrefab;
         [SerializeField] private Transform statBoxParent;
+        [SerializeField] private GameObject organizationButton;
 
         [SerializeField] private GameObject locationBoxPrefab;
         [SerializeField] private Transform locationBoxParent;
         
         private readonly GameObject[] _statBoxList = new GameObject[8];
+
+        public static event Action<Organization> OnInvokeCharacterOrganizationInspector; 
 
         public void InitializeStatBoxes()
         {
@@ -33,13 +37,30 @@ namespace UI.PlayerInspector
         public void InitializeInspector(Character character)
         {
             _characterData = character;
-            
             ClearOwnedLocations();
             
             DisplayCharacterName();
             DisplayCharacterStats();
             
             DisplayOwnedLocations();
+            CheckIfCharacterHasOrganization();
+        }
+
+        public void InvokeCharacterOrganizationInspector()
+        {
+            OnInvokeCharacterOrganizationInspector?.Invoke(_characterData.characterOrganization);
+        }
+
+        private void CheckIfCharacterHasOrganization()
+        {
+            if(_characterData.characterOrganization == null)
+            {
+                organizationButton.SetActive(false);
+            }
+            else
+            {
+                organizationButton.SetActive(true);
+            }
         }
 
         private void DisplayCharacterName()

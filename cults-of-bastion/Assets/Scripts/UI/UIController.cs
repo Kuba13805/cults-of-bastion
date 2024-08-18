@@ -35,7 +35,6 @@ namespace UI
         
         public static event Action OnRequestAllPlayerActions;
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
-        public static event Action<string> OnInvokeActionExecution;
         public static event Action<LocationData> OnLocationSelection; 
 
         #endregion

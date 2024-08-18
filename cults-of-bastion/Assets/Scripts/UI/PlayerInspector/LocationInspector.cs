@@ -9,8 +9,8 @@ namespace UI.PlayerInspector
     public class LocationInspector : MonoBehaviour
     {
         private LocationData _locationData;
-        [SerializeField] private TextMeshProUGUI locationName;
-        [SerializeField] private TextMeshProUGUI locationType;
+        [SerializeField] private TextMeshProUGUI locationNameBox;
+        [SerializeField] private TextMeshProUGUI locationTypeBox;
 
         public static event Action<Character> OnInvokeLocationOwnerInspector;
 
@@ -18,8 +18,8 @@ namespace UI.PlayerInspector
         {
             _locationData = locationData;
             
-            locationName.text = _locationData.locationName;
-            locationType.text = _locationData.LocationType.typeName;
+            locationNameBox.text = _locationData.locationName;
+            locationTypeBox.text = _locationData.LocationType.typeName;
         }
 
         public void InvokeLocationOwnerInspector() =>

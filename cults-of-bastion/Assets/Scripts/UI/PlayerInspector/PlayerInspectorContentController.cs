@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using Characters;
 using Locations;
+using Organizations;
 using UnityEngine;
 
 namespace UI.PlayerInspector
@@ -11,6 +12,7 @@ namespace UI.PlayerInspector
         [SerializeField] private GameObject inspectorGameObject;
         [SerializeField] private GameObject locationInspectorContent;
         [SerializeField] private GameObject characterInspectorContent;
+        [SerializeField] private GameObject organizationInspectorContent;
 
         private void Start()
         {
@@ -28,12 +30,16 @@ namespace UI.PlayerInspector
             UIController.OnLocationSelection += ShowSelectedLocation;
             LocationInspector.OnInvokeLocationOwnerInspector += ShowSelectedCharacter;
             CharacterOwnedLocationButton.OnInvokeLocationInspector += ShowSelectedLocation;
+            CharacterInspector.OnInvokeCharacterOrganizationInspector += ShowSelectedOrganization;
+            OrganizationMemberButton.OnInvokeCharacterInspector += ShowSelectedCharacter;
         }
         private void UnsubscribeFromEvents()
         {
             UIController.OnLocationSelection -= ShowSelectedLocation;
             LocationInspector.OnInvokeLocationOwnerInspector -= ShowSelectedCharacter;
             CharacterOwnedLocationButton.OnInvokeLocationInspector -= ShowSelectedLocation;
+            CharacterInspector.OnInvokeCharacterOrganizationInspector -= ShowSelectedOrganization;
+            OrganizationMemberButton.OnInvokeCharacterInspector -= ShowSelectedCharacter;
         }
         public void ToggleInspector()
         {
@@ -41,6 +47,7 @@ namespace UI.PlayerInspector
         }
         private void ShowSelectedLocation(LocationData locationData)
         {
+            organizationInspectorContent.SetActive(false);
             characterInspectorContent.SetActive(false);
             locationInspectorContent.SetActive(true);
             locationInspectorContent.GetComponent<LocationInspector>().InitializeInspector(locationData);
@@ -52,8 +59,21 @@ namespace UI.PlayerInspector
         private void ShowSelectedCharacter(Character character)
         {
             locationInspectorContent.SetActive(false);
+            organizationInspectorContent.SetActive(false);
             characterInspectorContent.SetActive(true);
             characterInspectorContent.GetComponent<CharacterInspector>().InitializeInspector(character);
+            if (!inspectorGameObject.activeSelf)
+            {
+                ToggleInspector();
+            }
+        }
+
+        private void ShowSelectedOrganization(Organization organization)
+        {
+            locationInspectorContent.SetActive(false);
+            characterInspectorContent.SetActive(false);
+            organizationInspectorContent.SetActive(true);
+            organizationInspectorContent.GetComponent<OrganizationInspector>().InitializeInspector(organization);
             if (!inspectorGameObject.activeSelf)
             {
                 ToggleInspector();
