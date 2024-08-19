@@ -104,6 +104,7 @@ namespace Managers
 
             var newGenerator = new CharacterGenerator(tempCulture);
             var newCharacter = newGenerator.GenerateCharacter();
+            newCharacter.characterCulture = tempCulture;
             AddNewCharacter(newCharacter);
             callback(newCharacter);
         }

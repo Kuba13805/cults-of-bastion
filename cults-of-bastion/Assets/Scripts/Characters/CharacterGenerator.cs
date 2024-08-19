@@ -5,10 +5,10 @@ namespace Characters
 {
     public class CharacterGenerator
     {
-        private List<NamingEntry> _maleNames = new();
-        private List<NamingEntry> _femaleNames = new();
-        private List<NamingEntry> _surnames = new();
-        private List<NamingEntry> _nicknames = new();
+        private readonly List<NamingEntry> _maleNames;
+        private readonly List<NamingEntry> _femaleNames;
+        private readonly List<NamingEntry> _surnames;
+        private readonly List<NamingEntry> _nicknames = new() { new NamingEntry { NamingValue = "Ducky", AppearanceChance = 10 }, new NamingEntry { NamingValue = "The Golden", AppearanceChance = 10 } };
 
         public CharacterGenerator(Culture culture)
         {
@@ -25,11 +25,11 @@ namespace Characters
             };
             character.characterName = GetRandomCharacterName(character.characterGender == CharacterGender.Male ? _maleNames : _femaleNames);
             character.characterSurname = GetRandomCharacterName(_surnames);
-            //character.characterNickname = GetRandomCharacterNickname(character.characterAge);
+            character.characterNickname = GetRandomCharacterNickname(character.characterAge);
             character.CharacterStats.Strength.Value = UnityEngine.Random.Range(10, 20);
             return character;
         }
-        private int GetRandomCharacterAge()
+        private static int GetRandomCharacterAge()
         {
             return UnityEngine.Random.Range(18, 80);
         }
@@ -52,19 +52,19 @@ namespace Characters
             }
             return null;
         }
-        // private string GetRandomCharacterNickname(int characterAge)
-        // {
-        //     var chanceForNickname = characterAge switch
-        //     {
-        //         <= 18 => 10,
-        //         <= 30 => 15,
-        //         <= 50 => 20,
-        //         > 50 => 25
-        //     };
-        //
-        //     return chanceForNickname > UnityEngine.Random.Range(0, 100) ? null : _nicknames[UnityEngine.Random.Range(0, _nicknames.Count)];
-        // }
-        private CharacterGender GetRandomCharacterGender()
+        private string GetRandomCharacterNickname(int characterAge)
+        {
+            var chanceForNickname = characterAge switch
+            {
+                <= 18 => 2.5f,
+                <= 30 => 5,
+                <= 50 => 10,
+                > 50 => 12.5f
+            };
+
+            return chanceForNickname > UnityEngine.Random.Range(0, 100) ? null : GetRandomCharacterName(_nicknames);
+        }
+        private static CharacterGender GetRandomCharacterGender()
         {
             return UnityEngine.Random.Range(0, 2) == 0 ? CharacterGender.Male : CharacterGender.Female;
         }

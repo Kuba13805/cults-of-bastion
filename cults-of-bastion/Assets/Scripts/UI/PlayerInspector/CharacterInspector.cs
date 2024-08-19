@@ -17,6 +17,8 @@ namespace UI.PlayerInspector
         [SerializeField] private GameObject statBoxPrefab;
         [SerializeField] private Transform statBoxParent;
         [SerializeField] private GameObject organizationButton;
+        [SerializeField] private TextMeshProUGUI characterAgeBox;
+        [SerializeField] private TextMeshProUGUI characterCultureBox;
 
         [SerializeField] private GameObject locationBoxPrefab;
         [SerializeField] private Transform locationBoxParent;
@@ -40,6 +42,8 @@ namespace UI.PlayerInspector
             ClearOwnedLocations();
             
             DisplayCharacterName();
+            DisplayCharacterAge();
+            DisplayCharacterCulture();
             DisplayCharacterStats();
             
             DisplayOwnedLocations();
@@ -66,6 +70,16 @@ namespace UI.PlayerInspector
         private void DisplayCharacterName()
         {
             characterNameBox.text = !string.IsNullOrEmpty(_characterData.characterSurname) ? $"{_characterData.characterName} \"{_characterData.characterNickname}\" {_characterData.characterSurname}" : $"{_characterData.characterName} {_characterData.characterSurname}";
+        }
+
+        private void DisplayCharacterAge()
+        {
+            characterAgeBox.text = _characterData.characterAge.ToString();
+        }
+
+        private void DisplayCharacterCulture()
+        {
+            characterCultureBox.text = _characterData.characterCulture.cultureName;
         }
 
         private void DisplayCharacterStats()
