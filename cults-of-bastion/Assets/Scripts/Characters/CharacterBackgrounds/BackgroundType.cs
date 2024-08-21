@@ -1,4 +1,4 @@
-namespace Characters.CharacterBackground
+namespace Characters.CharacterBackgrounds
 {
     public class BackgroundType
     {

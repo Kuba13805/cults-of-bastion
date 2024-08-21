@@ -1,5 +1,6 @@
 using System;
 using System.Collections;
+using Cultures;
 using UnityEngine;
 
 namespace Managers
@@ -15,6 +16,7 @@ namespace Managers
         private bool _locationManagerReady;
         private bool _characterManagerReady;
         private bool _organizationManagerReady;
+        private bool _cultureControllerReady;
 
         private void Awake()
         {
@@ -38,9 +40,10 @@ namespace Managers
             LocationManager.OnLocationManagerInitialized += () => _locationManagerReady = true;
             CharacterManager.OnCharacterManagerInitialized += () => _characterManagerReady = true;
             OrganizationManager.OnOrganizationManagerInitialized += () => _organizationManagerReady = true;
+            CultureController.OnCultureControllerInitialized += () => _cultureControllerReady = true;
             
             Debug.Log("Waiting for managers to load.");
-            yield return new WaitUntil(() => _locationManagerReady && _characterManagerReady && _organizationManagerReady);
+            yield return new WaitUntil(() => _locationManagerReady && _characterManagerReady && _organizationManagerReady && _cultureControllerReady);
             Debug.Log("Managers loaded. Start initializing game.");
             InitializeGame();
             

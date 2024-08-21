@@ -1,5 +1,5 @@
 using System.Collections.Generic;
-using Characters.CharacterBackground;
+using Characters.CharacterBackgrounds;
 using Cultures;
 using Locations;
 using Organizations;
@@ -17,8 +17,8 @@ namespace Characters
       public int characterAge;
       public CharacterGender characterGender;
       public Culture characterCulture;
-      public ChildhoodBackground CharacterChildhoodBackground;
-      public AdulthoodBackground CharacterAdulthoodBackground;
+      public CharacterBackground ChildhoodBackground;
+      public CharacterBackground AdulthoodBackground;
       
       public BaseAction CurrentAction;
       public List<LocationData> characterOwnedLocations = new();

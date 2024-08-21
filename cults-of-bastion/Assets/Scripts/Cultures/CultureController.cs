@@ -13,6 +13,7 @@ namespace Cultures
         private CultureData _cultureData;
         
         public static event Action<Culture> OnReturnRequestedCulture;
+        public static event Action OnCultureControllerInitialized;
         private void Awake()
         {
             StartCoroutine(LoadCultureData());
@@ -63,6 +64,7 @@ namespace Cultures
             {
                 yield return StartCoroutine(CreateCultureFromConstructor(constructor));
             }
+            OnCultureControllerInitialized?.Invoke();
         }
 
         private IEnumerator CreateCultureFromConstructor(CultureConstructor cultureConstructor)

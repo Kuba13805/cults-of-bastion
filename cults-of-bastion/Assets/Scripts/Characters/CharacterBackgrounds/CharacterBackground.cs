@@ -1,13 +1,13 @@
 using System.Collections.Generic;
 using PlayerInteractions;
 
-namespace Characters.CharacterBackground
+namespace Characters.CharacterBackgrounds
 {
-    public abstract class BaseBackground
+    public class CharacterBackground
     {
         public string BackgroundName;
         public string BackgroundDescription;
         public BackgroundType BackgroundType;
-        public List<ActionEffect> BackgroundEffects = new List<ActionEffect>();
+        public List<CharacterModifier> BackgroundModifiers;
     }
 }

@@ -3,12 +3,14 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters;
+using Characters.CharacterBackgrounds;
 using Cultures;
 using Organizations;
 using UnityEngine;
 
 namespace Managers
 {
+    [RequireComponent(typeof(CharacterBackgroundController), typeof(CharacterModificationController))]
     public class CharacterManager : MonoBehaviour
     {
         private readonly HashSet<int> _characterIDsInUse = new();

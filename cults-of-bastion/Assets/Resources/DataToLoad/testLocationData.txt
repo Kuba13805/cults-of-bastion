@@ -44,7 +44,7 @@
     {
       "name": "Anthony",
       "gender": "Male",
-      "ownLocationIds": [1, 3],
+      "ownLocationIds": [1],
       "organizationId": 1,
       "culture": "culture_british"
     },
