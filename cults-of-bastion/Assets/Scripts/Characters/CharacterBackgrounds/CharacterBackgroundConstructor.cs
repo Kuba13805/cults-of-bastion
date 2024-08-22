@@ -9,5 +9,7 @@ namespace Characters.CharacterBackgrounds
         public string backgroundDescription;
         public string backgroundTypeName;
         public List<string> backgroundEffects;
+        public List<string> allowedCulturesForBackground;
+        public List<string> disallowedCulturesForBackground;
     }
 }

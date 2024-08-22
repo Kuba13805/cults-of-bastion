@@ -2,7 +2,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Cultures;
+using Managers;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Characters.CharacterBackgrounds
 {
@@ -12,11 +15,85 @@ namespace Characters.CharacterBackgrounds
         private Dictionary<string, CharacterBackground> _adulthoodBackgrounds = new();
         private BackgroundData _backgroundData;
 
-        public static event Action<List<string>> OnRequestBackgroundEffectsCreation; 
+        public static event Action<List<string>> OnRequestBackgroundEffectsCreation;
+        public static event Action<CharacterBackground> OnPassRandomCharacterBackground; 
         private void Awake()
         {
             StartCoroutine(LoadBackgrounds());
+            SubscribeToEvents();
         }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromEvents();
+        }
+
+        private void SubscribeToEvents()
+        {
+            CharacterManager.OnRequestRandomCharacterBackground += StartGettingBackgrounds;
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            CharacterManager.OnRequestRandomCharacterBackground -= StartGettingBackgrounds;
+        }
+
+        private void StartGettingBackgrounds(bool isChildhoodBackground, Culture characterCulture)
+        {
+            StartCoroutine(GetRandomBackground(isChildhoodBackground, characterCulture));
+        }
+
+        private IEnumerator GetRandomBackground(bool isChildhoodBackground, Culture characterCulture)
+        {
+            var tempBackgroundList = new List<CharacterBackground>();
+            if (isChildhoodBackground)
+            {
+                StartCoroutine(GetAllowedBackgrounds(_childhoodBackgrounds, characterCulture, list => tempBackgroundList = list));
+            }
+            else
+            {
+                StartCoroutine(GetAllowedBackgrounds(_adulthoodBackgrounds, characterCulture, list => tempBackgroundList = list));
+            }
+            yield return new WaitUntil(() => tempBackgroundList.Count > 0);
+            var background = tempBackgroundList[Random.Range(0, tempBackgroundList.Count)];
+            OnPassRandomCharacterBackground?.Invoke(background);
+            yield return null;
+        }
+        private static IEnumerator GetAllowedBackgrounds(Dictionary<string, CharacterBackground> backgrounds, Culture characterCulture, Action<List<CharacterBackground>> callback)
+        {
+            var isDisallowed = false;
+            var isAllowed = true;
+            var allowedBackgrounds = new List<CharacterBackground>();
+            foreach (var background in backgrounds)
+            {
+                if (background.Value.DisallowedCulturesForBackground.Count > 0)
+                {
+                    if (background.Value.DisallowedCulturesForBackground.Any(cultureName => characterCulture != null && characterCulture.cultureName.Equals(cultureName)))
+                    {
+                        isDisallowed = true;
+                    }
+                }
+
+                if (background.Value.AllowedCulturesForBackground.Count > 0)
+                {
+                    if (!background.Value.AllowedCulturesForBackground.Any(cultureName => characterCulture != null && characterCulture.cultureName.Equals(cultureName)))
+                    {
+                        isAllowed = false;
+                    }
+                }
+                if (isAllowed && !isDisallowed)
+                {
+                    allowedBackgrounds.Add(background.Value);
+                }
+            }
+
+            callback?.Invoke(allowedBackgrounds);
+            
+            yield return null;
+        }
+
+
+        #region BackgroundsCreation
 
         private IEnumerator LoadBackgrounds()
         {
@@ -65,6 +142,8 @@ namespace Characters.CharacterBackgrounds
             {
                 BackgroundName = characterBackgroundConstructor.backgroundName,
                 BackgroundDescription = characterBackgroundConstructor.backgroundDescription,
+                AllowedCulturesForBackground = characterBackgroundConstructor.allowedCulturesForBackground,
+                DisallowedCulturesForBackground = characterBackgroundConstructor.disallowedCulturesForBackground
             };
             foreach (var backgroundType in _backgroundData.BackgroundTypes.Where(backgroundType => characterBackgroundConstructor.backgroundTypeName == backgroundType.backgroundTypeName))
             {
@@ -90,6 +169,8 @@ namespace Characters.CharacterBackgrounds
             yield return new WaitUntil(() => background.BackgroundModifiers != null);
             CharacterModificationController.OnReturnCharacterModifiers -= assignModifiers;
         }
+
+        #endregion
     }
     public class BackgroundData
     {

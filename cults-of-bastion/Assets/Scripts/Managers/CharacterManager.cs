@@ -24,7 +24,8 @@ namespace Managers
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
         public static event Action<string> OnRequestCultureAssignment;
         public static event Action OnRequestRandomCultureAssignment;
-        public static event Action<Character, List<string>> OnRequestCharacterModificationFromModifiers;
+        public static event Action<Character, List<CharacterModifier>> OnRequestCharacterModificationFromModifiers;
+        public static event Action<bool, Culture> OnRequestRandomCharacterBackground; 
 
         private void Awake()
         {
@@ -67,7 +68,7 @@ namespace Managers
             if(character.characterID <= 0) return;
             _gameData.Characters.Add(character);
             Debug.Log($"Character {character.characterName} {character.characterSurname} vel {character.characterNickname} at {character.characterAge} " +
-                      $"added with id {character.characterID}. {character.CharacterStats.Strength.Name}: {character.CharacterStats.Strength.Value} - {character.CharacterStats.Strength.Desc}");
+                      $"added with id {character.characterID}. Character culture: {character.characterCulture} and backgrounds: {character.ChildhoodBackground.BackgroundName} and {character.AdulthoodBackground.BackgroundName}");
         }
 
         private void RemoveCharacter(int id)
@@ -108,8 +109,27 @@ namespace Managers
             var newGenerator = new CharacterGenerator(tempCulture);
             var newCharacter = newGenerator.GenerateCharacter();
             newCharacter.characterCulture = tempCulture;
+            yield return StartCoroutine(GetCharacterBackground(newCharacterCharacterBackground => newCharacter.ChildhoodBackground = newCharacterCharacterBackground, true, tempCulture));
+            yield return StartCoroutine(GetCharacterBackground(newCharacterCharacterBackground => newCharacter.AdulthoodBackground = newCharacterCharacterBackground, false, tempCulture));
+            ModifyCharacterWithModifiers(newCharacter, newCharacter.ChildhoodBackground.BackgroundModifiers);
+            ModifyCharacterWithModifiers(newCharacter, newCharacter.AdulthoodBackground.BackgroundModifiers);
             AddNewCharacter(newCharacter);
             callback(newCharacter);
+        }
+
+        private static IEnumerator GetCharacterBackground(Action<CharacterBackground> callback, bool isChildhoodBackgroundGeneration, Culture culture)
+        {
+            var tempBackground = new CharacterBackground();
+            Action<CharacterBackground> onGetCharacterBackground = background =>
+            {
+                tempBackground = background;
+            };
+            CharacterBackgroundController.OnPassRandomCharacterBackground += onGetCharacterBackground;
+            OnRequestRandomCharacterBackground?.Invoke(isChildhoodBackgroundGeneration, culture);
+            
+            yield return new WaitUntil(() => tempBackground != null);
+            CharacterBackgroundController.OnPassRandomCharacterBackground -= onGetCharacterBackground;
+            callback.Invoke(tempBackground);
         }
 
         #endregion
@@ -201,7 +221,7 @@ namespace Managers
             yield return null;
         }
 
-        private IEnumerator AssignCharacterToOrganization(Character character, int organizationID)
+        private static IEnumerator AssignCharacterToOrganization(Character character, int organizationID)
         {
             var isCharacterAssigned = false;
             Organization assignedOrganisation = null; 
@@ -220,7 +240,7 @@ namespace Managers
             OrganizationManager.OnOrganizationMemberAdded -= onMemberAdded;
         }
 
-        private IEnumerator AssignCharacterCulture(Character character, string cultureName)
+        private static IEnumerator AssignCharacterCulture(Character character, string cultureName)
         {
             Action<Culture> onCultureAssigned = culture =>
             {
@@ -260,7 +280,7 @@ namespace Managers
 
         #region CharacterModifications
 
-        private void ModifyCharacterWithModifiers(Character character, List<string> characterModifiersDefinition) => OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiersDefinition);
+        private void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers) => OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers);
 
         #endregion
     }
