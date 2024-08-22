@@ -9,9 +9,12 @@ namespace Characters
 
     public enum CharacterModifiers
     {
-        IncreaseStat,
-        DecreaseStat,
+        ModifyStat,
         GiveTrait,
         RemoveTrait,
+        ChangeName,
+        ChangeSurname,
+        AddNickname,
+        RemoveNickname,
     }
 }

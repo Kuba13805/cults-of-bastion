@@ -1,3 +1,57 @@
 {
-  
+  "BackgroundTypes": [
+    {
+        "backgroundTypeName": "background_type_military",
+        "backgroundTypeDescription": "background_type_military_desc"
+    },
+    {
+        "backgroundTypeName": "background_type_religious",
+        "backgroundTypeDescription": "background_type_religious_desc"
+    }
+  ],
+  "ChildhoodBackgroundsConstructors": [
+    {
+        "backgroundName": "childhood_background_young_soldier",
+        "backgroundDescription": "childhood_background_young_soldier_desc",
+        "backgroundTypeName": "background_type_military",
+        "backgroundEffects": [
+            "ModifyStat Strength = 2",
+            "ModifyStat Dexterity = 1",
+            "ModifyStat Knowledge = -1"
+        ]
+    },
+    {
+        "backgroundName": "childhood_background_young_acolyte",
+        "backgroundDescription": "childhood_background_young_acolyte_desc",
+        "backgroundTypeName": "background_type_religious",
+        "backgroundEffects": [
+            "ModifyStat Knowledge = 2",
+            "ModifyStat Religious = 3",
+            "ModifyStat Strength = -1"
+        ]
+    }
+  ],
+  "AdulthoodBackgroundsConstructors": [
+      {
+          "backgroundName": "adulthood_background_soldier",
+          "backgroundDescription": "adulthood_background_soldier_desc",
+          "backgroundTypeName": "background_type_military",
+          "backgroundEffects": [
+              "ModifyStat Strength = 3",
+              "ModifyStat Dexterity = 2",
+              "ModifyStat Social = 1"
+          ]
+      },
+      {
+          "backgroundName": "adulthood_background_acolyte",
+          "backgroundDescription": "adulthood_background_acolyte_desc",
+          "backgroundTypeName": "background_type_religious",
+          "backgroundEffects": [
+              "ModifyStat Knowledge = 4",
+              "ModifyStat Religious = 6",
+              "ModifyStat Trickery = 1",
+              "ModifyStat Stewardship = 2"
+          ]
+      }
+    ]
 }

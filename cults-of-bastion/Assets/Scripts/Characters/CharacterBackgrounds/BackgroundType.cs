@@ -1,8 +1,11 @@
+using System;
+
 namespace Characters.CharacterBackgrounds
 {
+    [Serializable]
     public class BackgroundType
     {
-        public string BackgroundTypeName;
-        public string BackgroundTypeDescription;
+        public string backgroundTypeName;
+        public string backgroundTypeDescription;
     }
 }

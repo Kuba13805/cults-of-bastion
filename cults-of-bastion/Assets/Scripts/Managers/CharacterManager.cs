@@ -24,6 +24,7 @@ namespace Managers
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
         public static event Action<string> OnRequestCultureAssignment;
         public static event Action OnRequestRandomCultureAssignment;
+        public static event Action<Character, List<string>> OnRequestCharacterModificationFromModifiers;
 
         private void Awake()
         {
@@ -255,6 +256,12 @@ namespace Managers
             }
             yield return null;
         }
+        #endregion
+
+        #region CharacterModifications
+
+        private void ModifyCharacterWithModifiers(Character character, List<string> characterModifiersDefinition) => OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiersDefinition);
+
         #endregion
     }
 }

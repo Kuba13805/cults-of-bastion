@@ -2,11 +2,12 @@ using System.Collections.Generic;
 
 namespace Characters.CharacterBackgrounds
 {
+    [System.Serializable]
     public class CharacterBackgroundConstructor
     {
-        public string BackgroundName;
-        public string BackgroundDescription;
-        public string BackgroundTypeName;
-        public List<string> BackgroundEffects;
+        public string backgroundName;
+        public string backgroundDescription;
+        public string backgroundTypeName;
+        public List<string> backgroundEffects;
     }
 }
