@@ -24,7 +24,7 @@ namespace Managers
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
         public static event Action<string> OnRequestCultureAssignment;
         public static event Action OnRequestRandomCultureAssignment;
-        public static event Action<Character, List<CharacterModifier>> OnRequestCharacterModificationFromModifiers;
+        public static event Action<Character, List<CharacterModifier>, bool> OnRequestCharacterModificationFromModifiers;
         public static event Action<bool, Culture> OnRequestRandomCharacterBackground; 
 
         private void Awake()
@@ -111,8 +111,8 @@ namespace Managers
             newCharacter.characterCulture = tempCulture;
             yield return StartCoroutine(GetCharacterBackground(newCharacterCharacterBackground => newCharacter.ChildhoodBackground = newCharacterCharacterBackground, true, tempCulture));
             yield return StartCoroutine(GetCharacterBackground(newCharacterCharacterBackground => newCharacter.AdulthoodBackground = newCharacterCharacterBackground, false, tempCulture));
-            ModifyCharacterWithModifiers(newCharacter, newCharacter.ChildhoodBackground.BackgroundModifiers);
-            ModifyCharacterWithModifiers(newCharacter, newCharacter.AdulthoodBackground.BackgroundModifiers);
+            ModifyCharacterWithModifiers(newCharacter, newCharacter.ChildhoodBackground.BackgroundModifiers, false);
+            ModifyCharacterWithModifiers(newCharacter, newCharacter.AdulthoodBackground.BackgroundModifiers, false);
             AddNewCharacter(newCharacter);
             callback(newCharacter);
         }
@@ -280,7 +280,7 @@ namespace Managers
 
         #region CharacterModifications
 
-        private void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers) => OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers);
+        private void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers, bool isReverse) => OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers, isReverse);
 
         #endregion
     }

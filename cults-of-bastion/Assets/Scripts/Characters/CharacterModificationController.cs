@@ -89,31 +89,31 @@ namespace Characters
         }
 
         
-        private static void ModifyCharacter(Character characterToModify, List<string> characterModifierDefinitions)
+        private static void ModifyCharacter(Character characterToModify, List<string> characterModifierDefinitions, bool isReverse)
         {
             var characterModifiers = CreateCharacterModifier(characterModifierDefinitions);
             
             foreach (var modifier in characterModifiers)
             {
-                ApplyModifier(characterToModify, modifier);
+                ApplyModifier(characterToModify, modifier, isReverse);
             }
         }
 
-        private static void ModifyCharacter(Character characterToModify, List<CharacterModifier> characterModifiers)
+        private static void ModifyCharacter(Character characterToModify, List<CharacterModifier> characterModifiers, bool isReverse)
         {
             foreach (var modifier in characterModifiers)
             {
-                ApplyModifier(characterToModify, modifier);
+                ApplyModifier(characterToModify, modifier, isReverse);
             }
         }
 
-        private static void ApplyModifier(Character characterToModify, CharacterModifier modifier)
+        private static void ApplyModifier(Character characterToModify, CharacterModifier modifier, bool isReverse)
         {
             Debug.Log($"Applying modifier: {modifier.ModifierType} with value {modifier.Value} and string value {modifier.StringValue}.");
             switch (modifier.ModifierType)
             {
                 case CharacterModifiers.ModifyStat:
-                    ModifyStat(characterToModify, modifier);
+                    ModifyStat(characterToModify, modifier, isReverse);
                     break;
                 case CharacterModifiers.GiveTrait:
                     break;
@@ -124,7 +124,7 @@ namespace Characters
             }
         }
 
-        private static void ModifyStat(Character characterToModify, CharacterModifier modifier)
+        private static void ModifyStat(Character characterToModify, CharacterModifier modifier, bool isReverse)
         {
             var statsFields = characterToModify.CharacterStats.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
 
@@ -137,7 +137,14 @@ namespace Characters
                 if (field.Name != modifier.StringValue) continue;
                 Debug.Log($"Stat name: {field.Name} and modification stat name: {modifier.StringValue}.");
                 Debug.Log("Stat before modification: " + stat.Value);
-                stat.Value += modifier.Value;
+                if (!isReverse)
+                {
+                    stat.Value += modifier.Value;
+                }
+                else
+                {
+                    stat.Value -= modifier.Value;
+                }
                 Debug.Log($"Modified stat: {stat.Name} with value {stat.Value}");
                 break;
             }
