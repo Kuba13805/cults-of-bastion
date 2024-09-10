@@ -7,7 +7,6 @@ namespace GameScenarios
     {
         public string scenarioName;
         public string scenarioDescription;
-        public int scenarioID;
         public int scenarioStartingCharacterNumber;
         public List<string> scenarioModifiers = new();
     }

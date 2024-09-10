@@ -1,0 +1,23 @@
+{
+  "ScenarioConstructors": [
+    {
+       "scenarioName": "new_life",
+       "scenarioDescription": "new_life_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "OrganizationExists = true",
+            "ChanceForCharacterBackground soldier = 25 1",
+            "StartingResources Money = 100"
+       ]
+    },
+    {
+       "scenarioName": "young_cultist",
+       "scenarioDescription": "young_cultist_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "OrganizationExists = true",
+            "StartingResources Money = 100"
+       ]
+    }
+  ]
+}

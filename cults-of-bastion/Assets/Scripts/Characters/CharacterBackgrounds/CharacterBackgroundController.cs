@@ -136,7 +136,7 @@ namespace Characters.CharacterBackgrounds
         }
 
 
-        private IEnumerator CreateBackgroundFromConstructor(CharacterBackgroundConstructor characterBackgroundConstructor, Dictionary<string, CharacterBackground> characterBackgrounds)
+        private IEnumerator CreateBackgroundFromConstructor(CharacterBackgroundConstructor characterBackgroundConstructor, IDictionary<string, CharacterBackground> characterBackgrounds)
         {
             var newBackground = new CharacterBackground
             {
