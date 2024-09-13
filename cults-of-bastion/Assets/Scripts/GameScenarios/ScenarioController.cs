@@ -2,7 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using NewGame;
+using UI.MainMenu.NewGameMenu;
 using UnityEngine;
 
 namespace GameScenarios
@@ -30,12 +30,22 @@ namespace GameScenarios
 
         private void Start()
         {
-            ScenarioStageController.OnRequestScenarios += PassGameScenarios;
+            SubscribeToEvents();
+        }
+
+        private void SubscribeToEvents()
+        {
+            NewGamePanelController.OnRequestGameScenarios += PassGameScenarios;
         }
 
         private void OnDestroy()
         {
-            ScenarioStageController.OnRequestScenarios -= PassGameScenarios;
+            UnsubscribeFromEvents();
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            NewGamePanelController.OnRequestGameScenarios -= PassGameScenarios;
         }
 
         #region ScenarioGeneration

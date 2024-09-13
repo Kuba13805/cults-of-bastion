@@ -1,7 +1,12 @@
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
+using Characters;
 using GameScenarios;
+using Organizations;
+using UI.MainMenu;
+using UI.MainMenu.NewGameMenu;
 using UnityEngine;
 
 namespace NewGame
@@ -10,13 +15,15 @@ namespace NewGame
     {
         private NewGameStages _currentStage;
         private Scenario _currentScenario;
+        private Character _createdCharacter;
+        private Organization _createdOrganization;
 
         #region Events
 
-        public static event Action<NewGameStages> OnStageChanged;
-        public static event Action<bool> OnCheckForOrganizationBoolModifier;
-        public static event Action<string> OnCheckForOrganizationStringModifier; 
-
+        public static event Action<NewGameStages> OnStageChange;
+        public static event Action OnRequestGameScenarios;
+        public static event Action<List<Scenario>> OnPassScenarios; 
+        
         #endregion
         private void Start()
         {
@@ -25,10 +32,11 @@ namespace NewGame
 
         private void SubscribeToEvents()
         {
-            StageController.OnNextStage += NextStage;
-            StageController.OnPreviousStage += PreviousStage;
-            OrganizationStageController.OnCheckForOrganizationModifier += CheckForOrganizationModifier;
-            StartNewGameButton.OnStartNewGameButtonClicked += InitializeGameCreation;
+            StartNewGameButton.OnStartNewGameButtonClicked += InitializeNewGameStages;
+            NewGamePanelController.OnInvokeNextStage += ChangeStageToNextStage;
+            NewGamePanelController.OnInvokePreviousStage += ChangeStageToPreviousStage;
+            NewGamePanelController.OnRequestGameScenarios += RequestGameScenarios;
+            NewGamePanelController.OnSelectedScenario += SetSelectedScenario;
         }
 
         private void OnDestroy()
@@ -38,70 +46,104 @@ namespace NewGame
 
         private void UnsubscribeFromEvents()
         {
-            StageController.OnNextStage -= NextStage;
-            StageController.OnPreviousStage -= PreviousStage;
-            OrganizationStageController.OnCheckForOrganizationModifier -= CheckForOrganizationModifier;
-            StartNewGameButton.OnStartNewGameButtonClicked -= InitializeGameCreation;
+            StartNewGameButton.OnStartNewGameButtonClicked -= InitializeNewGameStages;
+            NewGamePanelController.OnInvokeNextStage -= ChangeStageToNextStage;
+            NewGamePanelController.OnInvokePreviousStage -= ChangeStageToPreviousStage;
+            NewGamePanelController.OnRequestGameScenarios -= RequestGameScenarios;
+            NewGamePanelController.OnSelectedScenario -= SetSelectedScenario;
         }
 
-        private void SetCurrentScenario(Scenario scenario)
+        #region NewGameStagesControll
+
+        private void InitializeNewGameStages()
         {
-            _currentScenario = scenario;
-        }
-
-
-        #region ManageNewGameStages
-
-        private void InitializeGameCreation()
-        {
-            Debug.Log("Initializing New Game");
             _currentStage = NewGameStages.ChooseGameScenario;
-            OnStageChanged?.Invoke(_currentStage);
+            UpdateCurrentStage();
+        }
+        private void ChangeStageToNextStage()
+        {
+            GetNextStage();
+            if (_currentStage == NewGameStages.CreateOrganization)
+            {
+                var isOrganizationCreationAllowed = OrganizationStageCheck();
+                if (!isOrganizationCreationAllowed)
+                {
+                    GetNextStage();
+                }
+            }
+            UpdateCurrentStage();
         }
 
-        private void NextStage()
+        private void ChangeStageToPreviousStage()
+        {
+            GetPreviousStage();
+            if (_currentStage == NewGameStages.CreateOrganization)
+            {
+                var isOrganizationCreationAllowed = OrganizationStageCheck();
+                if (!isOrganizationCreationAllowed)
+                {
+                    GetPreviousStage();
+                }
+            }
+            UpdateCurrentStage();
+        }
+
+        private bool OrganizationStageCheck()
+        {
+            var isOrganizationCreationAllowed = false;
+            foreach (var scenarioModifier in _currentScenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.OrganizationExists && scenarioModifier.BoolValue))
+            {
+                isOrganizationCreationAllowed = true;
+            }
+            return isOrganizationCreationAllowed;
+        }
+
+        private void GetNextStage()
         {
             _currentStage++;
-            OnStageChanged?.Invoke(_currentStage);
+            _currentStage = _currentStage > NewGameStages.ReadyToStart ? NewGameStages.ReadyToStart : _currentStage;
         }
-
-        private void PreviousStage()
+        private void GetPreviousStage()
         {
             _currentStage--;
-            OnStageChanged?.Invoke(_currentStage);
+            _currentStage = _currentStage < NewGameStages.ChooseGameScenario ? NewGameStages.ChooseGameScenario : _currentStage;
+        }
+
+        private void UpdateCurrentStage()
+        {
+            Debug.Log(_currentStage);
+            OnStageChange?.Invoke(_currentStage);
         }
 
         #endregion
 
-        #region ScenarioModifiersHandling
-        
-        private void CheckForOrganizationModifier(ScenarioModifiers modifier)
-        {
-            switch (modifier)
-            {
-                case ScenarioModifiers.OrganizationExists:
-                {
-                    if (_currentScenario.ScenarioModifiers.Any(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.OrganizationExists && scenarioModifier.BoolValue))
-                    {
-                        OnCheckForOrganizationBoolModifier?.Invoke(true);
-                    }
-                    OnCheckForOrganizationBoolModifier?.Invoke(false);
+        #region GameScenariosControll
 
-                    break;
-                }
-                case ScenarioModifiers.TypeOfOrganization:
-                {
-                    foreach (var scenarioModifier in _currentScenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.TypeOfOrganization))
-                    {
-                        OnCheckForOrganizationStringModifier?.Invoke(scenarioModifier.StringValue);
-                        break;
-                    }
-                    OnCheckForOrganizationStringModifier?.Invoke(string.Empty);
-                    
-                    break;
-                }
-            }
+        private void RequestGameScenarios()
+        {
+            StartCoroutine(PassScenarios());
         }
+
+        private static IEnumerator PassScenarios()
+        {
+            var receivedScenarios = false;
+            var scenarioList = new List<Scenario>();
+            
+            Action<List<Scenario>> onReceivedScenarios = scenarios =>
+            {
+                scenarioList = scenarios;
+                receivedScenarios = true;
+            };
+            ScenarioController.OnPassScenarios += onReceivedScenarios;
+            OnRequestGameScenarios?.Invoke();
+            
+            yield return new WaitUntil(() => receivedScenarios);
+            
+            ScenarioController.OnPassScenarios -= onReceivedScenarios;
+            OnPassScenarios?.Invoke(scenarioList);
+        }
+        
+        private void SetSelectedScenario(Scenario scenario) => _currentScenario = scenario;
 
         #endregion
     }

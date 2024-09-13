@@ -1,9 +1,8 @@
-using System;
 using GameScenarios;
 using TMPro;
 using UnityEngine;
 
-namespace UI.MainMenu.NewGameMenu
+namespace UI.MainMenu.NewGameMenu.ScenarioChoosing
 {
     public class ScenarioDetailsPanel : MonoBehaviour
     {

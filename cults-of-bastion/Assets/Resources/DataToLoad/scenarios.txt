@@ -6,6 +6,7 @@
        "scenarioStartingCharacterNumber": 1,
        "scenarioModifiers": [
             "OrganizationExists = true",
+            "TypeOfOrganization = detective_organization_type",
             "ChanceForCharacterBackground soldier = 25 1",
             "StartingResources Money = 100"
        ]
@@ -15,7 +16,7 @@
        "scenarioDescription": "young_cultist_desc",
        "scenarioStartingCharacterNumber": 1,
        "scenarioModifiers": [
-            "OrganizationExists = true",
+            "OrganizationExists = false",
             "StartingResources Money = 100"
        ]
     }

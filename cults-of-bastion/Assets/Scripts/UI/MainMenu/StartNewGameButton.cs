@@ -2,11 +2,19 @@ using System;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class StartNewGameButton : MonoBehaviour
+namespace UI.MainMenu
 {
-    public static event Action OnStartNewGameButtonClicked;
-    private void Start()
+    public class StartNewGameButton : MonoBehaviour
     {
-        GetComponent<Button>().onClick.AddListener(() => OnStartNewGameButtonClicked?.Invoke());
+        public static event Action OnStartNewGameButtonClicked;
+        private void Start()
+        {
+            GetComponent<Button>().onClick.AddListener(() => OnStartNewGameButtonClicked?.Invoke());
+        }
+
+        private void OnDestroy()
+        {
+            GetComponent<Button>().onClick.RemoveListener(() => OnStartNewGameButtonClicked?.Invoke());
+        }
     }
 }
