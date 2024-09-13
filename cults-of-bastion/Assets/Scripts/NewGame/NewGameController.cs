@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Characters;
 using GameScenarios;
+using Managers;
 using Organizations;
 using UI.MainMenu;
 using UI.MainMenu.NewGameMenu;
@@ -22,7 +23,9 @@ namespace NewGame
 
         public static event Action<NewGameStages> OnStageChange;
         public static event Action OnRequestGameScenarios;
-        public static event Action<List<Scenario>> OnPassScenarios; 
+        public static event Action<List<Scenario>> OnPassScenarios;
+        public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
+        public static event Action OnRequestOrganizationTypes;
         
         #endregion
         private void Start()
@@ -37,6 +40,7 @@ namespace NewGame
             NewGamePanelController.OnInvokePreviousStage += ChangeStageToPreviousStage;
             NewGamePanelController.OnRequestGameScenarios += RequestGameScenarios;
             NewGamePanelController.OnSelectedScenario += SetSelectedScenario;
+            NewGamePanelController.OnRequestOrganizationTypes += RequestOrganizationTypes;
         }
 
         private void OnDestroy()
@@ -51,6 +55,7 @@ namespace NewGame
             NewGamePanelController.OnInvokePreviousStage -= ChangeStageToPreviousStage;
             NewGamePanelController.OnRequestGameScenarios -= RequestGameScenarios;
             NewGamePanelController.OnSelectedScenario -= SetSelectedScenario;
+            NewGamePanelController.OnRequestOrganizationTypes -= RequestOrganizationTypes;
         }
 
         #region NewGameStagesControll
@@ -141,6 +146,29 @@ namespace NewGame
             
             ScenarioController.OnPassScenarios -= onReceivedScenarios;
             OnPassScenarios?.Invoke(scenarioList);
+        }
+        private void RequestOrganizationTypes()
+        {
+            StartCoroutine(PassOrganizationTypes());
+        }
+
+        private static IEnumerator PassOrganizationTypes()
+        {
+            var receivedOrganizationTypes = false;
+            var organizationTypes = new List<OrganizationType>();
+            
+            Action<List<OrganizationType>> onReceivedOrganizationTypes = organizationTypesList =>
+            {
+                organizationTypes = organizationTypesList;
+                receivedOrganizationTypes = true;
+            };
+            OrganizationManager.OnPassOrganizationTypes += onReceivedOrganizationTypes;
+            OnRequestOrganizationTypes?.Invoke();
+            
+            yield return new WaitUntil(() => receivedOrganizationTypes);
+            
+            OrganizationManager.OnPassOrganizationTypes -= onReceivedOrganizationTypes;
+            OnPassOrganizationTypes?.Invoke(organizationTypes);
         }
         
         private void SetSelectedScenario(Scenario scenario) => _currentScenario = scenario;

@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using GameScenarios;
 using NewGame;
+using Organizations;
+using UI.MainMenu.NewGameMenu.OrganizationCreation;
 using UI.MainMenu.NewGameMenu.ScenarioChoosing;
 using UnityEngine;
 
@@ -13,7 +15,7 @@ namespace UI.MainMenu.NewGameMenu
         #region Variables 
 
         [SerializeField] private ScenarioPanelController scenariosPanel;
-        [SerializeField] private GameObject organizationPanel;
+        [SerializeField] private OrganizationPanelController organizationPanel;
         [SerializeField] private GameObject characterPanel;
         [SerializeField] private GameObject readyToStartPanel;
 
@@ -27,6 +29,7 @@ namespace UI.MainMenu.NewGameMenu
         public static event Action OnInvokePreviousStage;
         public static event Action OnRequestGameScenarios;
         public static event Action<Scenario> OnSelectedScenario;
+        public static event Action OnRequestOrganizationTypes;
 
         #endregion
 
@@ -90,8 +93,9 @@ namespace UI.MainMenu.NewGameMenu
         private void InitializeScenarioSelection()
         {
             StartCoroutine(GetGameScenarios());
+            StartCoroutine(GetOrganizationTypes());
             scenariosPanel.gameObject.SetActive(true);
-            organizationPanel.SetActive(false);
+            organizationPanel.gameObject.SetActive(false);
             characterPanel.SetActive(false);
         }
         private IEnumerator GetGameScenarios()
@@ -111,17 +115,34 @@ namespace UI.MainMenu.NewGameMenu
             NewGameController.OnPassScenarios -= onReceivedGameScenarios;
         }
 
+        private IEnumerator GetOrganizationTypes()
+        {
+            var receivedOrganizationTypes = false;
+            Action<List<OrganizationType>> onReceivedOrganizationTypes = organizationTypes =>
+            {
+                receivedOrganizationTypes = true;
+                organizationPanel.InitializeOrganizationList(organizationTypes);
+            };
+            
+            NewGameController.OnPassOrganizationTypes += onReceivedOrganizationTypes;
+            OnRequestOrganizationTypes?.Invoke();
+            
+            yield return new WaitUntil(() => receivedOrganizationTypes);
+            
+            NewGameController.OnPassOrganizationTypes -= onReceivedOrganizationTypes;
+        }
+
         private void InitializeOrganizationCreation()
         {
             scenariosPanel.gameObject.SetActive(false);
-            organizationPanel.SetActive(true);
+            organizationPanel.gameObject.SetActive(true);
             characterPanel.SetActive(false);
         }
 
         private void InitializeCharacterCreation()
         {
             scenariosPanel.gameObject.SetActive(false);
-            organizationPanel.SetActive(false);
+            organizationPanel.gameObject.SetActive(false);
             readyToStartPanel.SetActive(false);
             characterPanel.SetActive(true);
         }

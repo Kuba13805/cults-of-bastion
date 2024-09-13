@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Characters;
+using NewGame;
 using Organizations;
+using UI.MainMenu.NewGameMenu;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -25,6 +27,7 @@ namespace Managers
         public static event Action OnOrganizationManagerInitialized;
         public static event Action<Organization> OnOrganizationMemberAdded;
         public static event Action OnOrganizationLoadingFinished;
+        public static event Action<List<OrganizationType>> OnPassOrganizationTypes; 
 
         private void Awake()
         {
@@ -46,11 +49,13 @@ namespace Managers
         {
             GameManager.OnGameDataLoaded += StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization += AssignCharacterToOrganization;
+            NewGameController.OnRequestOrganizationTypes += PassOrganizationTypes;
         }
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataLoaded -= StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization -= AssignCharacterToOrganization;
+            NewGameController.OnRequestOrganizationTypes -= PassOrganizationTypes;
         }
 
         private void InitializeOrganizationIDs()
@@ -205,6 +210,16 @@ namespace Managers
                 _organizationTypes.Add(organizationType.typeName, organizationType);
                 Debug.Log($"New organization type added: {organizationType.typeName}");
             }
+        }
+
+        #endregion
+
+        #region DataPassing
+
+        private void PassOrganizationTypes()
+        {
+            var organizationTypes = _organizationTypes.Values.ToList();
+            OnPassOrganizationTypes?.Invoke(organizationTypes);
         }
 
         #endregion
