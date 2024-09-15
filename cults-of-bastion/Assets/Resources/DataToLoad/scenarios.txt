@@ -6,8 +6,6 @@
        "scenarioStartingCharacterNumber": 1,
        "scenarioModifiers": [
             "OrganizationExists = true",
-            "TypeOfOrganization = detective_organization_type",
-            "ChanceForCharacterBackground soldier = 25 1",
             "StartingResources Money = 100"
        ]
     },
@@ -16,7 +14,19 @@
        "scenarioDescription": "young_cultist_desc",
        "scenarioStartingCharacterNumber": 1,
        "scenarioModifiers": [
-            "OrganizationExists = false",
+            "OrganizationExists = true",
+            "TypeOfOrganization = cult_organization_type",
+            "StartingResources Money = 100"
+       ]
+    },
+    {
+       "scenarioName": "old_detective",
+       "scenarioDescription": "old_detective_desc",
+       "scenarioStartingCharacterNumber": 2,
+       "scenarioModifiers": [
+            "OrganizationExists = true",
+            "TypeOfOrganization = detective_organization_type",
+            "ChanceForCharacterBackground soldier = 25 1",
             "StartingResources Money = 100"
        ]
     }

@@ -26,6 +26,7 @@ namespace NewGame
         public static event Action<List<Scenario>> OnPassScenarios;
         public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
         public static event Action OnRequestOrganizationTypes;
+        public static event Action<string> OnPassForcedOrganizationType; 
         
         #endregion
         private void Start()
@@ -41,6 +42,7 @@ namespace NewGame
             NewGamePanelController.OnRequestGameScenarios += RequestGameScenarios;
             NewGamePanelController.OnSelectedScenario += SetSelectedScenario;
             NewGamePanelController.OnRequestOrganizationTypes += RequestOrganizationTypes;
+            NewGamePanelController.OnRequestForcedOrganizationType += CheckForForcedOrganizationType;
         }
 
         private void OnDestroy()
@@ -56,6 +58,7 @@ namespace NewGame
             NewGamePanelController.OnRequestGameScenarios -= RequestGameScenarios;
             NewGamePanelController.OnSelectedScenario -= SetSelectedScenario;
             NewGamePanelController.OnRequestOrganizationTypes -= RequestOrganizationTypes;
+            NewGamePanelController.OnRequestForcedOrganizationType -= CheckForForcedOrganizationType;
         }
 
         #region NewGameStagesControll
@@ -71,7 +74,7 @@ namespace NewGame
             if (_currentStage == NewGameStages.CreateOrganization)
             {
                 var isOrganizationCreationAllowed = OrganizationStageCheck();
-                if (!isOrganizationCreationAllowed)
+                if (!isOrganizationCreationAllowed.Item1)
                 {
                     GetNextStage();
                 }
@@ -85,7 +88,7 @@ namespace NewGame
             if (_currentStage == NewGameStages.CreateOrganization)
             {
                 var isOrganizationCreationAllowed = OrganizationStageCheck();
-                if (!isOrganizationCreationAllowed)
+                if (!isOrganizationCreationAllowed.Item1)
                 {
                     GetPreviousStage();
                 }
@@ -93,14 +96,20 @@ namespace NewGame
             UpdateCurrentStage();
         }
 
-        private bool OrganizationStageCheck()
+        private (bool, string) OrganizationStageCheck()
         {
             var isOrganizationCreationAllowed = false;
             foreach (var scenarioModifier in _currentScenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.OrganizationExists && scenarioModifier.BoolValue))
             {
                 isOrganizationCreationAllowed = true;
             }
-            return isOrganizationCreationAllowed;
+
+            var forcedOrganizationTypeName = "";
+            foreach (var scenarioModifier in _currentScenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.TypeOfOrganization && !string.IsNullOrEmpty(scenarioModifier.StringValue) && !string.IsNullOrWhiteSpace(scenarioModifier.StringValue)))
+            {
+                forcedOrganizationTypeName = scenarioModifier.StringValue;
+            }
+            return (isOrganizationCreationAllowed, forcedOrganizationTypeName);
         }
 
         private void GetNextStage()
@@ -129,7 +138,7 @@ namespace NewGame
             StartCoroutine(PassScenarios());
         }
 
-        private static IEnumerator PassScenarios()
+        private IEnumerator PassScenarios()
         {
             var receivedScenarios = false;
             var scenarioList = new List<Scenario>();
@@ -137,6 +146,7 @@ namespace NewGame
             Action<List<Scenario>> onReceivedScenarios = scenarios =>
             {
                 scenarioList = scenarios;
+                _currentScenario = scenarios[0];
                 receivedScenarios = true;
             };
             ScenarioController.OnPassScenarios += onReceivedScenarios;
@@ -147,6 +157,13 @@ namespace NewGame
             ScenarioController.OnPassScenarios -= onReceivedScenarios;
             OnPassScenarios?.Invoke(scenarioList);
         }
+        
+        private void SetSelectedScenario(Scenario scenario) => _currentScenario = scenario;
+
+        #endregion
+
+        #region OrganizationTypesControll
+
         private void RequestOrganizationTypes()
         {
             StartCoroutine(PassOrganizationTypes());
@@ -166,12 +183,20 @@ namespace NewGame
             OnRequestOrganizationTypes?.Invoke();
             
             yield return new WaitUntil(() => receivedOrganizationTypes);
-            
             OrganizationManager.OnPassOrganizationTypes -= onReceivedOrganizationTypes;
             OnPassOrganizationTypes?.Invoke(organizationTypes);
         }
-        
-        private void SetSelectedScenario(Scenario scenario) => _currentScenario = scenario;
+
+        private void CheckForForcedOrganizationType()
+        {
+            var forcedOrganizationTypeName = "";
+            foreach (var scenarioModifier in _currentScenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.TypeOfOrganization && !string.IsNullOrEmpty(scenarioModifier.StringValue) && !string.IsNullOrWhiteSpace(scenarioModifier.StringValue)))
+            {
+                forcedOrganizationTypeName = scenarioModifier.StringValue;
+            }
+            Debug.Log($"Forced organization type: {forcedOrganizationTypeName}");
+            OnPassForcedOrganizationType?.Invoke(forcedOrganizationTypeName);
+        }
 
         #endregion
     }

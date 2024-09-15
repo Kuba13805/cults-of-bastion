@@ -112,51 +112,58 @@ namespace GameScenarios
                 return null;
             }
 
-            var modifier = new ScenarioModifier();
+            ScenarioModifier modifier;
             
             if (!Enum.TryParse<ScenarioModifiers>(definitions[0], out var scenarioModifier))
             {
                 Console.WriteLine($"Error: Invalid scenario modifier type '{definitions[0]}'");
                 return null;
             }
-
-            modifier.ModiferType = scenarioModifier;
+            
 
             try
             {
-                modifier = scenarioModifier switch
+                switch (scenarioModifier)
                 {
-                    ScenarioModifiers.OrganizationExists => 
-                        bool.TryParse(definitions[1], out var boolValue) 
-                            ? CreateModifier(boolValue) 
-                            : throw new ArgumentException($"Invalid boolean value for OrganizationExists: '{definitions[1]}'"),
-
-                    ScenarioModifiers.TypeOfOrganization => 
-                        CreateModifier(definitions[1]),
-
-                    ScenarioModifiers.ChanceForCharacterBackground => 
-                        CreateModifier(definitions[1], int.Parse(definitions[2]), int.Parse(definitions[3])),
-
-                    ScenarioModifiers.StartingOwnedBuilding => 
-                        CreateModifier(definitions[1], int.Parse(definitions[2])),
-
-                    ScenarioModifiers.ChanceForCharacterCulture => 
-                        CreateModifier(definitions[1], int.Parse(definitions[2]), int.Parse(definitions[3])),
-
-                    ScenarioModifiers.ChanceForCharacterTrait => 
-                        CreateModifier(definitions[1], int.Parse(definitions[2]), int.Parse(definitions[3])),
-
-                    ScenarioModifiers.StartingResources => 
-                        CreateModifier(definitions[1], int.Parse(definitions[2])),
-
-                    ScenarioModifiers.StartingQuestline => 
-                        CreateModifier(definitions[1]),
-
-                    ScenarioModifiers.StartingEvent => 
-                        CreateModifier(definitions[1]),
-
-                    _ => throw new ArgumentOutOfRangeException($"Invalid scenario modifier type: {scenarioModifier}")
-                };
+                    case ScenarioModifiers.OrganizationExists:
+                        modifier = bool.TryParse(definitions[1], out var boolValue)
+                            ? CreateModifier(boolValue)
+                            : throw new ArgumentException(
+                                $"Invalid boolean value for OrganizationExists: '{definitions[1]}'");
+                            modifier.ModiferType = ScenarioModifiers.OrganizationExists;
+                        break;
+                    case ScenarioModifiers.TypeOfOrganization:
+                        modifier = CreateModifier(definitions[1]);
+                        modifier.ModiferType = ScenarioModifiers.TypeOfOrganization;
+                        break;
+                    case ScenarioModifiers.ChanceForCharacterBackground:
+                        modifier = CreateModifier(definitions[1], int.Parse(definitions[2]), int.Parse(definitions[3]));
+                        modifier.ModiferType = ScenarioModifiers.ChanceForCharacterBackground;
+                        break;
+                    case ScenarioModifiers.StartingOwnedBuilding:
+                        modifier = CreateModifier(definitions[1], int.Parse(definitions[2]));
+                        modifier.ModiferType = ScenarioModifiers.StartingOwnedBuilding;
+                        break;
+                    case ScenarioModifiers.ChanceForCharacterCulture:
+                        modifier = CreateModifier(definitions[1], int.Parse(definitions[2]), int.Parse(definitions[3]));
+                        modifier.ModiferType = scenarioModifier;
+                        break;
+                    case ScenarioModifiers.ChanceForCharacterTrait:
+                        modifier = CreateModifier(definitions[1], int.Parse(definitions[2]), int.Parse(definitions[3]));
+                        modifier.ModiferType = scenarioModifier;
+                        break;
+                    case ScenarioModifiers.StartingResources:
+                        modifier = CreateModifier(definitions[1], int.Parse(definitions[2]));
+                        modifier.ModiferType = ScenarioModifiers.StartingResources;
+                        break;
+                    case ScenarioModifiers.StartingQuestline:
+                    case ScenarioModifiers.StartingEvent:
+                        modifier = CreateModifier(definitions[1]);
+                        modifier.ModiferType = scenarioModifier;
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException($"Invalid scenario modifier type: {scenarioModifier}");
+                }
             }
             catch (Exception ex)
             {

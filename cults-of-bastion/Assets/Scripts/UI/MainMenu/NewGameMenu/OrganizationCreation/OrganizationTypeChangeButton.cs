@@ -21,21 +21,20 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             {
                 GetComponent<Button>().onClick.AddListener(RequestNextOrganizationType);
             }
+            OrganizationPanelController.OnOrganizationTypeChangeBlocked += BlockOrganizationTypeChange;
         }
-
         private void OnDisable()
         {
-            GetComponent<Button>().onClick.RemoveAllListeners();
+            GetComponent<Button>().onClick.RemoveAllListeners(); 
+            OrganizationPanelController.OnOrganizationTypeChangeBlocked -= BlockOrganizationTypeChange;
         }
 
-        private void RequestNextOrganizationType()
+        private void BlockOrganizationTypeChange(bool b)
         {
-            OnNextOrganizationTypeButtonClicked?.Invoke();
+            GetComponent<Button>().interactable = !b;
+            Debug.Log($"Organization type change blocked: {b}");
         }
-
-        private void RequestPreviousOrganizationType()
-        {
-            OnPreviousOrganizationTypeButtonClicked?.Invoke();
-        }
+        private static void RequestNextOrganizationType() => OnNextOrganizationTypeButtonClicked?.Invoke();
+        private static void RequestPreviousOrganizationType() => OnPreviousOrganizationTypeButtonClicked?.Invoke();
     }
 }

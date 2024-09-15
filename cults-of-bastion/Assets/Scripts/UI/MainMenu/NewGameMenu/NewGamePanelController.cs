@@ -30,10 +30,12 @@ namespace UI.MainMenu.NewGameMenu
         public static event Action OnRequestGameScenarios;
         public static event Action<Scenario> OnSelectedScenario;
         public static event Action OnRequestOrganizationTypes;
+        public static event Action OnRequestForcedOrganizationType;
+        public static event Action<string> OnPassForcedOrganizationType; 
 
         #endregion
 
-        private void Start()
+        private void OnEnable()
         {
             SubscribeToEvents();
         }
@@ -44,9 +46,10 @@ namespace UI.MainMenu.NewGameMenu
             StageChangeButton.OnNextStageButtonClicked += InvokeNextStage;
             StageChangeButton.OnPreviousStageButtonClicked += InvokePreviousStage;
             ScenarioButton.OnScenarioSelected += SelectScenario;
+            OrganizationPanelController.OnRequestForcedOrganizationType += CheckForForcedOrganizationType;
         }
 
-        private void OnDestroy()
+        private void OnDisable()
         {
             UnsubscribeFromEvents();
         }
@@ -57,6 +60,7 @@ namespace UI.MainMenu.NewGameMenu
             StageChangeButton.OnNextStageButtonClicked -= InvokeNextStage;
             StageChangeButton.OnPreviousStageButtonClicked -= InvokePreviousStage;
             ScenarioButton.OnScenarioSelected -= SelectScenario;
+            OrganizationPanelController.OnRequestForcedOrganizationType += CheckForForcedOrganizationType;
         }
 
         private void SelectScenario(Scenario selectedScenario)
@@ -121,7 +125,7 @@ namespace UI.MainMenu.NewGameMenu
             Action<List<OrganizationType>> onReceivedOrganizationTypes = organizationTypes =>
             {
                 receivedOrganizationTypes = true;
-                organizationPanel.InitializeOrganizationList(organizationTypes);
+                organizationPanel.InitializeOrganizationTypeList(organizationTypes);
             };
             
             NewGameController.OnPassOrganizationTypes += onReceivedOrganizationTypes;
@@ -130,6 +134,26 @@ namespace UI.MainMenu.NewGameMenu
             yield return new WaitUntil(() => receivedOrganizationTypes);
             
             NewGameController.OnPassOrganizationTypes -= onReceivedOrganizationTypes;
+        }
+        private void CheckForForcedOrganizationType()
+        {
+            StartCoroutine(GetForcedOrganizationType());
+        }
+        private static IEnumerator GetForcedOrganizationType()
+        {
+            var receivedForcedOrganizationType = false;
+            Action<string> onReceivedForcedOrganizationType = forcedOrganizationType =>
+            {
+                receivedForcedOrganizationType = true;
+                OnPassForcedOrganizationType?.Invoke(forcedOrganizationType);
+            };
+            
+            NewGameController.OnPassForcedOrganizationType += onReceivedForcedOrganizationType;
+            OnRequestForcedOrganizationType?.Invoke();
+            
+            yield return new WaitUntil(() => receivedForcedOrganizationType);
+            
+            NewGameController.OnPassForcedOrganizationType -= onReceivedForcedOrganizationType;
         }
 
         private void InitializeOrganizationCreation()
