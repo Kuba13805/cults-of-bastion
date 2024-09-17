@@ -16,16 +16,15 @@ namespace Managers
         private readonly HashSet<int> _characterIDsInUse = new();
         private readonly Queue<int> _characterIDsAvailable = new();
         private GameData _gameData;
+        private CharacterGenerator _characterGenerator;
 
         [SerializeField] private int maxCharacters;
         
         public static event Action OnCharactersLoaded;
         public static event Action OnCharacterManagerInitialized;
+        public static event Action OnRequestCharacterGeneratorData;
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
-        public static event Action<string> OnRequestCultureAssignment;
-        public static event Action OnRequestRandomCultureAssignment;
         public static event Action<Character, List<CharacterModifier>, bool> OnRequestCharacterModificationFromModifiers;
-        public static event Action<bool, Culture> OnRequestRandomCharacterBackground; 
 
         private void Awake()
         {
@@ -35,7 +34,8 @@ namespace Managers
 
         private void Start()
         {
-            OnCharacterManagerInitialized?.Invoke();
+            _characterGenerator = GetComponent<CharacterGenerator>();
+            StartCoroutine(StartGeneratorInitialization());
         }
 
         private void OnDestroy()
@@ -79,63 +79,7 @@ namespace Managers
         }
 
         #endregion
-
-        #region CharacterGeneration
-
-        private IEnumerator GenerateCharacter(Action<Character> callback, params string[] cultureName)
-        {
-            var tempCulture = new Culture();
-            
-            Action<Culture> onCultureAssigned = culture =>
-            {
-                tempCulture = culture;
-            };
-
-            if (cultureName.Length == 0)
-            {
-                CultureController.OnReturnRequestedCulture += onCultureAssigned;
-                OnRequestRandomCultureAssignment?.Invoke();
-                yield return new WaitUntil(() => tempCulture != null);
-                CultureController.OnReturnRequestedCulture -= onCultureAssigned;
-            }
-            else
-            {
-                CultureController.OnReturnRequestedCulture += onCultureAssigned;
-                OnRequestCultureAssignment?.Invoke(cultureName[0]);
-                yield return new WaitUntil(() => tempCulture != null);
-                CultureController.OnReturnRequestedCulture -= onCultureAssigned;
-            }
-
-            var newGenerator = new CharacterGenerator(tempCulture);
-            var newCharacter = newGenerator.GenerateCharacter();
-            newCharacter.characterCulture = tempCulture;
-            yield return StartCoroutine(GetCharacterBackground(newCharacterCharacterBackground => newCharacter.ChildhoodBackground = newCharacterCharacterBackground, true, tempCulture));
-            yield return StartCoroutine(GetCharacterBackground(newCharacterCharacterBackground => newCharacter.AdulthoodBackground = newCharacterCharacterBackground, false, tempCulture));
-            ModifyCharacterWithModifiers(newCharacter, newCharacter.ChildhoodBackground.BackgroundModifiers, false);
-            ModifyCharacterWithModifiers(newCharacter, newCharacter.AdulthoodBackground.BackgroundModifiers, false);
-            AddNewCharacter(newCharacter);
-            callback(newCharacter);
-        }
-
-        private static IEnumerator GetCharacterBackground(Action<CharacterBackground> callback, bool isChildhoodBackgroundGeneration, Culture culture)
-        {
-            var tempBackground = new CharacterBackground();
-            Action<CharacterBackground> onGetCharacterBackground = background =>
-            {
-                tempBackground = background;
-            };
-            CharacterBackgroundController.OnPassRandomCharacterBackground += onGetCharacterBackground;
-            OnRequestRandomCharacterBackground?.Invoke(isChildhoodBackgroundGeneration, culture);
-            
-            yield return new WaitUntil(() => tempBackground != null);
-            CharacterBackgroundController.OnPassRandomCharacterBackground -= onGetCharacterBackground;
-            callback.Invoke(tempBackground);
-        }
-
-        #endregion
-
         #region HandleCharacterIDs
-
         private int GetNewCharacterID()
         {
             if (_characterIDsAvailable.Count <= 0) return -1;
@@ -151,6 +95,70 @@ namespace Managers
             
             _characterIDsInUse.Remove(id);
             _characterIDsAvailable.Enqueue(id);
+        }
+        #endregion
+        #region CharacterGeneration
+        private IEnumerator StartGeneratorInitialization()
+        {
+            var tempCultureList = new List<Culture>();
+            (List<CharacterBackground>, List<CharacterBackground>) tempBackgroundList = new();
+            
+            var culturesReceived = false;
+            var backgroundsReceived = false;
+            
+            Action<List<Culture>> onCultureListReceived = cultures =>
+            {
+                tempCultureList = cultures;
+                culturesReceived = true;
+            };
+            Action<(List<CharacterBackground>, List<CharacterBackground>)> onBackgroundListReceived = backgrounds =>
+            {
+                tempBackgroundList = backgrounds;
+                backgroundsReceived = true;
+            };
+            CultureController.OnReturnCultureList += onCultureListReceived;
+            CharacterBackgroundController.OnReturnBackgrounds += onBackgroundListReceived;
+            
+            OnRequestCharacterGeneratorData?.Invoke();
+
+            yield return new WaitUntil(() => culturesReceived && backgroundsReceived);
+            
+            CultureController.OnReturnCultureList -= onCultureListReceived;
+            CharacterBackgroundController.OnReturnBackgrounds -= onBackgroundListReceived;
+            
+            yield return new WaitUntil(() => _characterGenerator.InitializeGenerator(tempCultureList, tempBackgroundList.Item1, tempBackgroundList.Item2));
+            
+            OnCharacterManagerInitialized?.Invoke();
+        }
+
+        private Character GenerateCharacter()
+        {
+            var character = _characterGenerator.GenerateCharacter();
+            ApplyBackgroundModifiers(character);
+            AddNewCharacter(character);
+            return character;
+        }
+
+        private Character GenerateCharacter(Culture culture)
+        {
+            var character = _characterGenerator.GenerateCharacter(culture.cultureName);
+            ApplyBackgroundModifiers(character);
+            AddNewCharacter(character);
+            return character;
+        }
+
+        private Character GenerateCharacter(CharacterConstructor characterConstructor)
+        {
+            var character = _characterGenerator.GenerateCharacter(characterConstructor);
+            ApplyBackgroundModifiers(character);
+            AddNewCharacter(character);
+            return character;
+        }
+
+        private void ApplyBackgroundModifiers(Character character)
+        {
+            ModifyCharacterWithModifiers(character, character.ChildhoodBackground.BackgroundModifiers, false);
+            ModifyCharacterWithModifiers(character, character.AdulthoodBackground.BackgroundModifiers, false);
         }
 
         #endregion
@@ -181,45 +189,25 @@ namespace Managers
             
 
             yield return new WaitUntil(() => organizationsLoadingFinished);
+
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
                 if(_characterIDsAvailable.Count == 0) continue;
-                var character = new Character
-                {
-                    characterName = characterConstructor.name,
-                    characterSurname = characterConstructor.surname,
-                    characterNickname = characterConstructor.nickname,
-                    characterGender = characterConstructor.gender == "Male" 
-                        ? CharacterGender.Male : CharacterGender.Female,
-                    characterAge = characterConstructor.age,
-                    characterID = GetNewCharacterID(),
-                };
+                var character = GenerateCharacter(characterConstructor);
 
                 foreach (var locationData in characterConstructor.ownLocationIds.SelectMany(t => _gameData.Locations.Where(locationData => locationData.locationID == t)))
                 {
                     character.characterOwnedLocations.Add(locationData);
                 }
-
                 if (characterConstructor.organizationId > 0)
                 {
                     yield return StartCoroutine(AssignCharacterToOrganization(character, characterConstructor.organizationId));
                 }
-
-                if (string.IsNullOrEmpty(characterConstructor.culture))
-                {
-                    yield return StartCoroutine(AssignCharacterCulture(character, "culture_british"));
-                }
-                else
-                {
-                    yield return StartCoroutine(AssignCharacterCulture(character, characterConstructor.culture));
-                }
-                _gameData.Characters.Add(character);
-                Debug.Log($"Loaded {character.characterGender} character: {character.characterName}, id: {character.characterID} " +
-                          $"with {character.characterOwnedLocations.Count} owned locations. {character.CharacterStats.Strength.Desc}: {character.CharacterStats.Strength.Value}");
             }
             OrganizationManager.OnOrganizationLoadingFinished -= onOrganizationsLoadingFinished;
             yield return null;
         }
+        
 
         private static IEnumerator AssignCharacterToOrganization(Character character, int organizationID)
         {
@@ -239,20 +227,6 @@ namespace Managers
             Debug.Log($"Character organization {character.characterOrganization.organizationName} assigned to character {character.characterName} {character.characterSurname}");
             OrganizationManager.OnOrganizationMemberAdded -= onMemberAdded;
         }
-
-        private static IEnumerator AssignCharacterCulture(Character character, string cultureName)
-        {
-            Action<Culture> onCultureAssigned = culture =>
-            {
-                character.characterCulture = culture;
-            };
-            CultureController.OnReturnRequestedCulture += onCultureAssigned;
-            OnRequestCultureAssignment?.Invoke(cultureName);
-            
-            yield return new WaitUntil(() => character.characterCulture != null);
-            Debug.Log($"Character culture {character.characterCulture.cultureName} assigned to character {character.characterName} {character.characterSurname}");
-            CultureController.OnReturnRequestedCulture -= onCultureAssigned;
-        }
         
         private IEnumerator InjectCharactersToLocationData()
         {
@@ -270,7 +244,7 @@ namespace Managers
         {
             foreach (var location in _gameData.Locations.Where(location => location.LocationOwner == null))
             {
-                yield return GenerateCharacter(result => location.LocationOwner = result);
+                location.LocationOwner = GenerateCharacter();
                 location.LocationOwner.characterOwnedLocations.Add(location);
                 Debug.Log($"Character {location.LocationOwner.characterName} {location.LocationOwner.characterSurname} added to {location.locationName}");
             }
@@ -280,7 +254,8 @@ namespace Managers
 
         #region CharacterModifications
 
-        private void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers, bool isReverse) => OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers, isReverse);
+        private static void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers, bool isReverse) => 
+            OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers, isReverse);
 
         #endregion
     }

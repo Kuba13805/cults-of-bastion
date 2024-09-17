@@ -21,12 +21,12 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             {
                 GetComponent<Button>().onClick.AddListener(RequestNextOrganizationType);
             }
-            OrganizationPanelController.OnOrganizationTypeChangeBlocked += BlockOrganizationTypeChange;
+            
         }
         private void OnDisable()
         {
             GetComponent<Button>().onClick.RemoveAllListeners(); 
-            OrganizationPanelController.OnOrganizationTypeChangeBlocked -= BlockOrganizationTypeChange;
+            
         }
 
         private void BlockOrganizationTypeChange(bool b)

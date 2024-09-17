@@ -49,13 +49,13 @@ namespace Managers
         {
             GameManager.OnGameDataLoaded += StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization += AssignCharacterToOrganization;
-            NewGameController.OnRequestOrganizationTypes += PassOrganizationTypes;
+            NewGameController.OnRequestGameData += PassOrganizationTypes;
         }
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataLoaded -= StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization -= AssignCharacterToOrganization;
-            NewGameController.OnRequestOrganizationTypes -= PassOrganizationTypes;
+            NewGameController.OnRequestGameData -= PassOrganizationTypes;
         }
 
         private void InitializeOrganizationIDs()
@@ -208,7 +208,6 @@ namespace Managers
                      }))
             {
                 _organizationTypes.Add(organizationType.typeName, organizationType);
-                Debug.Log($"New organization type added: {organizationType.typeName}");
             }
         }
 

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Cultures;
 using Managers;
+using NewGame;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -15,8 +16,8 @@ namespace Characters.CharacterBackgrounds
         private Dictionary<string, CharacterBackground> _adulthoodBackgrounds = new();
         private BackgroundData _backgroundData;
 
+        public static event Action<(List<CharacterBackground>, List<CharacterBackground>)> OnReturnBackgrounds;
         public static event Action<List<string>> OnRequestBackgroundEffectsCreation;
-        public static event Action<CharacterBackground> OnPassRandomCharacterBackground; 
         private void Awake()
         {
             StartCoroutine(LoadBackgrounds());
@@ -30,69 +31,18 @@ namespace Characters.CharacterBackgrounds
 
         private void SubscribeToEvents()
         {
-            CharacterManager.OnRequestRandomCharacterBackground += StartGettingBackgrounds;
+            CharacterManager.OnRequestCharacterGeneratorData += ReturnBackgrounds;
+            NewGameController.OnRequestGameData += ReturnBackgrounds;
         }
 
         private void UnsubscribeFromEvents()
         {
-            CharacterManager.OnRequestRandomCharacterBackground -= StartGettingBackgrounds;
+            CharacterManager.OnRequestCharacterGeneratorData -= ReturnBackgrounds;
+            NewGameController.OnRequestGameData -= ReturnBackgrounds;
         }
 
-        private void StartGettingBackgrounds(bool isChildhoodBackground, Culture characterCulture)
-        {
-            StartCoroutine(GetRandomBackground(isChildhoodBackground, characterCulture));
-        }
-
-        private IEnumerator GetRandomBackground(bool isChildhoodBackground, Culture characterCulture)
-        {
-            var tempBackgroundList = new List<CharacterBackground>();
-            if (isChildhoodBackground)
-            {
-                StartCoroutine(GetAllowedBackgrounds(_childhoodBackgrounds, characterCulture, list => tempBackgroundList = list));
-            }
-            else
-            {
-                StartCoroutine(GetAllowedBackgrounds(_adulthoodBackgrounds, characterCulture, list => tempBackgroundList = list));
-            }
-            yield return new WaitUntil(() => tempBackgroundList.Count > 0);
-            var background = tempBackgroundList[Random.Range(0, tempBackgroundList.Count)];
-            OnPassRandomCharacterBackground?.Invoke(background);
-            yield return null;
-        }
-        private static IEnumerator GetAllowedBackgrounds(Dictionary<string, CharacterBackground> backgrounds, Culture characterCulture, Action<List<CharacterBackground>> callback)
-        {
-            var isDisallowed = false;
-            var isAllowed = true;
-            var allowedBackgrounds = new List<CharacterBackground>();
-            foreach (var background in backgrounds)
-            {
-                if (background.Value.DisallowedCulturesForBackground.Count > 0)
-                {
-                    if (background.Value.DisallowedCulturesForBackground.Any(cultureName => characterCulture != null && characterCulture.cultureName.Equals(cultureName)))
-                    {
-                        isDisallowed = true;
-                    }
-                }
-
-                if (background.Value.AllowedCulturesForBackground.Count > 0)
-                {
-                    if (!background.Value.AllowedCulturesForBackground.Any(cultureName => characterCulture != null && characterCulture.cultureName.Equals(cultureName)))
-                    {
-                        isAllowed = false;
-                    }
-                }
-                if (isAllowed && !isDisallowed)
-                {
-                    allowedBackgrounds.Add(background.Value);
-                }
-            }
-
-            callback?.Invoke(allowedBackgrounds);
-            
-            yield return null;
-        }
-
-
+        private void ReturnBackgrounds() => OnReturnBackgrounds?.Invoke((_childhoodBackgrounds.Values.ToList(), _adulthoodBackgrounds.Values.ToList()));
+        
         #region BackgroundsCreation
 
         private IEnumerator LoadBackgrounds()
@@ -153,7 +103,6 @@ namespace Characters.CharacterBackgrounds
             
             yield return StartCoroutine(AssignBackgroundModifiers(newBackground, characterBackgroundConstructor.backgroundEffects));
             characterBackgrounds.Add(newBackground.BackgroundName, newBackground);
-            Debug.Log($"New background created: {newBackground.BackgroundName} with type: {newBackground.BackgroundType.backgroundTypeName} and modifiers count: {newBackground.BackgroundModifiers.Count}");
             yield return null;
         }
 

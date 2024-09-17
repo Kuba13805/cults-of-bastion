@@ -69,7 +69,6 @@ namespace Characters
                     }
 
                     modifiers.Add(newModifier);
-                    Debug.Log($"New modifier created: {newModifier.ModifierType} with value {newModifier.Value} and string value {newModifier.StringValue}");
                 }
                 catch (FormatException ex)
                 {

@@ -167,7 +167,6 @@ namespace PlayerInteractions
                 }
 
                 _locationActionDict.Add(newAction.actionName, newAction);
-                Debug.Log($"New action added: {newAction.actionName} to dictionary.");
             }
         }
 
@@ -177,8 +176,7 @@ namespace PlayerInteractions
             {
                 throw new ArgumentException("Invalid action type", nameof(definedType));
             }
-
-            Debug.Log($"New action type added: {actionType}");
+            
             switch (actionType)
             {
                 case ActionTypes.Personal:
@@ -265,7 +263,6 @@ namespace PlayerInteractions
                 default:
                     throw new ArgumentOutOfRangeException(nameof(actionCondition), actionCondition, null);
             }
-            Debug.Log($"New condition added to action: {condition.Condition} with value: {condition.Value} - {condition.StringValue}");
             return condition;
         }
 
@@ -301,7 +298,6 @@ namespace PlayerInteractions
                 default:
                     throw new ArgumentOutOfRangeException(nameof(actionEffect), actionEffect, null);
             }
-            Debug.Log($"New effect added to action: {effect.Effect} with value: {effect.Value}");
             return effect;
         }
 

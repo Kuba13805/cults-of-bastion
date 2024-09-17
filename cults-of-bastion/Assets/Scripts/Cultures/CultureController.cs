@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Managers;
+using NewGame;
 using UnityEngine;
 
 namespace Cultures
@@ -12,7 +13,7 @@ namespace Cultures
         private Dictionary<string, Culture> _cultures = new();
         private CultureData _cultureData;
         
-        public static event Action<Culture> OnReturnRequestedCulture;
+        public static event Action<List<Culture>> OnReturnCultureList;
         public static event Action OnCultureControllerInitialized;
         private void Awake()
         {
@@ -26,8 +27,8 @@ namespace Cultures
 
         private void SubscribeToEvents()
         {
-            CharacterManager.OnRequestCultureAssignment += ReturnRequestedCulture;
-            CharacterManager.OnRequestRandomCultureAssignment += ReturnRequestedRandomCulture;
+            CharacterManager.OnRequestCharacterGeneratorData += ReturnCultureList;
+            NewGameController.OnRequestGameData += ReturnCultureList;
         }
 
         private void OnDestroy()
@@ -37,17 +38,11 @@ namespace Cultures
 
         private void UnsubscribeFromEvents()
         {
-            CharacterManager.OnRequestCultureAssignment -= ReturnRequestedCulture;
-            CharacterManager.OnRequestRandomCultureAssignment -= ReturnRequestedRandomCulture;
+            CharacterManager.OnRequestCharacterGeneratorData -= ReturnCultureList;
+            NewGameController.OnRequestGameData -= ReturnCultureList;
         }
 
-        private void ReturnRequestedCulture(string cultureName) => OnReturnRequestedCulture?.Invoke(_cultures[cultureName]);
-
-        private void ReturnRequestedRandomCulture()
-        {
-            var cultureIndex = UnityEngine.Random.Range(0, _cultures.Count);
-            OnReturnRequestedCulture?.Invoke(_cultures.Values.ElementAt(cultureIndex));;
-        }
+        private void ReturnCultureList() => OnReturnCultureList?.Invoke(_cultures.Values.ToList());
 
         private IEnumerator LoadCultureData()
         {
@@ -96,7 +91,6 @@ namespace Cultures
             if (newCulture.CultureNamesMale != null && newCulture.CultureNamesFemale != null && newCulture.CultureSurnames != null)
             {
                 _cultures.Add(newCulture.cultureName, newCulture);
-                Debug.Log($"New culture created: {cultureConstructor.cultureName} with {newCulture.CultureNamesMale.Count} male names and {newCulture.CultureNamesFemale.Count} female names and {newCulture.CultureSurnames.Count} surnames.");
             }
             else
             {

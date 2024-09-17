@@ -36,7 +36,7 @@ namespace GameScenarios
 
         private void SubscribeToEvents()
         {
-            NewGameController.OnRequestGameScenarios += PassGameScenarios;
+            NewGameController.OnRequestGameData += PassGameScenarios;
         }
 
         private void OnDestroy()
@@ -46,7 +46,7 @@ namespace GameScenarios
 
         private void UnsubscribeFromEvents()
         {
-            NewGameController.OnRequestGameScenarios -= PassGameScenarios;
+            NewGameController.OnRequestGameData -= PassGameScenarios;
         }
 
         #region ScenarioGeneration
@@ -83,7 +83,6 @@ namespace GameScenarios
                     newScenario.ScenarioModifiers.Add(newModifier);
                 }
                 _gameScenarios.Add(newScenario);
-                Debug.Log($"Scenario {newScenario.ScenarioName} created with {newScenario.ScenarioModifiers.Count} modifiers.");
             }
             yield return null;
         }
@@ -170,8 +169,7 @@ namespace GameScenarios
                 Console.WriteLine($"Error while processing modifier: {ex.Message}");
                 return null;
             }
-
-            Debug.Log($"Created modifier: {modifier.ModiferType} with value: {modifier.Value} and string value: {modifier.StringValue} and bool value: {modifier.BoolValue}");
+            
             return modifier;
         }
 

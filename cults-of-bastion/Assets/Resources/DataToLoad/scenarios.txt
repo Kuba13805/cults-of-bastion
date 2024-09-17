@@ -5,7 +5,6 @@
        "scenarioDescription": "new_life_desc",
        "scenarioStartingCharacterNumber": 1,
        "scenarioModifiers": [
-            "OrganizationExists = true",
             "StartingResources Money = 100"
        ]
     },

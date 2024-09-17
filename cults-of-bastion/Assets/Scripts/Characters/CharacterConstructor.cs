@@ -6,13 +6,17 @@ namespace Characters
     [System.Serializable]
     public struct CharacterConstructor
     {
-        public string name;
-        public string surname;
-        public string nickname;
-        public int age;
-        public string gender;
-        public string culture;
+        public int characterID;
+        public string characterName;
+        public string characterSurname;
+        public string characterNickname;
+        public int characterAge;
+        public string characterGender;
+        public string characterCulture;
+        public string childhoodBackground;
+        public string adulthoodBackground;
         
+        //do zrobienia: current action;
         public List<int> ownLocationIds;
         public int organizationId;
     }

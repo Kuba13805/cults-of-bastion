@@ -1,13 +1,27 @@
+using System;
 using System.Collections.Generic;
 using GameScenarios;
 using UnityEngine;
 
 namespace UI.MainMenu.NewGameMenu.ScenarioChoosing
 {
-    public class ScenarioPanelController : MonoBehaviour
+    public class ScenarioPanelController : StagePanelController
     {
         [SerializeField] private ScenarioButton scenarioPrefab;
         [SerializeField] private Transform scenariosParent;
+        
+        private List<Scenario> _scenarios;
+
+        protected override void Start()
+        {
+            base.Start();
+             
+        }
+        protected override void DisplayPanelContent()
+        {
+            
+        }
+        
 
         public void InitializeScenarioList(List<Scenario> scenarios)
         {
