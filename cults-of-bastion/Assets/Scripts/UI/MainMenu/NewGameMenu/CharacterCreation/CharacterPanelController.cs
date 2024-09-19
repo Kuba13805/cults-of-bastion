@@ -8,6 +8,7 @@ using GameScenarios;
 using NewGame;
 using TMPro;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.UI;
 
 namespace UI.MainMenu.NewGameMenu.CharacterCreation
@@ -23,6 +24,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
         [SerializeField] private TextMeshProUGUI characterCultureText;
         [SerializeField] private TextMeshProUGUI characterChildhoodBackgroundText;
         [SerializeField] private TextMeshProUGUI characterAdulthoodBackgroundText;
+        [SerializeField] private Button nextStageButton;
 
         private Character _generatedCharacter;
         
@@ -30,6 +32,8 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
         private List<Culture> _cultures = new();
         private List<CharacterBackground> _childhoodBackgrounds = new();
         private List<CharacterBackground> _adulthoodBackgrounds = new();
+        
+        private bool _allowedToProceed;
 
         #endregion
 
@@ -51,6 +55,9 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             NewGameController.OnPassBackgrounds += LoadBackgrounds;
             NewGameController.OnPassScenarioCharacterModifiers += LoadForcedCharacterCharacterModifiers;
             RollCharacterButton.OnRollCharacter += StartCharacterGeneration;
+            characterNameInputField.onValueChanged.AddListener(VerifyCharacterData);
+            characterSurnameInputField.onValueChanged.AddListener(VerifyCharacterData);
+            characterAgeInputField.onValueChanged.AddListener(VerifyCharacterData);
         }
 
         protected override void OnDestroy()
@@ -65,6 +72,9 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             NewGameController.OnPassBackgrounds -= LoadBackgrounds;
             NewGameController.OnPassScenarioCharacterModifiers -= LoadForcedCharacterCharacterModifiers;
             RollCharacterButton.OnRollCharacter -= StartCharacterGeneration;
+            characterNameInputField.onValueChanged.RemoveListener(VerifyCharacterData);
+            characterSurnameInputField.onValueChanged.RemoveListener(VerifyCharacterData);
+            characterAgeInputField.onValueChanged.RemoveListener(VerifyCharacterData);
         }
 
         #region DataLoading
@@ -120,6 +130,32 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             characterChildhoodBackgroundText.text = _generatedCharacter.ChildhoodBackground.BackgroundName;
             characterAdulthoodBackgroundText.text = _generatedCharacter.AdulthoodBackground.BackgroundName;
         }
+        #endregion
+
+        #region DataVerification
+        
+        private void VerifyCharacterData(string input)
+        {
+            _allowedToProceed = VerifyInputField(characterNameInputField.text) && VerifyInputField(characterSurnameInputField.text) && VerifyInputField(characterAgeInputField.text);
+            LockMovingToNextStage();
+        }
+
+        private static bool VerifyInputField(string input)
+        {
+            var inputValid = !string.IsNullOrEmpty(input) && !string.IsNullOrWhiteSpace(input);
+            if (int.TryParse(input, out var parsedValue))
+            {
+                inputValid = parsedValue is <= 80 and >= 18;
+            }
+
+            return inputValid;
+        }
+
+        private void LockMovingToNextStage()
+        {
+            nextStageButton.interactable = _allowedToProceed;
+        }
+
         #endregion
     }
 }

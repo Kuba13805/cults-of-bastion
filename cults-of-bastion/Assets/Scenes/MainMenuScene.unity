@@ -6238,6 +6238,7 @@ MonoBehaviour:
   characterCultureText: {fileID: 1000390299}
   characterChildhoodBackgroundText: {fileID: 338264490}
   characterAdulthoodBackgroundText: {fileID: 1741871446}
+  nextStageButton: {fileID: 1448711705}
 --- !u!1 &1829535067
 GameObject:
   m_ObjectHideFlags: 0
