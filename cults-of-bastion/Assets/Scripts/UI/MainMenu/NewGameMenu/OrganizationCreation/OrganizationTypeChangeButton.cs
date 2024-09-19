@@ -13,6 +13,7 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
 
         private void OnEnable()
         {
+            OrganizationPanelController.OnLockTypeButtons += BlockOrganizationTypeChange;
             if (invokePreviousOrganizationType)
             {
                 GetComponent<Button>().onClick.AddListener(RequestPreviousOrganizationType);
@@ -21,12 +22,11 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             {
                 GetComponent<Button>().onClick.AddListener(RequestNextOrganizationType);
             }
-            
         }
         private void OnDisable()
         {
             GetComponent<Button>().onClick.RemoveAllListeners(); 
-            
+            OrganizationPanelController.OnLockTypeButtons -= BlockOrganizationTypeChange;
         }
 
         private void BlockOrganizationTypeChange(bool b)

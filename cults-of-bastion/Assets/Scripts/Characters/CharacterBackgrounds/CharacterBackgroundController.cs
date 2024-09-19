@@ -22,6 +22,7 @@ namespace Characters.CharacterBackgrounds
         {
             StartCoroutine(LoadBackgrounds());
             SubscribeToEvents();
+            
         }
 
         private void OnDestroy()

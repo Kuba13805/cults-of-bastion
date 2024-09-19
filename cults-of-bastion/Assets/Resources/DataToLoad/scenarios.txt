@@ -9,6 +9,15 @@
        ]
     },
     {
+       "scenarioName": "trading_company",
+       "scenarioDescription": "trading_company_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "StartingResources Money = 200",
+            "OrganizationExists = true"
+       ]
+    },
+    {
        "scenarioName": "young_cultist",
        "scenarioDescription": "young_cultist_desc",
        "scenarioStartingCharacterNumber": 1,

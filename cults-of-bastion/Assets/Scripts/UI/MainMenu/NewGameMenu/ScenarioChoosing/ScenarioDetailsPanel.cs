@@ -6,28 +6,28 @@ namespace UI.MainMenu.NewGameMenu.ScenarioChoosing
 {
     public class ScenarioDetailsPanel : MonoBehaviour
     {
-        [SerializeField] private TextMeshProUGUI _scenarioName;
-        [SerializeField] private TextMeshProUGUI _scenarioDescription;
+        [SerializeField] private TextMeshProUGUI scenarioName;
+        [SerializeField] private TextMeshProUGUI scenarioDescription;
 
-        private void Start()
+        private void OnEnable()
         {
-            ScenarioButton.OnScenarioSelected += InitializeScenarioDetails;
+            ScenarioPanelController.OnSelectedScenario += InitializeScenarioDetails;
         }
 
         private void OnDestroy()
         {
-            ScenarioButton.OnScenarioSelected -= InitializeScenarioDetails;
+            ScenarioPanelController.OnSelectedScenario -= InitializeScenarioDetails;
         }
 
         private void InitializeScenarioDetails(Scenario scenario)
         {
             Debug.Log("Scenario selected: " + scenario.ScenarioName);
-            _scenarioName.text = scenario.ScenarioName;
-            _scenarioDescription.text = scenario.ScenarioDescription;
+            scenarioName.text = scenario.ScenarioName;
+            scenarioDescription.text = scenario.ScenarioDescription;
 
             foreach (var scenarioModifier in scenario.ScenarioModifiers)
             {
-                _scenarioDescription.text += $"\n{scenarioModifier.ModiferType} : {scenarioModifier.Value} : {scenarioModifier.StringValue} : {scenarioModifier.BoolValue}";
+                scenarioDescription.text += $"\n{scenarioModifier.ModiferType} : {scenarioModifier.Value} : {scenarioModifier.StringValue} : {scenarioModifier.BoolValue}";
             }
         }
     }

@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 
 namespace UI.MainMenu.NewGameMenu
@@ -6,22 +5,20 @@ namespace UI.MainMenu.NewGameMenu
     public abstract class StagePanelController : MonoBehaviour
     {
         [SerializeField] private NewGameStages handledStage;
+        [SerializeField] protected GameObject panelContent;
         protected virtual void Start()
         {
-            NewGamePanelController.OnStageChanged += InitializeStage;
+            GameCreationStagesController.OnStageChanged += InitializeStage;
         }
 
         protected virtual void OnDestroy()
         {
-            NewGamePanelController.OnStageChanged -= InitializeStage;
+            GameCreationStagesController.OnStageChanged -= InitializeStage;
         }
 
         private void InitializeStage(NewGameStages newGameStages)
         {
-            if(newGameStages != handledStage) return;
-            DisplayPanelContent();
+            panelContent.SetActive(handledStage.Equals(newGameStages));
         }
-
-        protected virtual void DisplayPanelContent() => throw new NotImplementedException();
     }
 }

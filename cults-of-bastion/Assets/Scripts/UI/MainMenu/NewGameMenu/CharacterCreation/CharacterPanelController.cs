@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace UI.MainMenu.NewGameMenu.CharacterCreation
 {
-    public class CharacterPanelController : MonoBehaviour
+    public class CharacterPanelController : StagePanelController
     {
         #region Variables
 

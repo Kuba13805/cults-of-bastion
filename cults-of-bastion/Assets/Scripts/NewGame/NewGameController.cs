@@ -1,12 +1,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using Characters;
 using Characters.CharacterBackgrounds;
 using Cultures;
 using GameScenarios;
 using Managers;
 using Organizations;
+using UI.MainMenu;
 using UI.MainMenu.NewGameMenu;
 using UnityEngine;
 
@@ -33,6 +35,12 @@ namespace NewGame
 
         public static event Action OnRequestGameData;
         public static event Action OnNewGameControllerInitialized;
+        public static event Action<List<Scenario>> OnPassGameScenarios;
+        public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
+        public static event Action<List<Culture>> OnPassCultures;
+        public static event Action<List<CharacterBackground>, List<CharacterBackground>> OnPassBackgrounds;
+        public static event Action<bool> OnAllowOrganizationCreation;
+        public static event Action<string> OnForceOrganizationType;
 
         #endregion
         private void OnEnable()
@@ -48,7 +56,9 @@ namespace NewGame
 
         private void SubscribeToEvents()
         {
-            
+            StartNewGameButton.OnStartNewGameButtonClicked += InitializeNewGameController;
+            GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed += CheckIfOrganizationCreationIsAllowed;
+            GameCreationStagesController.OnCheckIfOrganizationTypeIsForced += CheckIfOrganizationTypeIsForced;
         }
 
         private void OnDestroy()
@@ -58,8 +68,16 @@ namespace NewGame
 
         private void UnsubscribeFromEvents()
         {
-            
+            StartNewGameButton.OnStartNewGameButtonClicked -= InitializeNewGameController;
+            GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed -= CheckIfOrganizationCreationIsAllowed;
+            GameCreationStagesController.OnCheckIfOrganizationTypeIsForced -= CheckIfOrganizationTypeIsForced;
         }
+
+        private void InitializeNewGameController()
+        {
+            StartCoroutine(GetGameData());
+        }
+                
 
         private IEnumerator GetGameData()
         {
@@ -105,9 +123,37 @@ namespace NewGame
             OrganizationManager.OnPassOrganizationTypes -= onOrganizationTypesLoaded;
             CultureController.OnReturnCultureList -= onCulturesLoaded;
             CharacterBackgroundController.OnReturnBackgrounds -= onBackgroundsLoaded;
+            Debug.Log($"Data loaded. {_scenarios.Count} {_organizationTypes.Count} {_cultures.Count} {_childhoodBackgrounds.Count} {_adulthoodBackgrounds.Count}");
             
             OnNewGameControllerInitialized?.Invoke();
+            PassGameData();
         }
-        
+
+        private void PassGameData()
+        {
+            OnPassGameScenarios?.Invoke(_scenarios);
+            OnPassOrganizationTypes?.Invoke(_organizationTypes);
+            OnPassCultures?.Invoke(_cultures);
+            OnPassBackgrounds?.Invoke(_childhoodBackgrounds, _adulthoodBackgrounds);
+        }
+
+        #region NewGameCreationRules
+
+        private void CheckIfOrganizationCreationIsAllowed(Scenario scenario)
+        {
+            _currentScenario = scenario;
+            var allowed = _currentScenario.ScenarioModifiers.Any(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.OrganizationExists && scenarioModifier.BoolValue);
+            OnAllowOrganizationCreation?.Invoke(allowed);
+        }
+
+        private void CheckIfOrganizationTypeIsForced()
+        {
+            foreach (var scenarioModifier in _currentScenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType == ScenarioModifiers.TypeOfOrganization && !string.IsNullOrEmpty(scenarioModifier.StringValue) && !string.IsNullOrWhiteSpace(scenarioModifier.StringValue)))
+            {
+                OnForceOrganizationType?.Invoke(scenarioModifier.StringValue);
+            }
+        }
+
+        #endregion
     }
 }
