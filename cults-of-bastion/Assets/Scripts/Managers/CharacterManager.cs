@@ -5,6 +5,7 @@ using System.Linq;
 using Characters;
 using Characters.CharacterBackgrounds;
 using Cultures;
+using NewGame;
 using Organizations;
 using UnityEngine;
 
@@ -25,6 +26,7 @@ namespace Managers
         public static event Action OnRequestCharacterGeneratorData;
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
         public static event Action<Character, List<CharacterModifier>, bool> OnRequestCharacterModificationFromModifiers;
+        public static event Action<Character> OnReturnGeneratedCharacter;
 
         private void Awake()
         {
@@ -46,11 +48,13 @@ namespace Managers
         private void SubscribeToEvents()
         {
             GameManager.OnGameDataLoaded += StartCharacterLoading;
+            NewGameController.OnRequestCharacterGeneration += ReturnGeneratedCharacter;
         }
 
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataLoaded -= StartCharacterLoading;
+            NewGameController.OnRequestCharacterGeneration -= ReturnGeneratedCharacter;
         }
         private void InitializeCharacterIDs()
         {
@@ -155,14 +159,13 @@ namespace Managers
             return character;
         }
 
-        private void ApplyBackgroundModifiers(Character character)
+        private static void ApplyBackgroundModifiers(Character character)
         {
             ModifyCharacterWithModifiers(character, character.ChildhoodBackground.BackgroundModifiers, false);
             ModifyCharacterWithModifiers(character, character.AdulthoodBackground.BackgroundModifiers, false);
         }
 
         #endregion
-
         #region CharLoadingFromFile
         private void StartCharacterLoading(GameData gameData)
         {
@@ -251,11 +254,20 @@ namespace Managers
             yield return null;
         }
         #endregion
-
         #region CharacterModifications
 
         private static void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers, bool isReverse) => 
             OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers, isReverse);
+
+        #endregion
+
+        #region CharacterDataPassing
+
+        private void ReturnGeneratedCharacter()
+        {
+            var character = _characterGenerator.GenerateCharacter();
+            OnReturnGeneratedCharacter?.Invoke(character);
+        }
 
         #endregion
     }

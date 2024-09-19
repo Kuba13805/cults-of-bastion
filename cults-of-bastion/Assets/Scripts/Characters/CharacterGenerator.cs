@@ -12,9 +12,9 @@ namespace Characters
         private readonly Dictionary<string, CharacterBackground> _childhoodBackgrounds = new();
         private readonly Dictionary<string, CharacterBackground> _adulthoodBackgrounds = new();
         
-        private List<NamingEntry> _maleNames;
-        private List<NamingEntry> _femaleNames;
-        private List<NamingEntry> _surnames;
+        private List<NamingEntry> _maleNames = new();
+        private List<NamingEntry> _femaleNames = new();
+        private List<NamingEntry> _surnames = new();
         private List<NamingEntry> _nicknames = new() { new NamingEntry { NamingValue = "Ducky", AppearanceChance = 10 }, new NamingEntry { NamingValue = "The Golden", AppearanceChance = 10 } };
 
         public bool InitializeGenerator(List<Culture> cultures, List<CharacterBackground> childhoodBackgrounds, List<CharacterBackground> adulthoodBackgrounds)

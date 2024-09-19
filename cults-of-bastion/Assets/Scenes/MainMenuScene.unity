@@ -6216,10 +6216,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4c67ce3123104c30b890efbcadbe92ff, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  characterNameInputField: {fileID: 0}
-  characterSurnameInputField: {fileID: 0}
-  characterAgeInputField: {fileID: 0}
-  characterGenderText: {fileID: 0}
+  handledStage: 2
+  panelContent: {fileID: 1866133329}
+  characterNameInputField: {fileID: 172616551}
+  characterSurnameInputField: {fileID: 85299695}
+  characterAgeInputField: {fileID: 1878869256}
+  characterGenderText: {fileID: 561941043}
+  characterCultureText: {fileID: 1000390299}
+  characterChildhoodBackgroundText: {fileID: 338264490}
+  characterAdulthoodBackgroundText: {fileID: 1741871446}
 --- !u!1 &1829535067
 GameObject:
   m_ObjectHideFlags: 0

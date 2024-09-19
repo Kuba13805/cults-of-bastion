@@ -60,6 +60,7 @@ namespace UI.MainMenu.NewGameMenu
             _currentStage++;
             if (!_organizationCreationIsAllowed && _currentStage == NewGameStages.CreateOrganization)
             {
+                Debug.Log($"Organization creation is not allowed.");
                 GetNextStage();
             }
             UpdateCurrentStage();
@@ -70,6 +71,7 @@ namespace UI.MainMenu.NewGameMenu
             _currentStage--;
             if (!_organizationCreationIsAllowed && _currentStage == NewGameStages.CreateOrganization)
             {
+                Debug.Log($"Organization creation is not allowed.");
                 GetPreviousStage();
             }
             UpdateCurrentStage();
@@ -77,7 +79,7 @@ namespace UI.MainMenu.NewGameMenu
         private void UpdateCurrentStage()
         {
             OnStageChanged?.Invoke(_currentStage);
-            Debug.Log($"Current stage: {_currentStage}");
+            Debug.Log($"New stage: {_currentStage}");
         }
 
         #endregion

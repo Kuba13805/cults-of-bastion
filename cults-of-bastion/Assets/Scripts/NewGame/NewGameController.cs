@@ -10,6 +10,7 @@ using Managers;
 using Organizations;
 using UI.MainMenu;
 using UI.MainMenu.NewGameMenu;
+using UI.MainMenu.NewGameMenu.CharacterCreation;
 using UnityEngine;
 
 namespace NewGame
@@ -39,8 +40,11 @@ namespace NewGame
         public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
         public static event Action<List<Culture>> OnPassCultures;
         public static event Action<List<CharacterBackground>, List<CharacterBackground>> OnPassBackgrounds;
+        public static event Action<List<ScenarioModifier>> OnPassScenarioModifiers;
         public static event Action<bool> OnAllowOrganizationCreation;
         public static event Action<string> OnForceOrganizationType;
+        public static event Action<Character> OnCharacterCreated; 
+        public static event Action OnRequestCharacterGeneration;
 
         #endregion
         private void OnEnable()
@@ -59,6 +63,7 @@ namespace NewGame
             StartNewGameButton.OnStartNewGameButtonClicked += InitializeNewGameController;
             GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed += CheckIfOrganizationCreationIsAllowed;
             GameCreationStagesController.OnCheckIfOrganizationTypeIsForced += CheckIfOrganizationTypeIsForced;
+            CharacterPanelController.OnRequestCharacterGeneration += StartCharacterGeneration;
         }
 
         private void OnDestroy()
@@ -71,6 +76,7 @@ namespace NewGame
             StartNewGameButton.OnStartNewGameButtonClicked -= InitializeNewGameController;
             GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed -= CheckIfOrganizationCreationIsAllowed;
             GameCreationStagesController.OnCheckIfOrganizationTypeIsForced -= CheckIfOrganizationTypeIsForced;
+            CharacterPanelController.OnRequestCharacterGeneration -= StartCharacterGeneration;
         }
 
         private void InitializeNewGameController()
@@ -152,6 +158,32 @@ namespace NewGame
             {
                 OnForceOrganizationType?.Invoke(scenarioModifier.StringValue);
             }
+        }
+
+        #endregion
+
+        #region DataPassing
+        
+        private void StartCharacterGeneration()
+        {
+            StartCoroutine(HandleGeneratedCharacterData());
+        }
+
+        private IEnumerator HandleGeneratedCharacterData()
+        {
+            var characterCreated = false;
+            Action<Character> onCharacterCreated = character =>
+            {
+                _playerCharacter = character;
+                OnCharacterCreated?.Invoke(character);
+                characterCreated = true;
+            };
+            CharacterManager.OnReturnGeneratedCharacter += onCharacterCreated;
+            OnRequestCharacterGeneration?.Invoke();
+            
+            yield return new WaitUntil(() => characterCreated);
+            
+            CharacterManager.OnReturnGeneratedCharacter -= onCharacterCreated;
         }
 
         #endregion
