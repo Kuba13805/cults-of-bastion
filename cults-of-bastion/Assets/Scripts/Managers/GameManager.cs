@@ -20,7 +20,7 @@ namespace Managers
 
         private void Awake()
         {
-            StartCoroutine(PrepareForInitialization());
+            //StartCoroutine(PrepareForInitialization());
         }
 
         private void Start()

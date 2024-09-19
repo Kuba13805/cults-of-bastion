@@ -5,6 +5,7 @@ using System.Linq;
 using Characters;
 using Characters.CharacterBackgrounds;
 using Cultures;
+using GameScenarios;
 using NewGame;
 using Organizations;
 using UnityEngine;
@@ -263,9 +264,9 @@ namespace Managers
 
         #region CharacterDataPassing
 
-        private void ReturnGeneratedCharacter()
+        private void ReturnGeneratedCharacter(List<ScenarioModifier> scenarioModifiers)
         {
-            var character = _characterGenerator.GenerateCharacter();
+            var character = _characterGenerator.GenerateCharacterWithModifiers(scenarioModifiers);
             OnReturnGeneratedCharacter?.Invoke(character);
         }
 

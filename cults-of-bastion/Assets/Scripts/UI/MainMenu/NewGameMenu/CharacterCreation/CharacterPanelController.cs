@@ -35,7 +35,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
 
         #region Events
 
-        public static event Action OnRequestCharacterGeneration;
+        public static event Action<List<ScenarioModifier>> OnRequestCharacterGeneration;
 
         #endregion
 
@@ -49,7 +49,8 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
         {
             NewGameController.OnPassCultures += LoadCultures;
             NewGameController.OnPassBackgrounds += LoadBackgrounds;
-            NewGameController.OnPassScenarioModifiers += LoadForcedCharacterModifiers;
+            NewGameController.OnPassScenarioCharacterModifiers += LoadForcedCharacterCharacterModifiers;
+            RollCharacterButton.OnRollCharacter += StartCharacterGeneration;
         }
 
         protected override void OnDestroy()
@@ -62,21 +63,13 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
         {
             NewGameController.OnPassCultures -= LoadCultures;
             NewGameController.OnPassBackgrounds -= LoadBackgrounds;
-            NewGameController.OnPassScenarioModifiers -= LoadForcedCharacterModifiers;
+            NewGameController.OnPassScenarioCharacterModifiers -= LoadForcedCharacterCharacterModifiers;
+            RollCharacterButton.OnRollCharacter -= StartCharacterGeneration;
         }
 
-        protected override void InitializeStage(NewGameStages newGameStages)
-        {
-            base.InitializeStage(newGameStages);
-            Debug.Log($"Character stage initialized!");
-            if (newGameStages.Equals(handledStage))
-            {
-                StartCharacterGeneration();
-            }
-        }
         #region DataLoading
 
-        private void LoadForcedCharacterModifiers(List<ScenarioModifier> modifiers)
+        private void LoadForcedCharacterCharacterModifiers(List<ScenarioModifier> modifiers)
         {
             _forcedCharacterElements = modifiers;
         }
@@ -111,7 +104,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
                 generationReceived = true;
             };
             NewGameController.OnCharacterCreated += onCharacterGeneration;
-            OnRequestCharacterGeneration?.Invoke();
+            OnRequestCharacterGeneration?.Invoke(_forcedCharacterElements);
             
             yield return new WaitUntil(() => generationReceived);
             NewGameController.OnCharacterCreated -= onCharacterGeneration;
@@ -126,9 +119,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             characterCultureText.text = _generatedCharacter.characterCulture.cultureName;
             characterChildhoodBackgroundText.text = _generatedCharacter.ChildhoodBackground.BackgroundName;
             characterAdulthoodBackgroundText.text = _generatedCharacter.AdulthoodBackground.BackgroundName;
-            Debug.Log($"Character generated: {_generatedCharacter.characterName} {_generatedCharacter.characterSurname} with id {_generatedCharacter.characterID}");
         }
-
         #endregion
     }
 }

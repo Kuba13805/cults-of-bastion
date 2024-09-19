@@ -32,6 +32,7 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
         protected override void Start()
         {
             base.Start();
+            UnsubscribeFromEvents();
             SubscribeToEvents();
             CheckNameInputField(organizationNameInputField.text);
         }
@@ -62,14 +63,12 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             GameCreationStagesController.OnReleaseOrganizationType -= ReleaseOrganizationType;
         }
 
-
         private void LoadOrganizationTypes(List<OrganizationType> types)
         {
             _organizationTypeDictionary.Clear();
-            foreach (var type in types)
+            foreach (var type in types.Where(type => !_organizationTypeDictionary.ContainsKey(type.typeName)))
             {
                 _organizationTypeDictionary.Add(type.typeName, type);
-                Debug.Log($"Type added: {type.typeName}");
             }
             UpdateSelectedType(_organizationTypeDictionary.Values.ToList()[0].typeName);
         }
@@ -110,18 +109,12 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             UpdateSelectedType(organizationType.typeName);
             OnLockTypeButtons?.Invoke(true);
         }
+
         private static void ReleaseOrganizationType() => OnLockTypeButtons?.Invoke(false);
 
         private void CheckNameInputField(string organizationName)
         {
-            if (string.IsNullOrEmpty(organizationName) || string.IsNullOrWhiteSpace(organizationName))
-            {
-                nextStageButton.interactable = false;
-            }
-            else
-            {
-                nextStageButton.interactable = true;
-            }
+            nextStageButton.interactable = !string.IsNullOrEmpty(organizationName) && !string.IsNullOrWhiteSpace(organizationName);
         }
     }
 }

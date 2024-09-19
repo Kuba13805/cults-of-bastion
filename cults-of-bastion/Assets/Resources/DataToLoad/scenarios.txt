@@ -24,7 +24,8 @@
        "scenarioModifiers": [
             "OrganizationExists = true",
             "TypeOfOrganization = cult_organization_type",
-            "StartingResources Money = 100"
+            "StartingResources Money = 100",
+            "ChanceForCharacterBackground = childhood_background_young_acolyte 100 1"
        ]
     },
     {
@@ -35,7 +36,8 @@
             "OrganizationExists = true",
             "TypeOfOrganization = detective_organization_type",
             "ChanceForCharacterBackground soldier = 25 1",
-            "StartingResources Money = 100"
+            "StartingResources Money = 100",
+            "ChanceForCharacterCulture = culture_german 50 1"
        ]
     }
   ]

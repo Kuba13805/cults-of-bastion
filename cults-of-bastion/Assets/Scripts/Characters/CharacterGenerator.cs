@@ -1,8 +1,11 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Characters.CharacterBackgrounds;
 using Cultures;
+using GameScenarios;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Characters
 {
@@ -16,6 +19,8 @@ namespace Characters
         private List<NamingEntry> _femaleNames = new();
         private List<NamingEntry> _surnames = new();
         private List<NamingEntry> _nicknames = new() { new NamingEntry { NamingValue = "Ducky", AppearanceChance = 10 }, new NamingEntry { NamingValue = "The Golden", AppearanceChance = 10 } };
+        
+        private List<ScenarioModifier> _forcedCharacterElements = new();
 
         public bool InitializeGenerator(List<Culture> cultures, List<CharacterBackground> childhoodBackgrounds, List<CharacterBackground> adulthoodBackgrounds)
         {
@@ -45,6 +50,7 @@ namespace Characters
                 ChildhoodBackground = GetRandomCharacterBackground(_childhoodBackgrounds.Values.ToList()),
                 AdulthoodBackground = GetRandomCharacterBackground(_adulthoodBackgrounds.Values.ToList())
             };
+            LoadCultureNamings(character.characterCulture);
             
             character.characterName = GetRandomCharacterName(character.characterGender == CharacterGender.Male ? _maleNames : _femaleNames);
             character.characterSurname = GetRandomCharacterName(_surnames);
@@ -147,17 +153,17 @@ namespace Characters
 
         private Culture GetRandomCharacterCulture()
         {
-            var cultureIndex = UnityEngine.Random.Range(0, _cultures.Count);
+            var cultureIndex = Random.Range(0, _cultures.Count);
             return _cultures.ElementAt(cultureIndex).Value;
         }
 
         private static CharacterBackground GetRandomCharacterBackground(IReadOnlyList<CharacterBackground> backgrounds)
         {
-            return backgrounds[UnityEngine.Random.Range(0, backgrounds.Count)];
+            return backgrounds[Random.Range(0, backgrounds.Count)];
         }
         private static int GetRandomCharacterAge()
         {
-            return UnityEngine.Random.Range(18, 80);
+            return Random.Range(18, 80);
         }
         private static string GetRandomCharacterName(List<NamingEntry> names)
         {
@@ -166,7 +172,7 @@ namespace Characters
             {
                 totalChance += namingEntry.AppearanceChance;
             }
-            var randomValue = UnityEngine.Random.Range(0f, totalChance);
+            var randomValue = Random.Range(0f, totalChance);
             var currentChance = 0f;
             foreach (var namingEntry in names)
             {
@@ -187,8 +193,80 @@ namespace Characters
                 <= 50 => 10,
                 > 50 => 12.5f
             };
-            return chanceForNickname > UnityEngine.Random.Range(0, 100) ? null : GetRandomCharacterName(_nicknames);
+            return chanceForNickname > Random.Range(0, 100) ? null : GetRandomCharacterName(_nicknames);
         }
-        private static CharacterGender GetRandomCharacterGender() => UnityEngine.Random.Range(0, 2) == 0 ? CharacterGender.Male : CharacterGender.Female;
+        private static CharacterGender GetRandomCharacterGender() => Random.Range(0, 2) == 0 ? CharacterGender.Male : CharacterGender.Female;
+
+        public Character GenerateCharacterWithModifiers(List<ScenarioModifier> scenarioModifiers)
+        {
+            _forcedCharacterElements = scenarioModifiers;
+            var generatedCharacter = GenerateCharacter();
+            ProcessCharacterModifiers(generatedCharacter);
+            return generatedCharacter;
+        }
+        private void ProcessCharacterModifiers(Character generatedCharacter)
+        {
+            foreach (var scenarioModifier in _forcedCharacterElements)
+            {
+                VerifyCharacterModifiers(scenarioModifier, generatedCharacter);
+            }
+        }
+        private void VerifyCharacterModifiers(ScenarioModifier modifier, Character generatedCharacter)
+        {
+            Debug.Log($"Modifier with type {modifier.ModiferType} and value {modifier.Value} has been applied to character {generatedCharacter.characterName}");
+            switch (modifier.ModiferType)
+            {
+                case ScenarioModifiers.ChanceForCharacterBackground:
+                    ApplyModifier(modifier.Value, ApplyBackgroundModifier(modifier.StringValue, generatedCharacter));
+                    break;
+                case ScenarioModifiers.ChanceForCharacterCulture:
+                    ApplyModifier(modifier.Value, ApplyCultureModifier(modifier.StringValue, generatedCharacter));
+                    break;
+                case ScenarioModifiers.ChanceForCharacterTrait:
+                    break;
+            }
+        }
+        private void ApplyModifier(int modifierChance, Action modifierAction)
+        {
+            var isModifierToApply = modifierChance >= 100 || CheckModifierChance(modifierChance);
+            
+            if (isModifierToApply)
+            {
+                Debug.Log($"Modifier applied with chance {modifierChance}. Invoking action: {modifierAction.Method.Name}");
+                modifierAction.Invoke();
+            }
+        }
+
+        private Action ApplyBackgroundModifier(string backgroundName, Character generatedCharacter)
+        {
+            if (_childhoodBackgrounds.ContainsKey(backgroundName))
+            {
+                generatedCharacter.ChildhoodBackground = _childhoodBackgrounds.GetValueOrDefault(backgroundName);
+                Debug.Log($"Forced Character Background: {generatedCharacter.ChildhoodBackground}");
+            }
+            else if (_adulthoodBackgrounds.ContainsKey(backgroundName))
+            {
+                generatedCharacter.AdulthoodBackground = _adulthoodBackgrounds.GetValueOrDefault(backgroundName);
+                Debug.Log($"Forced Character Background: {generatedCharacter.AdulthoodBackground}");
+            }
+            return () => { };
+        }
+        private Action ApplyCultureModifier(string cultureName, Character generatedCharacter)
+        {
+            if (!_cultures.ContainsKey(cultureName)) return () => { };
+            generatedCharacter.characterCulture = _cultures.GetValueOrDefault(cultureName);
+            Debug.Log($"Forced Character Culture: {generatedCharacter.characterCulture}");
+            return () => { };
+        }
+        private void ApplyTraitModifier(string traitName, Character generatedCharacter)
+        {
+            
+        }
+
+        private bool CheckModifierChance(int modifierChance)
+        {
+            var randomValue = Random.Range(0, 100);
+            return randomValue <= modifierChance;
+        }
     }
 }

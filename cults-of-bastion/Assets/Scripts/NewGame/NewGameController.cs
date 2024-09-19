@@ -7,10 +7,12 @@ using Characters.CharacterBackgrounds;
 using Cultures;
 using GameScenarios;
 using Managers;
+using NUnit.Framework;
 using Organizations;
 using UI.MainMenu;
 using UI.MainMenu.NewGameMenu;
 using UI.MainMenu.NewGameMenu.CharacterCreation;
+using UI.MainMenu.NewGameMenu.ScenarioChoosing;
 using UnityEngine;
 
 namespace NewGame
@@ -40,11 +42,11 @@ namespace NewGame
         public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
         public static event Action<List<Culture>> OnPassCultures;
         public static event Action<List<CharacterBackground>, List<CharacterBackground>> OnPassBackgrounds;
-        public static event Action<List<ScenarioModifier>> OnPassScenarioModifiers;
+        public static event Action<List<ScenarioModifier>> OnPassScenarioCharacterModifiers;
         public static event Action<bool> OnAllowOrganizationCreation;
         public static event Action<string> OnForceOrganizationType;
         public static event Action<Character> OnCharacterCreated; 
-        public static event Action OnRequestCharacterGeneration;
+        public static event Action<List<ScenarioModifier>> OnRequestCharacterGeneration;
 
         #endregion
         private void OnEnable()
@@ -64,6 +66,7 @@ namespace NewGame
             GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed += CheckIfOrganizationCreationIsAllowed;
             GameCreationStagesController.OnCheckIfOrganizationTypeIsForced += CheckIfOrganizationTypeIsForced;
             CharacterPanelController.OnRequestCharacterGeneration += StartCharacterGeneration;
+            ScenarioPanelController.OnSelectedScenario += CheckIfScenarioHasCharacterModifiers;
         }
 
         private void OnDestroy()
@@ -77,6 +80,7 @@ namespace NewGame
             GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed -= CheckIfOrganizationCreationIsAllowed;
             GameCreationStagesController.OnCheckIfOrganizationTypeIsForced -= CheckIfOrganizationTypeIsForced;
             CharacterPanelController.OnRequestCharacterGeneration -= StartCharacterGeneration;
+            ScenarioPanelController.OnSelectedScenario += CheckIfScenarioHasCharacterModifiers;
         }
 
         private void InitializeNewGameController()
@@ -129,7 +133,6 @@ namespace NewGame
             OrganizationManager.OnPassOrganizationTypes -= onOrganizationTypesLoaded;
             CultureController.OnReturnCultureList -= onCulturesLoaded;
             CharacterBackgroundController.OnReturnBackgrounds -= onBackgroundsLoaded;
-            Debug.Log($"Data loaded. {_scenarios.Count} {_organizationTypes.Count} {_cultures.Count} {_childhoodBackgrounds.Count} {_adulthoodBackgrounds.Count}");
             
             OnNewGameControllerInitialized?.Invoke();
             PassGameData();
@@ -160,16 +163,23 @@ namespace NewGame
             }
         }
 
+        private void CheckIfScenarioHasCharacterModifiers(Scenario scenario)
+        {
+            var tempModifierList = scenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType is ScenarioModifiers.ChanceForCharacterBackground or 
+                ScenarioModifiers.ChanceForCharacterCulture or ScenarioModifiers.ChanceForCharacterTrait).ToList();
+            OnPassScenarioCharacterModifiers?.Invoke(tempModifierList);
+        }
+
         #endregion
 
         #region DataPassing
         
-        private void StartCharacterGeneration()
+        private void StartCharacterGeneration(List<ScenarioModifier> scenarioModifiers)
         {
-            StartCoroutine(HandleGeneratedCharacterData());
+            StartCoroutine(HandleGeneratedCharacterData(scenarioModifiers));
         }
 
-        private IEnumerator HandleGeneratedCharacterData()
+        private IEnumerator HandleGeneratedCharacterData(List<ScenarioModifier> scenarioModifiers)
         {
             var characterCreated = false;
             Action<Character> onCharacterCreated = character =>
@@ -179,7 +189,7 @@ namespace NewGame
                 characterCreated = true;
             };
             CharacterManager.OnReturnGeneratedCharacter += onCharacterCreated;
-            OnRequestCharacterGeneration?.Invoke();
+            OnRequestCharacterGeneration?.Invoke(scenarioModifiers);
             
             yield return new WaitUntil(() => characterCreated);
             

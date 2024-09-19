@@ -79,7 +79,6 @@ namespace UI.MainMenu.NewGameMenu
         private void UpdateCurrentStage()
         {
             OnStageChanged?.Invoke(_currentStage);
-            Debug.Log($"New stage: {_currentStage}");
         }
 
         #endregion
