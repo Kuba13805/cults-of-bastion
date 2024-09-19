@@ -137,10 +137,16 @@ namespace Characters
                 characterAge = characterConstructor.characterAge,
                 characterGender = characterConstructor.characterGender == "Male" ? CharacterGender.Male : CharacterGender.Female,
             };
-            if (characterConstructor.characterSurname == null) character.characterSurname = GetRandomCharacterName(_surnames);
-            if (characterConstructor.characterCulture == null) character.characterCulture = GetRandomCharacterCulture();
+            if(characterConstructor.characterCulture == null) character.characterCulture = GetRandomCharacterCulture();
+            else if (_cultures.TryGetValue(characterConstructor.characterCulture, out var culture))
+            {
+                character.characterCulture = culture;
+                LoadCultureNamings(culture);
+            }
+            if(characterConstructor.characterSurname == null) character.characterSurname = GetRandomCharacterName(_surnames);
             if(characterConstructor.childhoodBackground == null) character.ChildhoodBackground = GetRandomCharacterBackground(_childhoodBackgrounds.Values.ToList());
             if(characterConstructor.adulthoodBackground == null) character.AdulthoodBackground = GetRandomCharacterBackground(_adulthoodBackgrounds.Values.ToList());
+            if(characterConstructor.characterAge == 0) character.characterAge = GetRandomCharacterAge();
             
             return character;
         }
