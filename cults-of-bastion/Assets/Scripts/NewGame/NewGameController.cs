@@ -7,13 +7,14 @@ using Characters.CharacterBackgrounds;
 using Cultures;
 using GameScenarios;
 using Managers;
-using NUnit.Framework;
 using Organizations;
 using UI.MainMenu;
 using UI.MainMenu.NewGameMenu;
 using UI.MainMenu.NewGameMenu.CharacterCreation;
+using UI.MainMenu.NewGameMenu.OrganizationCreation;
 using UI.MainMenu.NewGameMenu.ScenarioChoosing;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 namespace NewGame
 {
@@ -24,13 +25,15 @@ namespace NewGame
         private Scenario _currentScenario;
         private Character _playerCharacter;
         private List<Character> _playerAgents = new();
-        private Organization _createdOrganization;
+        private Organization _playerOrganization;
         
         private List<Scenario> _scenarios = new();
         private List<OrganizationType> _organizationTypes = new();
         private List<Culture> _cultures = new();
         private List<CharacterBackground> _childhoodBackgrounds = new();
         private List<CharacterBackground> _adulthoodBackgrounds = new();
+
+        private bool _newGameCreated;
 
         #endregion
 
@@ -47,6 +50,7 @@ namespace NewGame
         public static event Action<string> OnForceOrganizationType;
         public static event Action<Character> OnCharacterCreated; 
         public static event Action<List<ScenarioModifier>> OnRequestCharacterGeneration;
+        public static event Action<Character, Organization> OnStartNewGame;
 
         #endregion
         private void OnEnable()
@@ -67,6 +71,8 @@ namespace NewGame
             GameCreationStagesController.OnCheckIfOrganizationTypeIsForced += CheckIfOrganizationTypeIsForced;
             CharacterPanelController.OnRequestCharacterGeneration += StartCharacterGeneration;
             ScenarioPanelController.OnSelectedScenario += CheckIfScenarioHasCharacterModifiers;
+            CharacterPanelController.OnCharachterCreated += UpdatePlayerCharacter;
+            OrganizationPanelController.OnOrganizationCreated += UpdatePlayerOrganization;
         }
 
         private void OnDestroy()
@@ -80,8 +86,11 @@ namespace NewGame
             GameCreationStagesController.OnCheckIfOrganizationCreationIsAllowed -= CheckIfOrganizationCreationIsAllowed;
             GameCreationStagesController.OnCheckIfOrganizationTypeIsForced -= CheckIfOrganizationTypeIsForced;
             CharacterPanelController.OnRequestCharacterGeneration -= StartCharacterGeneration;
-            ScenarioPanelController.OnSelectedScenario += CheckIfScenarioHasCharacterModifiers;
+            ScenarioPanelController.OnSelectedScenario -= CheckIfScenarioHasCharacterModifiers;
+            CharacterPanelController.OnCharachterCreated -= UpdatePlayerCharacter;
+            OrganizationPanelController.OnOrganizationCreated -= UpdatePlayerOrganization;
         }
+        
 
         private void InitializeNewGameController()
         {
@@ -163,7 +172,7 @@ namespace NewGame
             }
         }
 
-        private void CheckIfScenarioHasCharacterModifiers(Scenario scenario)
+        private static void CheckIfScenarioHasCharacterModifiers(Scenario scenario)
         {
             var tempModifierList = scenario.ScenarioModifiers.Where(scenarioModifier => scenarioModifier.ModiferType is ScenarioModifiers.ChanceForCharacterBackground or 
                 ScenarioModifiers.ChanceForCharacterCulture or ScenarioModifiers.ChanceForCharacterTrait).ToList();
@@ -194,6 +203,30 @@ namespace NewGame
             yield return new WaitUntil(() => characterCreated);
             
             CharacterManager.OnReturnGeneratedCharacter -= onCharacterCreated;
+        }
+        private void UpdatePlayerCharacter(Character createdCharacter)
+        {
+            _playerCharacter = createdCharacter;
+            CreateNewGameData();
+        }
+
+        private void UpdatePlayerOrganization(string organizationName, OrganizationType organizationType)
+        {
+            _playerOrganization = new Organization
+            {
+                organizationName = organizationName,
+                organizationType = organizationType
+            };
+        }
+
+        private void CreateNewGameData()
+        {
+            if(_newGameCreated) return;
+            OnStartNewGame?.Invoke(_playerCharacter, _playerOrganization);
+            Debug.Log("New Game Started");
+            _newGameCreated = true;
+            SceneManager.LoadSceneAsync("OutdoorsScene", LoadSceneMode.Additive);
+            SceneManager.UnloadSceneAsync("MainMenuScene");
         }
 
         #endregion

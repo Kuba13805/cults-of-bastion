@@ -135,11 +135,12 @@ namespace Characters
                 characterSurname = characterConstructor.characterSurname,
                 characterNickname = characterConstructor.characterNickname,
                 characterAge = characterConstructor.characterAge,
-                characterCulture = _cultures.GetValueOrDefault(characterConstructor.characterCulture),
                 characterGender = characterConstructor.characterGender == "Male" ? CharacterGender.Male : CharacterGender.Female,
-                ChildhoodBackground = _childhoodBackgrounds.GetValueOrDefault(characterConstructor.childhoodBackground),
-                AdulthoodBackground = _adulthoodBackgrounds.GetValueOrDefault(characterConstructor.adulthoodBackground)
             };
+            if (characterConstructor.characterSurname == null) character.characterSurname = GetRandomCharacterName(_surnames);
+            if (characterConstructor.characterCulture == null) character.characterCulture = GetRandomCharacterCulture();
+            if(characterConstructor.childhoodBackground == null) character.ChildhoodBackground = GetRandomCharacterBackground(_childhoodBackgrounds.Values.ToList());
+            if(characterConstructor.adulthoodBackground == null) character.AdulthoodBackground = GetRandomCharacterBackground(_adulthoodBackgrounds.Values.ToList());
             
             return character;
         }

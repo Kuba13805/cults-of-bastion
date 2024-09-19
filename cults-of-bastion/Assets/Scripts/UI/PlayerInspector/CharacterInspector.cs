@@ -69,7 +69,14 @@ namespace UI.PlayerInspector
 
         private void DisplayCharacterName()
         {
-            characterNameBox.text = !string.IsNullOrEmpty(_characterData.characterSurname) ? $"{_characterData.characterName} \"{_characterData.characterNickname}\" {_characterData.characterSurname}" : $"{_characterData.characterName} {_characterData.characterSurname}";
+            if (string.IsNullOrEmpty(_characterData.characterNickname) || string.IsNullOrWhiteSpace(_characterData.characterNickname))
+            {
+                characterNameBox.text =_characterData.characterName + " " + _characterData.characterSurname;
+            }
+            else
+            {
+                characterNameBox.text = _characterData.characterName + " " + '"' + _characterData.characterNickname + '"' + " " + _characterData.characterSurname;
+            }
         }
 
         private void DisplayCharacterAge()

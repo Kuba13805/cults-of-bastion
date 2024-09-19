@@ -26,7 +26,7 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
         #region Events
 
         public static event Action<bool> OnLockTypeButtons;
-
+        public static event Action<string, OrganizationType> OnOrganizationCreated;
         #endregion
 
         protected override void Start()
@@ -51,6 +51,7 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             organizationNameInputField.onValueChanged.AddListener(CheckNameInputField);
             GameCreationStagesController.OnForceOrganizationType += ForceOrganizationType;
             GameCreationStagesController.OnReleaseOrganizationType += ReleaseOrganizationType;
+            nextStageButton.onClick.AddListener(CreateOrganization);
         }
 
         private void UnsubscribeFromEvents()
@@ -61,6 +62,7 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
             organizationNameInputField.onValueChanged.RemoveAllListeners();
             GameCreationStagesController.OnForceOrganizationType -= ForceOrganizationType;
             GameCreationStagesController.OnReleaseOrganizationType -= ReleaseOrganizationType;
+            nextStageButton.onClick.RemoveListener(CreateOrganization);
         }
 
         private void LoadOrganizationTypes(List<OrganizationType> types)
@@ -115,6 +117,10 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
         private void CheckNameInputField(string organizationName)
         {
             nextStageButton.interactable = !string.IsNullOrEmpty(organizationName) && !string.IsNullOrWhiteSpace(organizationName);
+        }
+        private void CreateOrganization()
+        {
+            OnOrganizationCreated?.Invoke(organizationNameInputField.text, _organizationTypeDictionary.Values.ToList()[_currentOrganizationTypeIndex]);
         }
     }
 }

@@ -1,6 +1,9 @@
 using System;
 using System.Collections;
+using Characters;
 using Cultures;
+using NewGame;
+using Organizations;
 using UnityEngine;
 
 namespace Managers
@@ -18,14 +21,35 @@ namespace Managers
         private bool _organizationManagerReady;
         private bool _cultureControllerReady;
 
-        private void Awake()
-        {
-            //StartCoroutine(PrepareForInitialization());
-        }
-
         private void Start()
         {
             ChangeGameState(GameState.InGameCityMap);
+            SubscribeToEvents();
+        }
+
+        private void SubscribeToEvents()
+        {
+            NewGameController.OnStartNewGame += StartNewGame;
+        }
+
+        private void OnDestroy()
+        {
+            UnsubscribeFromEvents();
+        }
+
+        private void UnsubscribeFromEvents()
+        {
+            NewGameController.OnStartNewGame -= StartNewGame;
+        }
+
+        private void StartNewGame(Character playerCharacter, Organization playerOrganization)
+        {
+            _gameData = new GameData
+            {
+                PlayerOrganization = playerOrganization,
+                PlayerCharacter = playerCharacter
+            };
+            PrepareForInitialization();
         }
 
         private void ChangeGameState(GameState state)
@@ -34,19 +58,10 @@ namespace Managers
             OnGameStateChanged?.Invoke(state);
         }
 
-        private IEnumerator PrepareForInitialization()
+        private void PrepareForInitialization()
         {
-            
-            LocationManager.OnLocationManagerInitialized += () => _locationManagerReady = true;
-            CharacterManager.OnCharacterManagerInitialized += () => _characterManagerReady = true;
-            OrganizationManager.OnOrganizationManagerInitialized += () => _organizationManagerReady = true;
-            CultureController.OnCultureControllerInitialized += () => _cultureControllerReady = true;
-            
-            Debug.Log("Waiting for managers to load.");
-            yield return new WaitUntil(() => _locationManagerReady && _characterManagerReady && _organizationManagerReady && _cultureControllerReady);
-            Debug.Log("Managers loaded. Start initializing game.");
+            Debug.Log("Start initializing game.");
             InitializeGame();
-            
         }
         private void InitializeGame()
         {
@@ -60,16 +75,11 @@ namespace Managers
                 throw new Exception("Failed to parse city config data.");
             }
 
-            _gameData = new GameData
-            {
-                LocationTypes = parsedCityConfigData.LocationTypes,
-                Locations = parsedCityConfigData.Locations,
-                CharacterConstructors = parsedCityConfigData.CharacterConstructors,
-                OrganizationConstructors = parsedCityConfigData.OrganizationConstructors,
-                PlayerCharacter = parsedCityConfigData.PlayerCharacter,
-                PlayerOrganization = parsedCityConfigData.PlayerOrganization
-                
-            };
+            _gameData.Locations = parsedCityConfigData.Locations;
+            _gameData.OrganizationConstructors = parsedCityConfigData.OrganizationConstructors;
+            _gameData.CharacterConstructors = parsedCityConfigData.CharacterConstructors;
+            _gameData.Organizations = parsedCityConfigData.Organizations;
+            _gameData.Characters = parsedCityConfigData.Characters;
             OnGameDataLoaded?.Invoke(_gameData);
         }
     }

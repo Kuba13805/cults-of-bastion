@@ -40,6 +40,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
         #region Events
 
         public static event Action<List<ScenarioModifier>> OnRequestCharacterGeneration;
+        public static event Action<Character> OnCharachterCreated;
 
         #endregion
 
@@ -58,6 +59,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             characterNameInputField.onValueChanged.AddListener(VerifyCharacterData);
             characterSurnameInputField.onValueChanged.AddListener(VerifyCharacterData);
             characterAgeInputField.onValueChanged.AddListener(VerifyCharacterData);
+            nextStageButton.onClick.AddListener(UpdateCharacterData);
         }
 
         protected override void OnDestroy()
@@ -75,6 +77,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             characterNameInputField.onValueChanged.RemoveListener(VerifyCharacterData);
             characterSurnameInputField.onValueChanged.RemoveListener(VerifyCharacterData);
             characterAgeInputField.onValueChanged.RemoveListener(VerifyCharacterData);
+            nextStageButton.onClick.RemoveListener(UpdateCharacterData);
         }
 
         #region DataLoading
@@ -130,6 +133,15 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             characterChildhoodBackgroundText.text = _generatedCharacter.ChildhoodBackground.BackgroundName;
             characterAdulthoodBackgroundText.text = _generatedCharacter.AdulthoodBackground.BackgroundName;
         }
+
+        private void UpdateCharacterData()
+        {
+            _generatedCharacter.characterName = characterNameInputField.text;
+            _generatedCharacter.characterSurname = characterSurnameInputField.text;
+            _generatedCharacter.characterAge = int.Parse(characterAgeInputField.text);
+            
+            OnCharachterCreated?.Invoke(_generatedCharacter);
+        }
         #endregion
 
         #region DataVerification
@@ -147,14 +159,9 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             {
                 inputValid = parsedValue is <= 80 and >= 18;
             }
-
             return inputValid;
         }
-
-        private void LockMovingToNextStage()
-        {
-            nextStageButton.interactable = _allowedToProceed;
-        }
+        private void LockMovingToNextStage() => nextStageButton.interactable = _allowedToProceed;
 
         #endregion
     }

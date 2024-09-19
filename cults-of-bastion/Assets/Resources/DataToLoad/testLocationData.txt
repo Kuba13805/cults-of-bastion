@@ -42,18 +42,18 @@
   ],
   "CharacterConstructors": [
     {
-      "name": "Anthony",
-      "gender": "Male",
+      "characterName": "Anthony",
+      "characterGender": "Male",
       "ownLocationIds": [1],
       "organizationId": 1,
-      "culture": "culture_british"
+      "characterCulture": "culture_british"
     },
     {
-      "name": "Sara",
-      "gender": "Female",
+      "characterName": "Sara",
+      "characterGender": "Female",
       "ownLocationIds": [2],
       "organizationId": 3,
-      "culture": "culture_british"
+      "characterCulture": "culture_british"
     }
   ],
   "OrganizationConstructors": [

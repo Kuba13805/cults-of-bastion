@@ -196,6 +196,7 @@ namespace Managers
 
             foreach (var characterConstructor in _gameData.CharacterConstructors)
             {
+                Debug.Log($"Processing character: {characterConstructor.characterName} {characterConstructor.characterSurname}");
                 if(_characterIDsAvailable.Count == 0) continue;
                 var character = GenerateCharacter(characterConstructor);
 

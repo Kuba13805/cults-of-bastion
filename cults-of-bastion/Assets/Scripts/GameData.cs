@@ -12,13 +12,10 @@ public class GameData
     public Organization PlayerOrganization;
     
     public List<LocationData> Locations = new();
-    public List<LocationType> LocationTypes = new();
     
     public List<Character> Characters = new();
     public List<CharacterConstructor> CharacterConstructors = new();
     
     public List<Organization> Organizations = new();
     public List<OrganizationConstructor> OrganizationConstructors = new();
-        
-    public readonly Dictionary<string, LocationType> LocationTypeDict = new();
 }
