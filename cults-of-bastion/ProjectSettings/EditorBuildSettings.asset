@@ -12,11 +12,17 @@ EditorBuildSettings:
     path: Assets/Scenes/ManagerScene.unity
     guid: 771e500aa44d07b44a99cb6ed65b9c0e
   - enabled: 1
-    path: Assets/Scenes/OutdoorsScene.unity
+    path: Assets/Scenes/TestCityMapScene.unity
     guid: 8124e5870f4fd4c779e7a5f994e84ad1
   - enabled: 1
-    path: Assets/Scenes/UiScene.unity
+    path: Assets/Scenes/PlayerUIScene.unity
     guid: 7ebbd78b052447c4cbdb1684a6e28156
+  - enabled: 1
+    path: Assets/Scenes/MainMenuScene.unity
+    guid: 6553a4e763d6a164da2546251f255551
+  - enabled: 1
+    path: Assets/Scenes/LoadingScene.unity
+    guid: ecb6ffb1959a77b4ea87e6c3badc9c9f
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: ee5f67a886cf27146b74330098eff0a7, type: 3}
   m_UseUCBPForAssetBundles: 0

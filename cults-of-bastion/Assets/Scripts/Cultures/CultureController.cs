@@ -15,12 +15,8 @@ namespace Cultures
         
         public static event Action<List<Culture>> OnReturnCultureList;
         public static event Action OnCultureControllerInitialized;
-        private void Awake()
-        {
-            StartCoroutine(LoadCultureData());
-        }
 
-        private void Start()
+        private void Awake()
         {
             SubscribeToEvents();
         }
@@ -29,6 +25,7 @@ namespace Cultures
         {
             CharacterManager.OnRequestCharacterGeneratorData += ReturnCultureList;
             NewGameController.OnRequestGameData += ReturnCultureList;
+            GameManager.OnStartDataLoading += StartCultureLoading;
         }
 
         private void OnDestroy()
@@ -40,9 +37,15 @@ namespace Cultures
         {
             CharacterManager.OnRequestCharacterGeneratorData -= ReturnCultureList;
             NewGameController.OnRequestGameData -= ReturnCultureList;
+            GameManager.OnStartDataLoading -= StartCultureLoading;
         }
 
         private void ReturnCultureList() => OnReturnCultureList?.Invoke(_cultures.Values.ToList());
+
+        private void StartCultureLoading()
+        {
+            StartCoroutine(LoadCultureData());
+        }
 
         private IEnumerator LoadCultureData()
         {
@@ -59,7 +62,9 @@ namespace Cultures
             {
                 yield return StartCoroutine(CreateCultureFromConstructor(constructor));
             }
+            
             OnCultureControllerInitialized?.Invoke();
+            GameManager.OnStartDataLoading -= StartCultureLoading;
         }
 
         private IEnumerator CreateCultureFromConstructor(CultureConstructor cultureConstructor)

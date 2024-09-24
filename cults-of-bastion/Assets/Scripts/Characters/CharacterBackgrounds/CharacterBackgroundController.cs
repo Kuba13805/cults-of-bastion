@@ -2,27 +2,32 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Cultures;
 using Managers;
 using NewGame;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
 namespace Characters.CharacterBackgrounds
 {
     public class CharacterBackgroundController : MonoBehaviour
     {
-        private Dictionary<string, CharacterBackground> _childhoodBackgrounds = new();
-        private Dictionary<string, CharacterBackground> _adulthoodBackgrounds = new();
+        #region Variables
+
+        private readonly Dictionary<string, CharacterBackground> _childhoodBackgrounds = new();
+        private readonly Dictionary<string, CharacterBackground> _adulthoodBackgrounds = new();
         private BackgroundData _backgroundData;
+
+        #endregion
+
+        #region Events
 
         public static event Action<(List<CharacterBackground>, List<CharacterBackground>)> OnReturnBackgrounds;
         public static event Action<List<string>> OnRequestBackgroundEffectsCreation;
+        public static event Action OnCharacterBackgroundControllerInitialized;
+
+        #endregion
         private void Awake()
         {
-            StartCoroutine(LoadBackgrounds());
             SubscribeToEvents();
-            
         }
 
         private void OnDestroy()
@@ -34,17 +39,24 @@ namespace Characters.CharacterBackgrounds
         {
             CharacterManager.OnRequestCharacterGeneratorData += ReturnBackgrounds;
             NewGameController.OnRequestGameData += ReturnBackgrounds;
+            GameManager.OnStartDataLoading += StartBackgroundLoading;
         }
 
         private void UnsubscribeFromEvents()
         {
             CharacterManager.OnRequestCharacterGeneratorData -= ReturnBackgrounds;
             NewGameController.OnRequestGameData -= ReturnBackgrounds;
+            GameManager.OnStartDataLoading -= StartBackgroundLoading;
         }
 
         private void ReturnBackgrounds() => OnReturnBackgrounds?.Invoke((_childhoodBackgrounds.Values.ToList(), _adulthoodBackgrounds.Values.ToList()));
         
         #region BackgroundsCreation
+
+        private void StartBackgroundLoading()
+        {
+            StartCoroutine(LoadBackgrounds());
+        }
 
         private IEnumerator LoadBackgrounds()
         {
@@ -84,6 +96,9 @@ namespace Characters.CharacterBackgrounds
             {
                 yield return StartCoroutine(CreateBackgroundFromConstructor(characterBackground, _adulthoodBackgrounds));
             }
+            
+            OnCharacterBackgroundControllerInitialized?.Invoke();
+            GameManager.OnStartDataLoading -= StartBackgroundLoading;
         }
 
 

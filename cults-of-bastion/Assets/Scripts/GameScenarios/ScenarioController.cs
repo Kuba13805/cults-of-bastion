@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Managers;
 using NewGame;
 using UI.MainMenu.NewGameMenu;
 using UnityEngine;
@@ -21,15 +22,11 @@ namespace GameScenarios
         #region Events
 
         public static event Action<List<Scenario>> OnPassScenarios;
+        public static event Action OnScenarioControllerInitialized;
 
         #endregion
+  
         private void Awake()
-        {
-            LoadScenarios();
-            StartCoroutine(GenerateScenarios());
-        }
-
-        private void Start()
         {
             SubscribeToEvents();
         }
@@ -37,6 +34,7 @@ namespace GameScenarios
         private void SubscribeToEvents()
         {
             NewGameController.OnRequestGameData += PassGameScenarios;
+            GameManager.OnStartDataLoading += StartScenarioLoading;
         }
 
         private void OnDestroy()
@@ -47,14 +45,20 @@ namespace GameScenarios
         private void UnsubscribeFromEvents()
         {
             NewGameController.OnRequestGameData -= PassGameScenarios;
+            GameManager.OnStartDataLoading -= StartScenarioLoading;
         }
 
         #region ScenarioGeneration
 
-        private void LoadScenarios()
+        private void StartScenarioLoading()
+        {
+            StartCoroutine(LoadScenarios());
+        }
+
+        private IEnumerator LoadScenarios()
         {
             var scenariosConfig = Resources.Load<TextAsset>("DataToLoad/scenarios");
-            if (scenariosConfig == null) return;
+            if (scenariosConfig == null) yield return null;
             
             var parsedScenariosConfigData = JsonUtility.FromJson<ScenariosData>(scenariosConfig.text);
             if (parsedScenariosConfigData == null)
@@ -66,6 +70,11 @@ namespace GameScenarios
             {
                 ScenarioConstructors = parsedScenariosConfigData.ScenarioConstructors
             };
+
+            yield return StartCoroutine(GenerateScenarios());
+            
+            OnScenarioControllerInitialized?.Invoke();
+            GameManager.OnStartDataLoading -= StartScenarioLoading;
         }
 
         private IEnumerator GenerateScenarios()

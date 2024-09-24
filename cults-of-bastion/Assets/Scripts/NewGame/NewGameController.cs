@@ -53,11 +53,6 @@ namespace NewGame
         public static event Action<Character, Organization> OnStartNewGame;
 
         #endregion
-        private void OnEnable()
-        {
-            SubscribeToEvents();
-        }
-
         
         private void Start()
         {
@@ -225,8 +220,6 @@ namespace NewGame
             OnStartNewGame?.Invoke(_playerCharacter, _playerOrganization);
             Debug.Log("New Game Started");
             _newGameCreated = true;
-            SceneManager.LoadSceneAsync("OutdoorsScene", LoadSceneMode.Additive);
-            SceneManager.UnloadSceneAsync("MainMenuScene");
         }
 
         #endregion

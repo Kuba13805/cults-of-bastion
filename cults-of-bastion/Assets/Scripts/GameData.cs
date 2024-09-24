@@ -11,7 +11,7 @@ public class GameData
     public Character PlayerCharacter;
     public Organization PlayerOrganization;
     
-    public List<LocationData> Locations = new();
+    public List<LocationData> LocationData = new();
     
     public List<Character> Characters = new();
     public List<CharacterConstructor> CharacterConstructors = new();

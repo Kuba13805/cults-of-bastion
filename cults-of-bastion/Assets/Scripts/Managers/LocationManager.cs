@@ -10,25 +10,28 @@ namespace Managers
 {
     public class LocationManager : MonoBehaviour
     {
+        #region Variables
+
         public List<Location> locations;
         private GameData _gameData;
         private readonly Dictionary<string, LocationType> _locationTypeDict = new();
         private LocationTypeData _locationTypeData;
 
         private bool _isCharacterDataLoaded;
-        
+
+        #endregion
+
+        #region Events
+
         public static event Action OnLocationManagerInitialized;
         public static event Action<LocationData> OnPassLocationDataOnInteraction;
         public static event Action<LocationData> OnPassLocationDataOnSelection; 
 
+        #endregion
+
         private void Awake()
         {
             SubscribeToEvents();
-        }
-
-        private void Start()
-        {
-            LoadLocationTypes();
         }
         private void OnDestroy()
         {
@@ -39,6 +42,7 @@ namespace Managers
         {
             Location.OnRegisterEmptyLocation += RegisterNewEmptyLocation;
             GameManager.OnGameDataLoaded += StartLocationLoading;
+            GameManager.OnStartDataLoading += StartLocationTypeLoading;
             CharacterManager.OnCharactersLoaded += AllowDataInjection;
             Location.OnInteractWithLocation += PassLocationDataOnInteraction;
             Location.OnSelectLocation += PassLocationDataOnSelection;
@@ -48,11 +52,58 @@ namespace Managers
         {
             Location.OnRegisterEmptyLocation -= RegisterNewEmptyLocation;
             GameManager.OnGameDataLoaded -= StartLocationLoading;
+            GameManager.OnStartDataLoading -= StartLocationTypeLoading;
             CharacterManager.OnCharactersLoaded -= AllowDataInjection;
             Location.OnInteractWithLocation -= PassLocationDataOnInteraction;
             Location.OnSelectLocation -= PassLocationDataOnSelection;
         }
 
+        #region LocationTypeLoading
+
+        private void StartLocationTypeLoading()
+        {
+            StartCoroutine(LoadLocationTypes());
+        }
+
+        private IEnumerator LoadLocationTypes()
+        {
+            var locationTypeConfig = Resources.Load<TextAsset>("DataToLoad/locationTypes");
+            if (locationTypeConfig == null)
+            {
+                Debug.LogError("Location types config not found.");
+                yield break;
+            }
+
+            var parsedLocationTypeConfigData = JsonUtility.FromJson<LocationTypeData>(locationTypeConfig.text);
+            if (parsedLocationTypeConfigData == null)
+            {
+                Debug.LogError("Failed to parse location types config data.");
+                yield break;
+            }
+            
+            _locationTypeData = parsedLocationTypeConfigData;
+
+            yield return StartCoroutine(InitializeLocationTypes());
+
+            OnLocationManagerInitialized?.Invoke();
+        }
+
+        private IEnumerator InitializeLocationTypes()
+        {
+            foreach (var locationType in _locationTypeData.LocationTypeConstructors.Select(constructor => new LocationType
+                     {
+                         typeName = constructor.typeName,
+                         typeDescription = constructor.typeDescription
+                     }))
+            {
+                _locationTypeDict.Add(locationType.typeName, locationType);
+            }
+
+            yield return null;
+        }
+
+
+        #endregion
         #region LocationDataInjection
 
         private void RegisterNewEmptyLocation(Location location)
@@ -94,14 +145,14 @@ namespace Managers
             foreach (var location in locations)
             {
                 location.locationData =
-                    _gameData.Locations.Find(locationData => locationData.locationID == location.locationIndex);
+                    _gameData.LocationData.Find(locationData => locationData.locationID == location.locationIndex);
                 Debug.Log($"Location {location.locationData.locationName} injected with {location.locationData.LocationType.typeName} type");
             }
         }
 
         private void AssignLocationTypeToLocationData()
         {
-            foreach (var locationData in _gameData.Locations)
+            foreach (var locationData in _gameData.LocationData)
             {
                 if (string.IsNullOrEmpty(locationData.locationTypeName))
                 {
@@ -121,38 +172,6 @@ namespace Managers
             }
         }
 
-        private void LoadLocationTypes()
-        {
-            var locationTypeConfig = Resources.Load<TextAsset>("DataToLoad/locationTypes");
-            if (locationTypeConfig == null) return;
-
-            var parsedLocationTypeConfigData = JsonUtility.FromJson<LocationTypeData>(locationTypeConfig.text);
-            if (parsedLocationTypeConfigData == null)
-            {
-                throw new Exception("Failed to parse location types config data.");
-            }
-
-            _locationTypeData = new LocationTypeData
-            {
-                LocationTypeConstructors = parsedLocationTypeConfigData.LocationTypeConstructors
-            };
-
-            InitializeLocationTypes();
-        }
-
-        private void InitializeLocationTypes()
-        {
-            Debug.Log($"Constructors count: {_locationTypeData.LocationTypeConstructors.Count}");
-            foreach (var locationType in _locationTypeData.LocationTypeConstructors.Select(constructor => new LocationType
-                     {
-                         typeName = constructor.typeName,
-                         typeDescription = constructor.typeDescription
-                     }))
-            {
-                _locationTypeDict.Add(locationType.typeName, locationType);
-                Debug.Log($"New location type added: {locationType.typeName}");
-            }
-        }
 
         #endregion
 

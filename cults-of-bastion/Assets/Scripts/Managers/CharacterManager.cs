@@ -31,14 +31,7 @@ namespace Managers
 
         private void Awake()
         {
-            InitializeCharacterIDs();
             SubscribeToEvents();
-        }
-
-        private void Start()
-        {
-            _characterGenerator = GetComponent<CharacterGenerator>();
-            StartCoroutine(StartGeneratorInitialization());
         }
 
         private void OnDestroy()
@@ -50,12 +43,14 @@ namespace Managers
         {
             GameManager.OnGameDataLoaded += StartCharacterLoading;
             NewGameController.OnRequestCharacterGeneration += ReturnGeneratedCharacter;
+            GameManager.OnAllowCharacterManagerInitialization += AllowCharacterManagerInitialization;
         }
 
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataLoaded -= StartCharacterLoading;
             NewGameController.OnRequestCharacterGeneration -= ReturnGeneratedCharacter;
+            GameManager.OnAllowCharacterManagerInitialization -= AllowCharacterManagerInitialization;
         }
         private void InitializeCharacterIDs()
         {
@@ -63,6 +58,13 @@ namespace Managers
             {
                 _characterIDsAvailable.Enqueue(i);
             }
+        }
+
+        private void AllowCharacterManagerInitialization()
+        {
+            InitializeCharacterIDs();
+            _characterGenerator = GetComponent<CharacterGenerator>();
+            StartCoroutine(StartGeneratorInitialization());
         }
 
         #region AddRemoveCharacters
@@ -200,7 +202,7 @@ namespace Managers
                 if(_characterIDsAvailable.Count == 0) continue;
                 var character = GenerateCharacter(characterConstructor);
 
-                foreach (var locationData in characterConstructor.ownLocationIds.SelectMany(t => _gameData.Locations.Where(locationData => locationData.locationID == t)))
+                foreach (var locationData in characterConstructor.ownLocationIds.SelectMany(t => _gameData.LocationData.Where(locationData => locationData.locationID == t)))
                 {
                     character.characterOwnedLocations.Add(locationData);
                 }
@@ -237,7 +239,7 @@ namespace Managers
         {
             foreach (var character in _gameData.Characters)
             {
-                foreach (var locationData in _gameData.Locations.Where(locationData => character.characterOwnedLocations.Contains(locationData)))
+                foreach (var locationData in _gameData.LocationData.Where(locationData => character.characterOwnedLocations.Contains(locationData)))
                 {
                     locationData.LocationOwner = character;
                 }
@@ -247,7 +249,7 @@ namespace Managers
 
         private IEnumerator GenerateOwnersForEmptyLocations()
         {
-            foreach (var location in _gameData.Locations.Where(location => location.LocationOwner == null))
+            foreach (var location in _gameData.LocationData.Where(location => location.LocationOwner == null))
             {
                 location.LocationOwner = GenerateCharacter();
                 location.LocationOwner.characterOwnedLocations.Add(location);
