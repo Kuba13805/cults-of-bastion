@@ -25,16 +25,18 @@ namespace Managers
         #region Events
 
         public static event Action<GameState> OnGameStateChanged;
-        public static event Action<GameData> OnGameDataLoaded;
+        public static event Action<GameData> OnGameDataInitialized;
         public static event Action OnStartDataLoading;
         public static event Action OnAllowCharacterManagerInitialization;
+        public static event Action OnStartLoading;
+        public static event Action OnFinishLoading;
 
         #endregion
 
         private void Start()
         {
             SubscribeToEvents();
-            ChangeGameState(_currentGameState);
+            OnStartLoading?.Invoke();
             StartCoroutine(InitializeGame());
         }
 
@@ -60,6 +62,7 @@ namespace Managers
             yield return new WaitForSeconds(5f);
             Debug.Log($"Base game data initialization finished. Changing game state to main menu");
             ChangeGameState(GameState.MainMenu);
+            OnFinishLoading?.Invoke();
             Debug.Log($"Game initialization finished");
         }
         
@@ -69,14 +72,11 @@ namespace Managers
             Background,
             Scenario,
             Organization,
-            Character,
             Location
         }
 
-        private IEnumerator InitializeGameData()
+        private static IEnumerator InitializeGameData()
         {
-            OnStartDataLoading?.Invoke();
-
             var loadingStates = new Dictionary<ControllerType, bool>
             {
                 { ControllerType.Culture, false },
@@ -97,6 +97,7 @@ namespace Managers
             ScenarioController.OnScenarioControllerInitialized += onScenarioLoaded;
             OrganizationManager.OnOrganizationManagerInitialized += onOrganizationLoaded;
             LocationManager.OnLocationManagerInitialized += onLocationLoaded;
+            OnStartDataLoading?.Invoke();
 
             yield return new WaitUntil(() => loadingStates.Values.All(loaded => loaded));
 
@@ -118,8 +119,6 @@ namespace Managers
             CharacterManager.OnCharacterManagerInitialized -= onCharacterManagerLoaded;
         }
 
-
-
         private void StartNewGame(Character playerCharacter, Organization playerOrganization)
         {
             _gameData = new GameData
@@ -139,10 +138,11 @@ namespace Managers
         private void PrepareForInitialization()
         {
             Debug.Log("Start initializing game.");
-            ChangeGameState(GameState.InGameCityMap);
-            LoadSavedGameData();
+            OnStartLoading?.Invoke();
+            ChangeGameState(GameState.LoadingGame);
+            InitializeSavedGameData();
         }
-        private void LoadSavedGameData()
+        private void InitializeSavedGameData()
         {
             var cityConfig = Resources.Load<TextAsset>("DataToLoad/gameData");
             if(cityConfig == null) return;
@@ -157,7 +157,30 @@ namespace Managers
             _gameData.LocationData = parsedCityConfigData.LocationData;
             _gameData.OrganizationConstructors = parsedCityConfigData.OrganizationConstructors;
             _gameData.CharacterConstructors = parsedCityConfigData.CharacterConstructors;
-            OnGameDataLoaded?.Invoke(_gameData);
+            StartCoroutine(WaitForSavedGameDataLoading());
+        }
+
+        private IEnumerator WaitForSavedGameDataLoading()
+        {
+            var organizationDataLoaded = false;
+            var locationDataLoaded = false;
+            var characterDataLoaded = false;
+            Action onOrganizationDataLoaded = () => organizationDataLoaded = true;
+            Action onLocationDataLoaded = () => locationDataLoaded = true;
+            Action onCharacterDataLoaded = () => characterDataLoaded = true;
+            
+            OrganizationManager.OnOrganizationLoadingFinished += onOrganizationDataLoaded;
+            LocationManager.OnLocationLoadingFinished += onLocationDataLoaded;
+            CharacterManager.OnCharactersLoaded += onCharacterDataLoaded;
+            OnGameDataInitialized?.Invoke(_gameData);
+            
+            yield return new WaitUntil(() => organizationDataLoaded && locationDataLoaded && characterDataLoaded);
+            
+            OrganizationManager.OnOrganizationLoadingFinished -= onOrganizationDataLoaded;
+            LocationManager.OnLocationLoadingFinished -= onLocationDataLoaded;
+            CharacterManager.OnCharactersLoaded -= onCharacterDataLoaded;
+            yield return new WaitForSeconds(5f);
+            OnFinishLoading?.Invoke();
         }
     }
     
@@ -165,11 +188,11 @@ namespace Managers
     {
         GameInitialization,
         MainMenu,
-        NewGameMenu,
-        InGameCityMap,
-        Loading,
+        InGame,
+        LoadingGame,
         Saving,
         GameOver,
-        Paused
+        Paused,
+        QuitingToMenu
     }
 }

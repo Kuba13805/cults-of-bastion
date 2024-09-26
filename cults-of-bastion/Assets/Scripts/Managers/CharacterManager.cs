@@ -41,14 +41,14 @@ namespace Managers
 
         private void SubscribeToEvents()
         {
-            GameManager.OnGameDataLoaded += StartCharacterLoading;
+            GameManager.OnGameDataInitialized += StartCharacterLoading;
             NewGameController.OnRequestCharacterGeneration += ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization += AllowCharacterManagerInitialization;
         }
 
         private void UnsubscribeFromEvents()
         {
-            GameManager.OnGameDataLoaded -= StartCharacterLoading;
+            GameManager.OnGameDataInitialized -= StartCharacterLoading;
             NewGameController.OnRequestCharacterGeneration -= ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization -= AllowCharacterManagerInitialization;
         }

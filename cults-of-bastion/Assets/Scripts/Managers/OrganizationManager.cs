@@ -47,13 +47,13 @@ namespace Managers
         
         private void SubscribeToEvents()
         {
-            GameManager.OnGameDataLoaded += StartOrganizationLoading;
+            GameManager.OnGameDataInitialized += StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization += AssignCharacterToOrganization;
             NewGameController.OnRequestGameData += PassOrganizationTypes;
         }
         private void UnsubscribeFromEvents()
         {
-            GameManager.OnGameDataLoaded -= StartOrganizationLoading;
+            GameManager.OnGameDataInitialized -= StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization -= AssignCharacterToOrganization;
             NewGameController.OnRequestGameData -= PassOrganizationTypes;
         }

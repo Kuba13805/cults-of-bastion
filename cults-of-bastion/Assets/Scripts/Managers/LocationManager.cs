@@ -25,7 +25,8 @@ namespace Managers
 
         public static event Action OnLocationManagerInitialized;
         public static event Action<LocationData> OnPassLocationDataOnInteraction;
-        public static event Action<LocationData> OnPassLocationDataOnSelection; 
+        public static event Action<LocationData> OnPassLocationDataOnSelection;
+        public static event Action OnLocationLoadingFinished;
 
         #endregion
 
@@ -41,7 +42,7 @@ namespace Managers
         private void SubscribeToEvents()
         {
             Location.OnRegisterEmptyLocation += RegisterNewEmptyLocation;
-            GameManager.OnGameDataLoaded += StartLocationLoading;
+            GameManager.OnGameDataInitialized += StartLocationLoading;
             GameManager.OnStartDataLoading += StartLocationTypeLoading;
             CharacterManager.OnCharactersLoaded += AllowDataInjection;
             Location.OnInteractWithLocation += PassLocationDataOnInteraction;
@@ -51,7 +52,7 @@ namespace Managers
         private void UnsubscribeFromEvents()
         {
             Location.OnRegisterEmptyLocation -= RegisterNewEmptyLocation;
-            GameManager.OnGameDataLoaded -= StartLocationLoading;
+            GameManager.OnGameDataInitialized -= StartLocationLoading;
             GameManager.OnStartDataLoading -= StartLocationTypeLoading;
             CharacterManager.OnCharactersLoaded -= AllowDataInjection;
             Location.OnInteractWithLocation -= PassLocationDataOnInteraction;
@@ -137,6 +138,7 @@ namespace Managers
             
             Debug.Log("Locations loaded.");
             
+            OnLocationLoadingFinished?.Invoke();
             yield return null;
         }
     
