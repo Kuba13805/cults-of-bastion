@@ -1,10 +1,13 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Characters;
 using Locations;
 using Managers;
 using PlayerInteractions;
 using PlayerResources;
 using TMPro;
+using UI.PlayerInspector;
 using UI.PlayerInteractions;
 using UnityEngine;
 
@@ -35,7 +38,9 @@ namespace UI
         
         public static event Action OnRequestAllPlayerActions;
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
-        public static event Action<LocationData> OnLocationSelection; 
+        public static event Action<LocationData> OnLocationSelection;
+        public static event Action<Character> OnPassPlayerCharacter;
+        public static event Action OnRequestPlayerCharacter;
 
         #endregion
 
@@ -56,6 +61,7 @@ namespace UI
             PlayerInteractionsContentController.OnGetAllPlayerActions += RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection += PassLocationDataOnSelection;
+            PlayerInspectorContentController.OnRequestPlayerCharacter += RequestPlayerCharacter;
         }
         private void UnsubscribeFromEvents()
         {
@@ -66,6 +72,7 @@ namespace UI
             PlayerInteractionsContentController.OnGetAllPlayerActions -= RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection -= PassLocationDataOnSelection;
+            PlayerInspectorContentController.OnRequestPlayerCharacter -= RequestPlayerCharacter;
         }
 
 
@@ -122,6 +129,22 @@ namespace UI
 
         #region InspectorDataPassing
         private static void PassLocationDataOnSelection(LocationData locationData) => OnLocationSelection?.Invoke(locationData);
+        private void RequestPlayerCharacter() => StartCoroutine(WaitForPlayerCharacter());
+
+        private static IEnumerator WaitForPlayerCharacter()
+        {
+            var isPlayerCharacterLoaded = false;
+            Action<Character> onPassPlayerCharacter = playerCharacter =>
+            {
+                OnPassPlayerCharacter?.Invoke(playerCharacter);
+                isPlayerCharacterLoaded = true;
+            };
+            CharacterManager.OnPassPlayerCharacter += onPassPlayerCharacter;
+            OnRequestPlayerCharacter?.Invoke();
+            yield return new WaitUntil(() => isPlayerCharacterLoaded);
+            
+            CharacterManager.OnPassPlayerCharacter -= onPassPlayerCharacter;
+        }
 
         #endregion
     }

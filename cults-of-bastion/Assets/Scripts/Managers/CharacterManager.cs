@@ -8,6 +8,7 @@ using Cultures;
 using GameScenarios;
 using NewGame;
 using Organizations;
+using UI;
 using UnityEngine;
 
 namespace Managers
@@ -28,6 +29,7 @@ namespace Managers
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
         public static event Action<Character, List<CharacterModifier>, bool> OnRequestCharacterModificationFromModifiers;
         public static event Action<Character> OnReturnGeneratedCharacter;
+        public static event Action<Character> OnPassPlayerCharacter;
 
         private void Awake()
         {
@@ -44,6 +46,7 @@ namespace Managers
             GameManager.OnGameDataInitialized += StartCharacterLoading;
             NewGameController.OnRequestCharacterGeneration += ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization += AllowCharacterManagerInitialization;
+            UIController.OnRequestPlayerCharacter += PassPlayerCharacter;
         }
 
         private void UnsubscribeFromEvents()
@@ -51,6 +54,7 @@ namespace Managers
             GameManager.OnGameDataInitialized -= StartCharacterLoading;
             NewGameController.OnRequestCharacterGeneration -= ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization -= AllowCharacterManagerInitialization;
+            UIController.OnRequestPlayerCharacter -= PassPlayerCharacter;
         }
         private void InitializeCharacterIDs()
         {
@@ -272,6 +276,8 @@ namespace Managers
             var character = _characterGenerator.GenerateCharacterWithModifiers(scenarioModifiers);
             OnReturnGeneratedCharacter?.Invoke(character);
         }
+
+        private void PassPlayerCharacter() => OnPassPlayerCharacter?.Invoke(_gameData.PlayerCharacter);
 
         #endregion
     }

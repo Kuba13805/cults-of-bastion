@@ -14,6 +14,12 @@ namespace UI.PlayerInspector
         [SerializeField] private GameObject characterInspectorContent;
         [SerializeField] private GameObject organizationInspectorContent;
 
+        #region Events
+
+        public static event Action OnRequestPlayerCharacter;
+
+        #endregion
+
         private void Start()
         {
             SubscribeToEvents();
@@ -32,6 +38,7 @@ namespace UI.PlayerInspector
             CharacterOwnedLocationButton.OnInvokeLocationInspector += ShowSelectedLocation;
             CharacterInspector.OnInvokeCharacterOrganizationInspector += ShowSelectedOrganization;
             OrganizationMemberButton.OnInvokeCharacterInspector += ShowSelectedCharacter;
+            PlayerCharacterButton.OnInspectPlayerCharacter += ShowPlayerCharacter;
         }
         private void UnsubscribeFromEvents()
         {
@@ -40,6 +47,7 @@ namespace UI.PlayerInspector
             CharacterOwnedLocationButton.OnInvokeLocationInspector -= ShowSelectedLocation;
             CharacterInspector.OnInvokeCharacterOrganizationInspector -= ShowSelectedOrganization;
             OrganizationMemberButton.OnInvokeCharacterInspector -= ShowSelectedCharacter;
+            PlayerCharacterButton.OnInspectPlayerCharacter -= ShowPlayerCharacter;
         }
         public void ToggleInspector()
         {
@@ -78,6 +86,27 @@ namespace UI.PlayerInspector
             {
                 ToggleInspector();
             }
+        }
+
+        private void ShowPlayerCharacter()
+        {
+            StartCoroutine(RequestPlayerCharacter());
+        }
+
+        private IEnumerator RequestPlayerCharacter()
+        {
+            var isPlayerCharacterLoaded = false;
+            Action<Character> onPassPlayerCharacter = playerCharacter =>
+            {
+                ShowSelectedCharacter(playerCharacter);
+                isPlayerCharacterLoaded = true;
+            };
+            UIController.OnPassPlayerCharacter += onPassPlayerCharacter;
+            OnRequestPlayerCharacter?.Invoke();
+            
+            yield return new WaitUntil(() => isPlayerCharacterLoaded);
+            
+            UIController.OnPassPlayerCharacter -= onPassPlayerCharacter;
         }
     }
 }
