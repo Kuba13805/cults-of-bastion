@@ -26,7 +26,8 @@ namespace PlayerInteractions
         #region Events
 
         public static event Action<List<string>> OnPassPossiblePlayerActions;
-        public static event Action<List<BaseAction>> OnPassAllPlayerActions; 
+        public static event Action<List<BaseAction>> OnPassAllPlayerActions;
+        public static event Action OnRequestCharacterSelectionForAction;
 
         #endregion
         private void Awake()
@@ -407,7 +408,7 @@ namespace PlayerInteractions
                 ActionCosts = _locationActionDict[actionName].ActionCosts,
                 targetLocation = locationData[0],
                 actionInvoker = actionInvoker,
-                isActionPossible = true
+                isActionPossible = true,
             };
             actionInvoker.CurrentAction = newAction;
             ApplyActionCosts(newAction);
@@ -440,6 +441,11 @@ namespace PlayerInteractions
                         RegisterTimeBasedNonLimitedAction(newAction);
                         Debug.Log($"New time based non limited action added: {newAction.actionName}");
                         break;
+                    case ActionTypes.Personal:
+                        break;
+                    case ActionTypes.Organization:
+                        break;
+
                 }
             }
         }

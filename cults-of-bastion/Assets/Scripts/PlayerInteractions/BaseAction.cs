@@ -11,6 +11,7 @@ namespace PlayerInteractions
         public string actionDescription;
         public int actionDuration;
         public bool isActionPossible;
+        public int targetNumber;
 
         public List<ActionTypes> actionTypes = new();
         public List<ActionCondition> ActionConditions = new();

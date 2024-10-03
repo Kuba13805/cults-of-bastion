@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using NUnit.Framework;
 using PlayerInteractions;
 using TMPro;
 using UnityEngine;
@@ -90,24 +91,22 @@ namespace UI.PlayerInteractions
         {
             yield return null;
             var actionsLoaded = false;
+            
+            Action<List<BaseAction>> onGetAllActions = actions =>
+            {
+                _actionList = actions;
+                actionsLoaded = true;
+            };
 
-            UIController.OnPassAllPlayerActions += OnGetAllActions;
+            UIController.OnPassAllPlayerActions += onGetAllActions;
         
             OnGetAllPlayerActions?.Invoke();
         
             yield return new WaitUntil(() => actionsLoaded);
-            UIController.OnPassAllPlayerActions -= OnGetAllActions;
+            UIController.OnPassAllPlayerActions -= onGetAllActions;
             InstantiateActionButtons();
         
             DeactivateActionButtons();
-        
-            yield break;
-
-            void OnGetAllActions(List<BaseAction> baseActions)
-            {
-                _actionList = baseActions;
-                actionsLoaded = true;
-            }
         }
     }
 }

@@ -31,7 +31,7 @@
       "characterName": "Anthony",
       "characterGender": "Male",
       "ownLocationIds": [1],
-      "organizationId": 1,
+      "organizationId": 2,
       "characterCulture": "culture_british"
     },
     {
@@ -55,12 +55,12 @@
         "typeName": "detective_organization_type"
     },
     {
-        "name": "The Rooks 2",
+        "name": "Golden Path",
         "description": "rooks_desc",
         "typeName": "detective_organization_type"
     },
     {
-        "name": "The Rooks 3",
+        "name": "Echims",
         "description": "rooks_desc",
         "typeName": "detective_organization_type"
     }

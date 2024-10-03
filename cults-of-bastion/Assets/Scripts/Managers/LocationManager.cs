@@ -118,7 +118,7 @@ namespace Managers
             _isCharacterDataLoaded = true;
         }
 
-        private void StartLocationLoading(GameData gameData)
+        private void StartLocationLoading(GameData gameData, bool isNewGameStarting)
         {
             _gameData = gameData;
             Debug.Log("Start location loading.");

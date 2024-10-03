@@ -25,7 +25,7 @@ namespace Managers
         #region Events
 
         public static event Action<GameState> OnGameStateChanged;
-        public static event Action<GameData> OnGameDataInitialized;
+        public static event Action<GameData, bool> OnGameDataInitialized;
         public static event Action OnStartDataLoading;
         public static event Action OnAllowCharacterManagerInitialization;
         public static event Action OnStartLoading;
@@ -172,7 +172,7 @@ namespace Managers
             OrganizationManager.OnOrganizationLoadingFinished += onOrganizationDataLoaded;
             LocationManager.OnLocationLoadingFinished += onLocationDataLoaded;
             CharacterManager.OnCharactersLoaded += onCharacterDataLoaded;
-            OnGameDataInitialized?.Invoke(_gameData);
+            OnGameDataInitialized?.Invoke(_gameData, true);
             
             yield return new WaitUntil(() => organizationDataLoaded && locationDataLoaded && characterDataLoaded);
             

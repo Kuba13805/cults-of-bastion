@@ -13,7 +13,6 @@ namespace Managers
 {
     public class OrganizationManager : MonoBehaviour
     {
-        [SerializeField] private Organization playerOrganization;
         private List<Organization> _allOrganizations = new();
         private readonly Dictionary<string, OrganizationType> _organizationTypes = new();
         
@@ -66,9 +65,16 @@ namespace Managers
             }
         }
 
-        private void StartOrganizationLoading(GameData gameData)
+        private void StartOrganizationLoading(GameData gameData, bool isNewGameStarting)
         {
             _gameData = gameData;
+            if (_gameData.PlayerOrganization != null && isNewGameStarting)
+            {
+                _gameData.PlayerOrganization.organizationID = GetNewOrganizationID();
+                AddOrganization(_gameData.PlayerOrganization);
+                _gameData.PlayerOrganization.organizationMembers.Add(_gameData.PlayerCharacter);
+                _gameData.PlayerCharacter.characterOrganization = _gameData.PlayerOrganization;
+            }
             StartCoroutine(LoadOrganizations());
         }
 

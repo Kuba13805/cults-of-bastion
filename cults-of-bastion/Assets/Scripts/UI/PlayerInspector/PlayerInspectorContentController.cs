@@ -38,7 +38,7 @@ namespace UI.PlayerInspector
             CharacterOwnedLocationButton.OnInvokeLocationInspector += ShowSelectedLocation;
             CharacterInspector.OnInvokeCharacterOrganizationInspector += ShowSelectedOrganization;
             OrganizationMemberButton.OnInvokeCharacterInspector += ShowSelectedCharacter;
-            PlayerCharacterButton.OnInspectPlayerCharacter += ShowPlayerCharacter;
+            UIController.OnPassPlayerCharacter += ShowSelectedCharacter;
         }
         private void UnsubscribeFromEvents()
         {
@@ -47,7 +47,7 @@ namespace UI.PlayerInspector
             CharacterOwnedLocationButton.OnInvokeLocationInspector -= ShowSelectedLocation;
             CharacterInspector.OnInvokeCharacterOrganizationInspector -= ShowSelectedOrganization;
             OrganizationMemberButton.OnInvokeCharacterInspector -= ShowSelectedCharacter;
-            PlayerCharacterButton.OnInspectPlayerCharacter -= ShowPlayerCharacter;
+            UIController.OnPassPlayerCharacter -= ShowSelectedCharacter;
         }
         public void ToggleInspector()
         {
@@ -86,27 +86,6 @@ namespace UI.PlayerInspector
             {
                 ToggleInspector();
             }
-        }
-
-        private void ShowPlayerCharacter()
-        {
-            StartCoroutine(RequestPlayerCharacter());
-        }
-
-        private IEnumerator RequestPlayerCharacter()
-        {
-            var isPlayerCharacterLoaded = false;
-            Action<Character> onPassPlayerCharacter = playerCharacter =>
-            {
-                ShowSelectedCharacter(playerCharacter);
-                isPlayerCharacterLoaded = true;
-            };
-            UIController.OnPassPlayerCharacter += onPassPlayerCharacter;
-            OnRequestPlayerCharacter?.Invoke();
-            
-            yield return new WaitUntil(() => isPlayerCharacterLoaded);
-            
-            UIController.OnPassPlayerCharacter -= onPassPlayerCharacter;
         }
     }
 }

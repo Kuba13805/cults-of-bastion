@@ -174,7 +174,7 @@ namespace Managers
 
         #endregion
         #region CharLoadingFromFile
-        private void StartCharacterLoading(GameData gameData)
+        private void StartCharacterLoading(GameData gameData, bool isNewGameStarting)
         {
             Debug.Log($"Characters are being loaded.");
             _gameData = gameData;
@@ -274,6 +274,7 @@ namespace Managers
         private void ReturnGeneratedCharacter(List<ScenarioModifier> scenarioModifiers)
         {
             var character = _characterGenerator.GenerateCharacterWithModifiers(scenarioModifiers);
+            ApplyBackgroundModifiers(character);
             OnReturnGeneratedCharacter?.Invoke(character);
         }
 

@@ -62,6 +62,7 @@ namespace UI
             PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection += PassLocationDataOnSelection;
             PlayerInspectorContentController.OnRequestPlayerCharacter += RequestPlayerCharacter;
+            PlayerCharacterButton.OnInspectPlayerCharacter += RequestPlayerCharacter;
         }
         private void UnsubscribeFromEvents()
         {
@@ -73,6 +74,7 @@ namespace UI
             PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection -= PassLocationDataOnSelection;
             PlayerInspectorContentController.OnRequestPlayerCharacter -= RequestPlayerCharacter;
+            PlayerCharacterButton.OnInspectPlayerCharacter -= RequestPlayerCharacter;
         }
 
 
