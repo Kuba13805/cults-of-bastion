@@ -31,7 +31,7 @@
       "characterName": "Anthony",
       "characterGender": "Male",
       "ownLocationIds": [1],
-      "organizationId": 2,
+      "organizationId": 1,
       "characterCulture": "culture_british"
     },
     {

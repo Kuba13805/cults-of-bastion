@@ -8,6 +8,7 @@ using Cultures;
 using GameScenarios;
 using NewGame;
 using Organizations;
+using PlayerInteractions;
 using UI;
 using UnityEngine;
 
@@ -47,6 +48,7 @@ namespace Managers
             NewGameController.OnRequestCharacterGeneration += ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization += AllowCharacterManagerInitialization;
             UIController.OnRequestPlayerCharacter += PassPlayerCharacter;
+            PlayerActionsController.OnRequestPlayerCharacterForAction += PassPlayerCharacter;
         }
 
         private void UnsubscribeFromEvents()
@@ -55,6 +57,7 @@ namespace Managers
             NewGameController.OnRequestCharacterGeneration -= ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization -= AllowCharacterManagerInitialization;
             UIController.OnRequestPlayerCharacter -= PassPlayerCharacter;
+            PlayerActionsController.OnRequestPlayerCharacterForAction -= PassPlayerCharacter;
         }
         private void InitializeCharacterIDs()
         {
@@ -178,6 +181,10 @@ namespace Managers
         {
             Debug.Log($"Characters are being loaded.");
             _gameData = gameData;
+            if (isNewGameStarting)
+            {
+                _gameData.PlayerCharacter.characterID = GetNewCharacterID();
+            }
             StartCoroutine(LoadAndProcessCharacters());
         }
 

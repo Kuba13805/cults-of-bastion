@@ -28,6 +28,7 @@ namespace PlayerInteractions
         public static event Action<List<string>> OnPassPossiblePlayerActions;
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
         public static event Action OnRequestCharacterSelectionForAction;
+        public static event Action OnRequestPlayerCharacterForAction;
 
         #endregion
         private void Awake()
@@ -389,6 +390,70 @@ namespace PlayerInteractions
             }
         }
 
+        private static IEnumerator HandlePersonalAction(BaseAction newAction, Action<bool> callback)
+        {
+            var playerCharacterReceived = false;
+            var isActionCancelled = false;
+            
+            Action<Character> onAssignPlayerCharacter = character =>
+            {
+                newAction.actionInvoker = character;
+                playerCharacterReceived = true;
+            };
+            Action onActionCancelled = () => isActionCancelled = true;
+
+            CharacterManager.OnPassPlayerCharacter += onAssignPlayerCharacter;
+            UIController.OnCancelActionInvoking += onActionCancelled;
+            
+            OnRequestPlayerCharacterForAction?.Invoke();
+
+            yield return new WaitUntil(() => playerCharacterReceived || isActionCancelled);
+            
+            CharacterManager.OnPassPlayerCharacter -= onAssignPlayerCharacter;
+            UIController.OnCancelActionInvoking -= onActionCancelled;
+            
+            if (isActionCancelled)
+            {
+                callback?.Invoke(false);
+            }
+            else if (playerCharacterReceived && newAction.actionInvoker != null)
+            {
+                callback?.Invoke(true);
+            }
+        }
+
+        private static IEnumerator HandleOrganizationAction(BaseAction newAction, Action<bool> callback)
+        {
+            var characterReceived = false;
+            var isActionCancelled = false;
+            
+            Action<Character> onAssignCharacter = character =>
+            {
+                newAction.actionInvoker = character;
+                characterReceived = true;
+            };
+            Action onActionCancelled = () => isActionCancelled = true;
+
+            UIController.OnPassSelectedCharacterForAction += onAssignCharacter;
+            UIController.OnCancelActionInvoking += onActionCancelled;
+            
+            OnRequestCharacterSelectionForAction?.Invoke();
+            
+            yield return new WaitUntil(() => characterReceived || isActionCancelled);
+            
+            UIController.OnPassSelectedCharacterForAction -= onAssignCharacter;
+            UIController.OnCancelActionInvoking -= onActionCancelled;
+            
+            if (isActionCancelled)
+            {
+                callback?.Invoke(false);
+            }
+            else if (characterReceived && newAction.actionInvoker != null)
+            {
+                callback?.Invoke(true);
+            }
+        }
+
         /// <summary>
         /// Used to execute location actions
         /// </summary>
@@ -412,7 +477,7 @@ namespace PlayerInteractions
             };
             actionInvoker.CurrentAction = newAction;
             ApplyActionCosts(newAction);
-            VerifyNewActionTypes(newAction);
+            ExecuteActionTypeLogic(newAction);
         }
         /// <summary>
         /// Used to execute character actions
@@ -424,7 +489,30 @@ namespace PlayerInteractions
         {
             
         }
-        private void VerifyNewActionTypes(BaseAction newAction)
+        private void ExecuteActionTypeLogic(BaseAction newAction)
+        {
+            if (ExecuteCharacterBasedTypeLogic(newAction)) return;
+            ExecuteTimeBasedTypeLogic(newAction);
+        }
+
+        private bool ExecuteCharacterBasedTypeLogic(BaseAction newAction)
+        {
+            foreach (var type in newAction.actionTypes)
+            {
+                switch (type)
+                {
+                    case ActionTypes.Personal:
+                        StartCoroutine(HandlePersonalAction(newAction, result => newAction.isActionPossible = result));
+                        break;
+                    case ActionTypes.Organization:
+                        StartCoroutine(HandleOrganizationAction(newAction, result => newAction.isActionPossible = result));
+                        break;
+                }
+                if (!newAction.isActionPossible) return true;
+            }
+            return false;
+        }
+        private void ExecuteTimeBasedTypeLogic(BaseAction newAction)
         {
             foreach (var type in newAction.actionTypes)
             {
@@ -441,14 +529,10 @@ namespace PlayerInteractions
                         RegisterTimeBasedNonLimitedAction(newAction);
                         Debug.Log($"New time based non limited action added: {newAction.actionName}");
                         break;
-                    case ActionTypes.Personal:
-                        break;
-                    case ActionTypes.Organization:
-                        break;
-
                 }
             }
         }
+
 
         private void ApplyActionCosts(BaseAction newAction)
         {
@@ -465,6 +549,7 @@ namespace PlayerInteractions
                 ApplyEffect(effect);
                 Debug.Log($"Action effect applied: {effect.Effect} with value {effect.Value}");
             }
+            Debug.Log($"Action applied: {newAction.actionName} with invoker {newAction.actionInvoker.characterName} {newAction.actionInvoker.characterSurname}");
         }
 
         private void ApplyEffect(ActionEffect effect)

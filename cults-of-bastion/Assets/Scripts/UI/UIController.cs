@@ -35,12 +35,14 @@ namespace UI
         public static event Action OnPauseGame;
         public static event Action OnResumeGameWithNormalSpeed;
         public static event Action OnResumeGameWithHighSpeed;
-        
         public static event Action OnRequestAllPlayerActions;
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
         public static event Action<LocationData> OnLocationSelection;
         public static event Action<Character> OnPassPlayerCharacter;
         public static event Action OnRequestPlayerCharacter;
+        public static event Action OnRequestCharacterSelectionForAction;
+        public static event Action<Character> OnPassSelectedCharacterForAction;
+        public static event Action OnCancelActionInvoking; 
 
         #endregion
 
@@ -63,6 +65,9 @@ namespace UI
             LocationManager.OnPassLocationDataOnSelection += PassLocationDataOnSelection;
             PlayerInspectorContentController.OnRequestPlayerCharacter += RequestPlayerCharacter;
             PlayerCharacterButton.OnInspectPlayerCharacter += RequestPlayerCharacter;
+            PlayerActionsController.OnRequestCharacterSelectionForAction += RequestCharacterSelection;
+            CharacterSelectionForActionController.OnPassSelectedCharacterForAction += PassSelectedCharacter;
+            CharacterSelectionForActionController.OnCancelActionInvoking += CancelActionInvoking;
         }
         private void UnsubscribeFromEvents()
         {
@@ -75,9 +80,10 @@ namespace UI
             LocationManager.OnPassLocationDataOnSelection -= PassLocationDataOnSelection;
             PlayerInspectorContentController.OnRequestPlayerCharacter -= RequestPlayerCharacter;
             PlayerCharacterButton.OnInspectPlayerCharacter -= RequestPlayerCharacter;
+            PlayerActionsController.OnRequestCharacterSelectionForAction -= RequestCharacterSelection;
+            CharacterSelectionForActionController.OnPassSelectedCharacterForAction -= PassSelectedCharacter;
+            CharacterSelectionForActionController.OnCancelActionInvoking -= CancelActionInvoking;
         }
-
-
         #region GameSpeedChanges
 
         public void PauseGame()
@@ -147,6 +153,14 @@ namespace UI
             
             CharacterManager.OnPassPlayerCharacter -= onPassPlayerCharacter;
         }
+
+        #endregion
+
+        #region CharacterDataPassing
+
+        private static void RequestCharacterSelection() => OnRequestCharacterSelectionForAction?.Invoke();
+        private static void PassSelectedCharacter(Character selectedCharacter) => OnPassSelectedCharacterForAction?.Invoke(selectedCharacter);
+        private static void CancelActionInvoking() => OnCancelActionInvoking?.Invoke();
 
         #endregion
     }

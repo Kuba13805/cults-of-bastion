@@ -5,9 +5,8 @@ using System.Linq;
 using Characters;
 using NewGame;
 using Organizations;
-using UI.MainMenu.NewGameMenu;
+using UI.PlayerInteractions;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace Managers
 {
@@ -26,7 +25,8 @@ namespace Managers
         public static event Action OnOrganizationManagerInitialized;
         public static event Action<Organization> OnOrganizationMemberAdded;
         public static event Action OnOrganizationLoadingFinished;
-        public static event Action<List<OrganizationType>> OnPassOrganizationTypes; 
+        public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
+        public static event Action<List<Character>> OnPassOrganizationMembers;
 
         private void Awake()
         {
@@ -49,12 +49,14 @@ namespace Managers
             GameManager.OnGameDataInitialized += StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization += AssignCharacterToOrganization;
             NewGameController.OnRequestGameData += PassOrganizationTypes;
+            CharacterSelectionForActionController.OnRequestOrganizationMembersForAction += PassOrganizationMembers;
         }
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataInitialized -= StartOrganizationLoading;
             CharacterManager.OnRequestCharacterAssigmentToOrganization -= AssignCharacterToOrganization;
             NewGameController.OnRequestGameData -= PassOrganizationTypes;
+            CharacterSelectionForActionController.OnRequestOrganizationMembersForAction -= PassOrganizationMembers;
         }
 
         private void InitializeOrganizationIDs()
@@ -226,6 +228,9 @@ namespace Managers
             var organizationTypes = _organizationTypes.Values.ToList();
             OnPassOrganizationTypes?.Invoke(organizationTypes);
         }
+
+        private void PassOrganizationMembers() =>
+            OnPassOrganizationMembers?.Invoke(_gameData.PlayerOrganization.organizationMembers);
 
         #endregion
     }
