@@ -63,7 +63,6 @@ namespace UI
             PlayerInteractionsContentController.OnGetAllPlayerActions += RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection += PassLocationDataOnSelection;
-            PlayerInspectorContentController.OnRequestPlayerCharacter += RequestPlayerCharacter;
             PlayerCharacterButton.OnInspectPlayerCharacter += RequestPlayerCharacter;
             PlayerActionsController.OnRequestCharacterSelectionForAction += RequestCharacterSelection;
             CharacterSelectionForActionController.OnPassSelectedCharacterForAction += PassSelectedCharacter;
@@ -78,7 +77,6 @@ namespace UI
             PlayerInteractionsContentController.OnGetAllPlayerActions -= RequestAllPlayerActions;
             PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection -= PassLocationDataOnSelection;
-            PlayerInspectorContentController.OnRequestPlayerCharacter -= RequestPlayerCharacter;
             PlayerCharacterButton.OnInspectPlayerCharacter -= RequestPlayerCharacter;
             PlayerActionsController.OnRequestCharacterSelectionForAction -= RequestCharacterSelection;
             CharacterSelectionForActionController.OnPassSelectedCharacterForAction -= PassSelectedCharacter;

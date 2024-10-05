@@ -5,6 +5,7 @@ using System.Linq;
 using Characters;
 using NewGame;
 using Organizations;
+using UI.Outliner;
 using UI.PlayerInteractions;
 using UnityEngine;
 
@@ -27,6 +28,8 @@ namespace Managers
         public static event Action OnOrganizationLoadingFinished;
         public static event Action<List<OrganizationType>> OnPassOrganizationTypes;
         public static event Action<List<Character>> OnPassOrganizationMembers;
+        public static event Action<Character> OnMemberAddedToPlayerOrganization;
+        public static event Action<int> OnMemberRemovedFromPlayerOrganization;
 
         private void Awake()
         {
@@ -47,16 +50,18 @@ namespace Managers
         private void SubscribeToEvents()
         {
             GameManager.OnGameDataInitialized += StartOrganizationLoading;
-            CharacterManager.OnRequestCharacterAssigmentToOrganization += AssignCharacterToOrganization;
+            CharacterManager.OnRequestCharacterAssigmentToOrganization += AddCharacterToOrganization;
             NewGameController.OnRequestGameData += PassOrganizationTypes;
             CharacterSelectionForActionController.OnRequestOrganizationMembersForAction += PassOrganizationMembers;
+            OutlinerContentController.OnRequestCharacterListForOutliner += PassOrganizationMembers;
         }
         private void UnsubscribeFromEvents()
         {
             GameManager.OnGameDataInitialized -= StartOrganizationLoading;
-            CharacterManager.OnRequestCharacterAssigmentToOrganization -= AssignCharacterToOrganization;
+            CharacterManager.OnRequestCharacterAssigmentToOrganization -= AddCharacterToOrganization;
             NewGameController.OnRequestGameData -= PassOrganizationTypes;
             CharacterSelectionForActionController.OnRequestOrganizationMembersForAction -= PassOrganizationMembers;
+            OutlinerContentController.OnRequestCharacterListForOutliner -= PassOrganizationMembers;
         }
 
         private void InitializeOrganizationIDs()
@@ -153,13 +158,17 @@ namespace Managers
 
         #region OrganizationMembersHandling
 
-        private void AssignCharacterToOrganization(Character character, int organizationID)
+        private void AddCharacterToOrganization(Character character, int organizationID)
         {
             var tempOrganization = _allOrganizations.Find(organization => organization.organizationID == organizationID);
             if (tempOrganization == null) return;
             tempOrganization.organizationMembers.Add(character);
             Debug.Log($"Organization {tempOrganization.organizationName} added character {character.characterName} {character.characterSurname} with id {character.characterID}");
             OnOrganizationMemberAdded?.Invoke(tempOrganization);
+            if (organizationID == _gameData.PlayerOrganization.organizationID)
+            {
+                OnMemberAddedToPlayerOrganization?.Invoke(character);
+            }
         }
 
         private void RemoveCharacterFromOrganization(Character character)
@@ -168,6 +177,10 @@ namespace Managers
             if (tempOrganization == null) return;
             tempOrganization.organizationMembers.Remove(character);
             Debug.Log($"Organization {tempOrganization.organizationName} removed character {character.characterName} {character.characterSurname} with id {character.characterID}");
+            if (tempOrganization.organizationID == _gameData.PlayerOrganization.organizationID)
+            {
+                OnMemberRemovedFromPlayerOrganization?.Invoke(character.characterID);
+            }
         }
 
         #endregion

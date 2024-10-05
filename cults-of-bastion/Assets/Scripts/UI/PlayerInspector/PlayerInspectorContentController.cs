@@ -16,7 +16,7 @@ namespace UI.PlayerInspector
 
         #region Events
 
-        public static event Action OnRequestPlayerCharacter;
+        
 
         #endregion
 

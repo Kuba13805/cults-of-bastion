@@ -38,7 +38,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5579445880584917326, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
       propertyPath: m_Name
-      value: OrganizationCharacterPrefab Variant
+      value: CharacterPrefabOutliner
       objectReference: {fileID: 0}
     - target: {fileID: 6663326454485616336, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
       propertyPath: m_Pivot.x
@@ -140,8 +140,63 @@ PrefabInstance:
       propertyPath: m_AnchoredPosition.y
       value: 0
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 4813473687743633952, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 5579445880584917326, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 1034510880621335445}
   m_SourcePrefab: {fileID: 100100000, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
+--- !u!1 &6246515597504989945 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 5579445880584917326, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
+  m_PrefabInstance: {fileID: 2008104746702805943}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1034510880621335445
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6246515597504989945}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e9b5c0bdde88d5f4798bbd2e6478bbd9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  character:
+    characterID: 0
+    characterName: 
+    characterSurname: 
+    characterNickname: 
+    characterAge: 0
+    characterGender: 0
+    characterCulture:
+      cultureName: 
+      cultureDescription: 
+    characterOwnedLocations: []
+    characterOrganization:
+      organizationID: 0
+      organizationName: 
+      organizationDescription: 
+      organizationMembers: []
+      organizationType:
+        typeName: 
+        typeDescription: 
+  characterNameBox: {fileID: 6426624943317655487}
+  references:
+    version: 2
+    RefIds: []
+--- !u!114 &6426624943317655487 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 4823863135052104712, guid: 60aa89f0dc53bfc49bb4cb9a945c3e53, type: 3}
+  m_PrefabInstance: {fileID: 2008104746702805943}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
