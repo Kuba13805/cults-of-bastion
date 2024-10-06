@@ -81,7 +81,6 @@ namespace UI.Outliner
 
         private void InstantiateCharacterButtons(List<Character> characterList)
         {
-            Debug.Log($"Characters in list: {characterList.Count}");
             foreach (var character in characterList)
             {
                 InstantiateCharacterButton(character);
@@ -90,13 +89,10 @@ namespace UI.Outliner
 
         private void InstantiateCharacterButton(Character character)
         {
-            var characterButton = CreateButton(characterButtonPrefab, characterButtonParent) as OutlinerCharacterButton;
-            _characterButtonList.Add(characterButton);
-            if (characterButton != null)
-            {
-                Debug.Log("Not null");
-                characterButton.InitializeButton(character);
-            }
+            if (character == null) return;
+            var characterButton = CreateButton(characterButtonPrefab, characterButtonParent);
+            _characterButtonList.Add(characterButton.GetComponent<OutlinerCharacterButton>());
+            characterButton.GetComponent<OutlinerCharacterButton>().InitializeButton(character);
             InstantiateLocationButtons(character);
         }
 
@@ -120,9 +116,9 @@ namespace UI.Outliner
         {
             foreach (var location in locationOwner.characterOwnedLocations)
             {
-                var locationButton = CreateButton(locationButtonPrefab, locationButtonParent) as OutlinerLocationButton;
-                _locationButtonList.Add(locationButton);
-                if (locationButton != null) locationButton.InitializeButton(location);
+                var locationButton = CreateButton(locationButtonPrefab, locationButtonParent);
+                _locationButtonList.Add(locationButton.GetComponent<OutlinerLocationButton>());
+                if (locationButton != null) locationButton.GetComponent<OutlinerLocationButton>().InitializeButton(location);
             }
         }
         private void RemoveLocationButton(int locationID)
@@ -131,7 +127,7 @@ namespace UI.Outliner
             if (locationButton != null) _locationButtonList.Remove(locationButton);
             Destroy(locationButton.gameObject);
         }
-        private static object CreateButton(GameObject buttonPrefab, Transform buttonParent)
+        private static GameObject CreateButton(GameObject buttonPrefab, Transform buttonParent)
         {
             var button = Instantiate(buttonPrefab, buttonParent);
             return button;

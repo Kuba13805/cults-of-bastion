@@ -7,6 +7,7 @@ using Managers;
 using PlayerInteractions;
 using PlayerResources;
 using TMPro;
+using UI.Outliner;
 using UI.PlayerInspector;
 using UI.PlayerInteractions;
 using UnityEngine;

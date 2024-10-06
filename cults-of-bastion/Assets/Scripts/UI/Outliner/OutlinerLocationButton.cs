@@ -2,6 +2,7 @@ using System;
 using Locations;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace UI.Outliner
 {
@@ -11,6 +12,17 @@ namespace UI.Outliner
         [SerializeField] private TextMeshProUGUI locationNameBox;
         
         public static event Action<LocationData> OnLocationButtonClicked;
+
+        private void Start()
+        {
+            GetComponent<Button>().onClick.AddListener(OnButtonClick);
+        }
+
+        private void OnDisable()
+        {
+            GetComponent<Button>().onClick.RemoveListener(OnButtonClick);
+        }
+
         public override void InitializeButton(LocationData passedLocationData)
         {
             locationData = passedLocationData;

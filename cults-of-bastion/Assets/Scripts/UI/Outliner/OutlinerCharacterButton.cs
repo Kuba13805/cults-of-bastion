@@ -3,6 +3,7 @@ using Characters;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace UI.Outliner
 {
@@ -12,6 +13,17 @@ namespace UI.Outliner
         [SerializeField] private TextMeshProUGUI characterNameBox;
         
         public static event Action<Character> OnCharacterButtonClicked;
+
+        private void Start()
+        {
+            GetComponent<Button>().onClick.AddListener(OnButtonClick);
+        }
+
+        private void OnDisable()
+        {
+            GetComponent<Button>().onClick.RemoveListener(OnButtonClick);
+        }
+
         public override void InitializeButton(Character passedCharacterData)
         {
             character = passedCharacterData;

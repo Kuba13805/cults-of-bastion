@@ -3,6 +3,7 @@ using System.Collections;
 using Characters;
 using Locations;
 using Organizations;
+using UI.Outliner;
 using UnityEngine;
 
 namespace UI.PlayerInspector
@@ -39,6 +40,8 @@ namespace UI.PlayerInspector
             CharacterInspector.OnInvokeCharacterOrganizationInspector += ShowSelectedOrganization;
             OrganizationMemberButton.OnInvokeCharacterInspector += ShowSelectedCharacter;
             UIController.OnPassPlayerCharacter += ShowSelectedCharacter;
+            OutlinerCharacterButton.OnCharacterButtonClicked += ShowSelectedCharacter;
+            OutlinerLocationButton.OnLocationButtonClicked += ShowSelectedLocation;
         }
         private void UnsubscribeFromEvents()
         {
@@ -48,6 +51,8 @@ namespace UI.PlayerInspector
             CharacterInspector.OnInvokeCharacterOrganizationInspector -= ShowSelectedOrganization;
             OrganizationMemberButton.OnInvokeCharacterInspector -= ShowSelectedCharacter;
             UIController.OnPassPlayerCharacter -= ShowSelectedCharacter;
+            OutlinerCharacterButton.OnCharacterButtonClicked -= ShowSelectedCharacter;
+            OutlinerLocationButton.OnLocationButtonClicked -= ShowSelectedLocation;
         }
         public void ToggleInspector()
         {
