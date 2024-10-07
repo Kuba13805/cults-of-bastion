@@ -12,8 +12,9 @@ namespace UI.PlayerInteractions.CharacterSelectionForAction
         
         public static event Action<int> OnCharacterSelected;
 
-        private void Start()
+        private void OnEnable()
         {
+            MakeInteractable(_characterID);
             GetComponent<Button>().onClick.AddListener(SelectCharacter);
             OnCharacterSelected += MakeInteractable;
         }

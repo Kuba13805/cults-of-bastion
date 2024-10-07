@@ -19,7 +19,7 @@ namespace UI.Outliner
             GetComponent<Button>().onClick.AddListener(OnButtonClick);
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             GetComponent<Button>().onClick.RemoveListener(OnButtonClick);
         }
@@ -29,6 +29,11 @@ namespace UI.Outliner
             character = passedCharacterData;
             characterNameBox.text = character.characterName + " " + character.characterSurname;
         }
-        protected override void OnButtonClick() => OnCharacterButtonClicked?.Invoke(character);
+
+        protected override void OnButtonClick()
+        {
+            Debug.Log($"Requesting Character: {character.characterName} {character.characterSurname}");
+            OnCharacterButtonClicked?.Invoke(character);
+        }
     }
 }

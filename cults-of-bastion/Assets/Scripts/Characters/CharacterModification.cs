@@ -1,13 +1,13 @@
 namespace Characters
 {
-    public class CharacterModifier
+    public class CharacterModification
     {
-        public CharacterModifiers ModifierType;
+        public CharacterModifications ModificationType;
         public int Value;
         public string StringValue;
     }
 
-    public enum CharacterModifiers
+    public enum CharacterModifications
     {
         ModifyStat,
         GiveTrait,

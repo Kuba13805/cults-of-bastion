@@ -1,8 +1,8 @@
 namespace Characters
 {
-    public class CharacterModifierConstructor
+    public class CharacterModificationConstructor
     {
-        public string ModifierTypeName;
+        public string ModificationTypeName;
         public float Value;
         public string StringValue;
     }

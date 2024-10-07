@@ -33,8 +33,6 @@ namespace NewGame
         private List<CharacterBackground> _childhoodBackgrounds = new();
         private List<CharacterBackground> _adulthoodBackgrounds = new();
 
-        private bool _newGameCreated;
-
         #endregion
 
         #region Events
@@ -216,10 +214,8 @@ namespace NewGame
 
         private void CreateNewGameData()
         {
-            if(_newGameCreated) return;
             OnStartNewGame?.Invoke(_playerCharacter, _playerOrganization);
             Debug.Log("New Game Started");
-            _newGameCreated = true;
         }
 
         #endregion

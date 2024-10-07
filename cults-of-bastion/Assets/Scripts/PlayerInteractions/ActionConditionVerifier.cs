@@ -18,20 +18,20 @@ namespace PlayerInteractions
 
         #endregion
 
-        public void Verify(IEnumerable<ActionCondition> conditions, Action<bool> callback, params object[] targetObjects)
+        public void Verify(IEnumerable<ActionCondition> conditions, Action<bool> callback, object targetObjects)
         {
             _conditions = new List<ActionCondition>(conditions);
-            StartCoroutine(StartVerificationCoroutine(callback, targetObjects[0]));
+            StartCoroutine(StartVerificationCoroutine(callback, targetObjects));
         }
 
-        private IEnumerator StartVerificationCoroutine(Action<bool> callback, params object[] targetObjects)
+        private IEnumerator StartVerificationCoroutine(Action<bool> callback, object targetObjects)
         {
             int falseFlags = 0;
 
             for (int i = 0; i < _conditions.Count; i++)
             {
                 bool result = false;
-                yield return StartCoroutine(VerifyCondition(_conditions[i], isConditionMet => result = isConditionMet, targetObjects[0]));
+                yield return StartCoroutine(VerifyCondition(_conditions[i], isConditionMet => result = isConditionMet, targetObjects));
                 var condition = _conditions[i];
                 condition.ConditionMet = result;
                 _conditions[i] = condition;
@@ -45,7 +45,7 @@ namespace PlayerInteractions
             callback?.Invoke(allConditionsMet);
         }
 
-        private IEnumerator VerifyCondition(ActionCondition condition, Action<bool> resultCallback, params object[] targetObjects)
+        private IEnumerator VerifyCondition(ActionCondition condition, Action<bool> resultCallback, object targetObjects)
         {
             switch (condition.Condition)
             {
@@ -59,7 +59,7 @@ namespace PlayerInteractions
                     LocationData targetLocation;
                     try
                     {
-                        targetLocation = targetObjects[0] as LocationData;
+                        targetLocation = targetObjects as LocationData;
                     }
                     catch (InvalidCastException e)
                     {

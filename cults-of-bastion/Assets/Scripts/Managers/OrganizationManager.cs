@@ -75,6 +75,10 @@ namespace Managers
         private void StartOrganizationLoading(GameData gameData, bool isNewGameStarting)
         {
             _gameData = gameData;
+            if (_gameData.PlayerOrganization == null)
+            {
+                Debug.Log($"Player organization does not exist.");
+            }
             if (_gameData.PlayerOrganization != null && isNewGameStarting)
             {
                 _gameData.PlayerOrganization.organizationID = GetNewOrganizationID();
@@ -165,6 +169,7 @@ namespace Managers
             tempOrganization.organizationMembers.Add(character);
             Debug.Log($"Organization {tempOrganization.organizationName} added character {character.characterName} {character.characterSurname} with id {character.characterID}");
             OnOrganizationMemberAdded?.Invoke(tempOrganization);
+            if(_gameData.PlayerOrganization == null) return;
             if (organizationID == _gameData.PlayerOrganization.organizationID)
             {
                 OnMemberAddedToPlayerOrganization?.Invoke(character);
@@ -242,8 +247,19 @@ namespace Managers
             OnPassOrganizationTypes?.Invoke(organizationTypes);
         }
 
-        private void PassOrganizationMembers() =>
-            OnPassOrganizationMembers?.Invoke(_gameData.PlayerOrganization.organizationMembers);
+        private void PassOrganizationMembers()
+        {
+            if (_gameData.PlayerOrganization != null)
+            {
+                OnPassOrganizationMembers?.Invoke(_gameData.PlayerOrganization.organizationMembers);
+            }
+            else
+            {
+                var tempCharacterList = new List<Character>();
+                tempCharacterList.Add(_gameData.PlayerCharacter);
+                OnPassOrganizationMembers?.Invoke(tempCharacterList);
+            }
+        }
 
         #endregion
     }

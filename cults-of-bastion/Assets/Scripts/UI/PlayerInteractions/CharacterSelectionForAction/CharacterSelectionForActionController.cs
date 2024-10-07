@@ -44,7 +44,7 @@ namespace UI.PlayerInteractions
             SubscribeToEvents();
             InstantiateCharacterButtons();
             StartCoroutine(RequestCharacterList());
-            confirmButton.interactable = false;
+            
         }
         private void OnDestroy()
         {
@@ -68,6 +68,7 @@ namespace UI.PlayerInteractions
         {
             InitializeSelectionScreen();
             DisplayInitializedCharacterButtons();
+            confirmButton.interactable = false;
             selectionScreen.SetActive(true);
         }
 
@@ -91,6 +92,7 @@ namespace UI.PlayerInteractions
         }
         private void ConfirmCharacterSelection()
         {
+            Debug.Log($"Selected character: {_selectedCharacter.characterName} {_selectedCharacter.characterSurname} with id {_selectedCharacter.characterID}");
             OnPassSelectedCharacterForAction?.Invoke(_selectedCharacter);
             HideSelectionScreen();
         }

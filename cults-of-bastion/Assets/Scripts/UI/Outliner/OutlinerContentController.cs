@@ -81,11 +81,24 @@ namespace UI.Outliner
 
         private void InstantiateCharacterButtons(List<Character> characterList)
         {
+            if (characterList == null) return;
+            
+            var existingCharacterIDs = new HashSet<int>();
+            foreach (var button in _characterButtonList)
+            {
+                existingCharacterIDs.Add(button.character.characterID);
+            }
+            
             foreach (var character in characterList)
             {
-                InstantiateCharacterButton(character);
+                if (!existingCharacterIDs.Contains(character.characterID))
+                {
+                    InstantiateCharacterButton(character);
+                    existingCharacterIDs.Add(character.characterID);
+                }
             }
         }
+
 
         private void InstantiateCharacterButton(Character character)
         {

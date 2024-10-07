@@ -110,6 +110,7 @@ namespace Managers
         private void RegisterNewEmptyLocation(Location location)
         {
             locations.Add(location);
+            Debug.Log($"Location added to list: {location.locationIndex}");
         }
 
         private void AllowDataInjection()

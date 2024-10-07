@@ -25,6 +25,7 @@ namespace Characters
       public Organization characterOrganization;
       
       public CharacterStats CharacterStats = new();
+      public CharacterIndicators CharacterIndicators = new(); 
    }
 }
 public enum CharacterGender

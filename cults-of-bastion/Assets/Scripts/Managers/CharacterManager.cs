@@ -28,7 +28,7 @@ namespace Managers
         public static event Action OnCharacterManagerInitialized;
         public static event Action OnRequestCharacterGeneratorData;
         public static event Action<Character, int> OnRequestCharacterAssigmentToOrganization;
-        public static event Action<Character, List<CharacterModifier>, bool> OnRequestCharacterModificationFromModifiers;
+        public static event Action<Character, List<CharacterModification>, bool> OnRequestCharacterModificationFromModifiers;
         public static event Action<Character> OnReturnGeneratedCharacter;
         public static event Action<Character> OnPassPlayerCharacter;
 
@@ -271,7 +271,7 @@ namespace Managers
         #endregion
         #region CharacterModifications
 
-        private static void ModifyCharacterWithModifiers(Character character, List<CharacterModifier> characterModifiers, bool isReverse) => 
+        private static void ModifyCharacterWithModifiers(Character character, List<CharacterModification> characterModifiers, bool isReverse) => 
             OnRequestCharacterModificationFromModifiers?.Invoke(character, characterModifiers, isReverse);
 
         #endregion

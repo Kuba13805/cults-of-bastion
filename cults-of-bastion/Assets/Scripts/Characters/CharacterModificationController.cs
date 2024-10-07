@@ -9,28 +9,28 @@ namespace Characters
 {
     public class CharacterModificationController : MonoBehaviour
     {
-        public static event Action<List<CharacterModifier>> OnReturnCharacterModifiers; 
+        public static event Action<List<CharacterModification>> OnReturnCharacterModifiers; 
         private void Awake()
         {
-            CharacterBackgroundController.OnRequestBackgroundEffectsCreation += ReturnCharacterModifiers;
+            CharacterBackgroundController.OnRequestBackgroundEffectsCreation += ReturnCharacterModifications;
             CharacterManager.OnRequestCharacterModificationFromModifiers += ModifyCharacter;
         }
 
         private void OnDestroy()
         {
-            CharacterBackgroundController.OnRequestBackgroundEffectsCreation -= ReturnCharacterModifiers;
+            CharacterBackgroundController.OnRequestBackgroundEffectsCreation -= ReturnCharacterModifications;
             CharacterManager.OnRequestCharacterModificationFromModifiers -= ModifyCharacter;
         }
 
-        private static void ReturnCharacterModifiers(List<string> characterModifiers)
+        private static void ReturnCharacterModifications(List<string> characterModifiers)
         {
-            var modifiers = CreateCharacterModifier(characterModifiers);
+            var modifiers = CreateCharacterModification(characterModifiers);
             OnReturnCharacterModifiers?.Invoke(modifiers);
         }
         
-       private static List<CharacterModifier> CreateCharacterModifier(List<string> characterModifiersDefinition)
+       private static List<CharacterModification> CreateCharacterModification(List<string> characterModifiersDefinition)
         {
-            var modifiers = new List<CharacterModifier>();
+            var modifiers = new List<CharacterModification>();
 
             foreach (var definition in characterModifiersDefinition)
             {
@@ -44,9 +44,9 @@ namespace Characters
                         continue;
                     }
 
-                    var newModifier = new CharacterModifier
+                    var newModifier = new CharacterModification
                     {
-                        ModifierType = (CharacterModifiers)Enum.Parse(typeof(CharacterModifiers), splitDefinition[0])
+                        ModificationType = (CharacterModifications)Enum.Parse(typeof(CharacterModifications), splitDefinition[0])
                     };
 
                     if (int.TryParse(splitDefinition[1], out var value))
@@ -90,40 +90,40 @@ namespace Characters
         
         private static void ModifyCharacter(Character characterToModify, List<string> characterModifierDefinitions, bool isReverse)
         {
-            var characterModifiers = CreateCharacterModifier(characterModifierDefinitions);
+            var characterModifiers = CreateCharacterModification(characterModifierDefinitions);
             
             foreach (var modifier in characterModifiers)
             {
-                ApplyModifier(characterToModify, modifier, isReverse);
+                ApplyModification(characterToModify, modifier, isReverse);
             }
         }
 
-        private static void ModifyCharacter(Character characterToModify, List<CharacterModifier> characterModifiers, bool isReverse)
+        private static void ModifyCharacter(Character characterToModify, List<CharacterModification> characterModifiers, bool isReverse)
         {
             foreach (var modifier in characterModifiers)
             {
-                ApplyModifier(characterToModify, modifier, isReverse);
+                ApplyModification(characterToModify, modifier, isReverse);
             }
         }
 
-        private static void ApplyModifier(Character characterToModify, CharacterModifier modifier, bool isReverse)
+        private static void ApplyModification(Character characterToModify, CharacterModification modification, bool isReverse)
         {
-            Debug.Log($"Applying modifier: {modifier.ModifierType} with value {modifier.Value} and string value {modifier.StringValue}.");
-            switch (modifier.ModifierType)
+            Debug.Log($"Applying modifier: {modification.ModificationType} with value {modification.Value} and string value {modification.StringValue}.");
+            switch (modification.ModificationType)
             {
-                case CharacterModifiers.ModifyStat:
-                    ModifyStat(characterToModify, modifier, isReverse);
+                case CharacterModifications.ModifyStat:
+                    ModifyStat(characterToModify, modification, isReverse);
                     break;
-                case CharacterModifiers.GiveTrait:
+                case CharacterModifications.GiveTrait:
                     break;
-                case CharacterModifiers.RemoveTrait:
+                case CharacterModifications.RemoveTrait:
                     break;
                 default:
                     throw new ArgumentOutOfRangeException();
             }
         }
 
-        private static void ModifyStat(Character characterToModify, CharacterModifier modifier, bool isReverse)
+        private static void ModifyStat(Character characterToModify, CharacterModification modification, bool isReverse)
         {
             var statsFields = characterToModify.CharacterStats.GetType().GetFields(BindingFlags.Public | BindingFlags.Instance);
 
@@ -133,16 +133,16 @@ namespace Characters
 
                 var stat = (BaseStat)field.GetValue(characterToModify.CharacterStats);
 
-                if (field.Name != modifier.StringValue) continue;
-                Debug.Log($"Stat name: {field.Name} and modification stat name: {modifier.StringValue}.");
+                if (field.Name != modification.StringValue) continue;
+                Debug.Log($"Stat name: {field.Name} and modification stat name: {modification.StringValue}.");
                 Debug.Log("Stat before modification: " + stat.Value);
                 if (!isReverse)
                 {
-                    stat.Value += modifier.Value;
+                    stat.Value += modification.Value;
                 }
                 else
                 {
-                    stat.Value -= modifier.Value;
+                    stat.Value -= modification.Value;
                 }
                 Debug.Log($"Modified stat: {stat.Name} with value {stat.Value}");
                 break;

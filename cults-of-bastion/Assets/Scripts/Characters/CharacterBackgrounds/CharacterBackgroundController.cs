@@ -124,7 +124,7 @@ namespace Characters.CharacterBackgrounds
 
         private static IEnumerator AssignBackgroundModifiers(CharacterBackground background, List<string> backgroundEffectsFromConstructor)
         {
-            Action<List<CharacterModifier>> assignModifiers = modifierList =>
+            Action<List<CharacterModification>> assignModifiers = modifierList =>
             {
                 background.BackgroundModifiers = modifierList;
             };

@@ -22,18 +22,19 @@
       "name": "influence_location",
       "description": "influence_location_desc",
       "duration": 6,
+      "progressIndicator": 100,
+      "fixedProgression": 5,
       "actionTypes": [
          "Organization",
-         "TimeBasedNonLimited"
+         "Repeatable"
       ],
       "conditions": [
-        "PlayerHasInfluenceValue = 15"
+        "PlayerHasInfluenceValue = 4"
       ],
       "costs": [
          "RemoveInfluence = 4"
       ],
       "effects": [
-         "AddInfluence = 2",
          "AddMoney = 4"
       ]
     },
@@ -58,7 +59,7 @@
       "duration": 3,
       "actionTypes": [
         "Organization",
-        "TimeBased"
+        "Indicator"
       ],
       "conditions": [
         "PlayerHasInfluenceValue = 6",

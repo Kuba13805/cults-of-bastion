@@ -950,18 +950,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4617174dd2704822ad8448a926fef946, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerOrganization:
-    organizationID: 0
-    organizationName: 
-    organizationDescription: 
-    organizationMembers: []
-    organizationType:
-      typeName: 
-      typeDescription: 
   maxOrganizations: 6
-  references:
-    version: 2
-    RefIds: []
 --- !u!4 &1991412160
 Transform:
   m_ObjectHideFlags: 0

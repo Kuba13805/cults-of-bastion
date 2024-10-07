@@ -5,13 +5,17 @@ using Characters;
 namespace PlayerInteractions
 {
     [Serializable]
-    public abstract class BaseAction : IPlayerAction
+    public class BaseAction : IPlayerAction
     {
         public string actionName;
         public string actionDescription;
         public int actionDuration;
         public bool isActionPossible;
         public int targetNumber;
+        public float actionProgressIndicator;
+        public float actionCurrentProgression;
+        public float actionCalculatedProgression;
+        public float actionFixedProgression;
 
         public List<ActionTypes> actionTypes = new();
         public List<ActionCondition> ActionConditions = new();
@@ -22,6 +26,7 @@ namespace PlayerInteractions
         public bool isStopped;
 
         public Character actionInvoker;
+        public object targetObject;
         
         //action icon
         
@@ -55,8 +60,8 @@ namespace PlayerInteractions
         Personal, //for only main player character
         Organization, //for any character in the player organization
         Immediate, //action is immediately executed
-        TimeBased, //action is executed after certain amount of time
-        TimeBasedNonLimited, //action is executed until the player cancels it
+        Indicator, //action is executed after certain amount of time
+        Repeatable, //action is executed until the player cancels it
         Illegal, //action is considered illegal and provides character with crime points
     }
 }

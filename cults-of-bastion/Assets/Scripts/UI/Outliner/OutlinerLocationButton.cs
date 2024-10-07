@@ -18,7 +18,7 @@ namespace UI.Outliner
             GetComponent<Button>().onClick.AddListener(OnButtonClick);
         }
 
-        private void OnDisable()
+        private void OnDestroy()
         {
             GetComponent<Button>().onClick.RemoveListener(OnButtonClick);
         }

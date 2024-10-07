@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using PlayerInteractions;
 using PlayerResources;
 using UI;
 using Unity.Collections;
@@ -75,6 +76,7 @@ namespace Managers
                 ResumeTheGameWithNormalSpeed;
             InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed +=
                 ResumeTheGameWithHighSpeed;
+            PlayerActionsController.OnRequestCharacterSelectionForAction += PauseTheGame;
         }
 
         private void UnsubscribeFromEvents()
@@ -87,6 +89,7 @@ namespace Managers
                 ResumeTheGameWithNormalSpeed;
             InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed -=
                 ResumeTheGameWithHighSpeed;
+            PlayerActionsController.OnRequestCharacterSelectionForAction -= PauseTheGame;
         }
         
         #region TimeJobSystem
