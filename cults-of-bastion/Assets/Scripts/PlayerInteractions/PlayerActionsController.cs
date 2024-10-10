@@ -31,6 +31,8 @@ namespace PlayerInteractions
         public static event Action<List<BaseAction>> OnPassAllPlayerActions;
         public static event Action OnRequestCharacterSelectionForAction;
         public static event Action OnRequestPlayerCharacterForAction;
+        public static event Action<BaseAction> OnActionCreated;
+        public static event Action<BaseAction> OnActionCancelled;
 
         #endregion
         private void Awake()
@@ -318,6 +320,102 @@ namespace PlayerInteractions
         {
             CreateInvokedAction(actionName, _interactedLocation);
         }
+
+        /// <summary>
+        /// Used to execute location actions
+        /// </summary>
+        /// <param name="actionName"></param>
+        /// <param name="locationData"></param>
+        private void CreateInvokedAction(string actionName, params LocationData[] locationData)
+        {
+            var newAction = new LocationAction
+            {
+                actionName = _locationActionDict[actionName].actionName,
+                actionDescription = _locationActionDict[actionName].actionDescription,
+                actionProgressIndicator = _locationActionDict[actionName].actionProgressIndicator,
+                actionFixedProgression = _locationActionDict[actionName].actionFixedProgression,
+                actionTypes = _locationActionDict[actionName].actionTypes,
+                ActionConditions = _locationActionDict[actionName].ActionConditions,
+                ActionEffects = _locationActionDict[actionName].ActionEffects,
+                ActionCosts = _locationActionDict[actionName].ActionCosts,
+                targetLocation = locationData[0],
+                isActionPossible = true,
+            };
+            StartCoroutine(ExecuteActionTypeLogic(newAction));
+        }
+        /// <summary>
+        /// Used to execute character actions
+        /// </summary>
+        /// <param name="actionName"></param>
+        /// <param name="targetCharacters"></param>
+        private void CreateInvokedAction(string actionName, params Character[] targetCharacters)
+        {
+            
+        }
+        private IEnumerator ExecuteActionTypeLogic(BaseAction newAction)
+        {
+            yield return StartCoroutine(ExecuteCharacterBasedTypeLogic(newAction));
+            
+            if (!newAction.isActionPossible)
+            {
+                Debug.Log("Action aborted due to character restrictions or action not possible. Action name: " + newAction.actionName);
+                _indicatorBasedActions.Remove(newAction);
+                _repeatableActions.Remove(newAction);
+                OnActionCancelled?.Invoke(newAction);
+                newAction = null;
+                yield break;
+            }
+
+            Debug.Log($"Character invoker is: {newAction.actionInvoker.characterID}");
+
+            ExecuteTimeBasedTypeLogic(newAction);
+            ApplyActionCosts(newAction);
+            if(!newAction.actionTypes.Contains(ActionTypes.Immediate)) OnActionCreated?.Invoke(newAction);
+        }
+
+        private IEnumerator ExecuteCharacterBasedTypeLogic(BaseAction newAction)
+        {
+            foreach (var type in newAction.actionTypes)
+            {
+                switch (type)
+                {
+                    case ActionTypes.Personal:
+                        // Handle the personal action and wait for it to complete
+                        yield return StartCoroutine(HandlePersonalAction(newAction, result => newAction.isActionPossible = result));
+                        break;
+                    case ActionTypes.Organization:
+                        // Handle the organization action and wait for it to complete
+                        yield return StartCoroutine(HandleOrganizationAction(newAction, result => newAction.isActionPossible = result));
+                        break;
+                }
+
+                // If at any point, the action is not possible, exit the coroutine early
+                if (!newAction.isActionPossible)
+                {
+                    yield break;
+                }
+            }
+        }
+        private void ExecuteTimeBasedTypeLogic(BaseAction newAction)
+        {
+            foreach (var type in newAction.actionTypes)
+            {
+                switch (type)
+                {
+                    case ActionTypes.Immediate:
+                        ApplyActionEffects(newAction);
+                        break;
+                    case ActionTypes.Indicator:
+                        RegisterIndicatorBasedAction(newAction);
+                        Debug.Log($"New time based action added: {newAction.actionName}");
+                        break;
+                    case ActionTypes.Repeatable:
+                        RegisterRepeatableAction(newAction);
+                        Debug.Log($"New time based non limited action added: {newAction.actionName}");
+                        break;
+                }
+            }
+        }
         private void RegisterIndicatorBasedAction(BaseAction action)
         {
             if(_indicatorBasedActions.Count == 0) TimeManager.OnHourChanged += HandleProgressionActions;
@@ -334,15 +432,17 @@ namespace PlayerInteractions
         private void CancelActionExecuting(BaseAction canceledAction)
         {
             Debug.Log($"Action canceled: {canceledAction.actionName}");
-            canceledAction.actionInvoker.CurrentAction = null;
+            canceledAction.actionInvoker.currentAction = null;
             if (_indicatorBasedActions.Contains(canceledAction))
             {
                 _indicatorBasedActions.Remove(canceledAction);
+                OnActionCancelled?.Invoke(canceledAction);
             }
 
             if (_repeatableActions.Contains(canceledAction))
             {
                 _repeatableActions.Remove(canceledAction);
+                OnActionCancelled?.Invoke(canceledAction);
             }
             
             if(_indicatorBasedActions.Count == 0) TimeManager.OnHourChanged -= HandleProgressionActions;
@@ -357,7 +457,7 @@ namespace PlayerInteractions
             {
                 if (!IncreaseProgression(timeBasedAction)) continue;
                 ApplyActionEffects(timeBasedAction);
-                timeBasedAction.actionInvoker.CurrentAction = null;
+                timeBasedAction.actionInvoker.currentAction = null;
                 tempActionList.Add(timeBasedAction);
             }
             foreach (var action in tempActionList)
@@ -392,7 +492,7 @@ namespace PlayerInteractions
                     _ = result;
                     repeatableAction.isActionPossible = result;
                     Debug.Log($"Action verified: {repeatableAction.actionName} with result: {result}");
-                }, repeatableAction.targetObject));
+                }, repeatableAction.targetLocation));
 
                 if (!repeatableAction.isActionPossible)
                 {
@@ -454,172 +554,76 @@ namespace PlayerInteractions
 
 
         private static IEnumerator HandlePersonalAction(BaseAction newAction, Action<bool> callback)
-    {
-        var playerCharacterReceived = false;
-        var isActionCancelled = false;
-
-        Action<Character> onAssignPlayerCharacter = character =>
         {
-            newAction.actionInvoker = character;
-            playerCharacterReceived = true;
-        };
-        Action onActionCancelled = () => isActionCancelled = true;
+            var playerCharacterReceived = false;
+            var isActionCancelled = false;
 
-        CharacterManager.OnPassPlayerCharacter += onAssignPlayerCharacter;
-        UIController.OnCancelActionInvoking += onActionCancelled;
-
-        OnRequestPlayerCharacterForAction?.Invoke();
-
-        yield return new WaitUntil(() => playerCharacterReceived || isActionCancelled);
-
-        CharacterManager.OnPassPlayerCharacter -= onAssignPlayerCharacter;
-        UIController.OnCancelActionInvoking -= onActionCancelled;
-
-        if (isActionCancelled)
-        {
-            callback?.Invoke(false);
-        }
-        else if (playerCharacterReceived && newAction.actionInvoker != null)
-        {
-            newAction.actionInvoker.CurrentAction = newAction;
-            callback?.Invoke(true);
-        }
-        else
-        {
-            callback?.Invoke(false);
-        }
-    }
-
-    private static IEnumerator HandleOrganizationAction(BaseAction newAction, Action<bool> callback)
-    {
-        var characterReceived = false;
-        var isActionCancelled = false;
-
-        Action<Character> onAssignCharacter = character =>
-        {
-            newAction.actionInvoker = character;
-            characterReceived = true;
-        };
-        Action onActionCancelled = () => isActionCancelled = true;
-
-        UIController.OnPassSelectedCharacterForAction += onAssignCharacter;
-        UIController.OnCancelActionInvoking += onActionCancelled;
-
-        OnRequestCharacterSelectionForAction?.Invoke();
-
-        yield return new WaitUntil(() => characterReceived || isActionCancelled);
-
-        UIController.OnPassSelectedCharacterForAction -= onAssignCharacter;
-        UIController.OnCancelActionInvoking -= onActionCancelled;
-
-        if (isActionCancelled || newAction.actionInvoker == null)
-        {
-            callback?.Invoke(false);
-        }
-        else if (characterReceived && newAction.actionInvoker != null)
-        {
-            newAction.actionInvoker.CurrentAction = newAction;
-            callback?.Invoke(true);
-        }
-        else
-        {
-            callback?.Invoke(false);
-        }
-    }
-
-        /// <summary>
-        /// Used to execute location actions
-        /// </summary>
-        /// <param name="actionName"></param>
-        /// <param name="locationData"></param>
-        private void CreateInvokedAction(string actionName, params LocationData[] locationData)
-        {
-            var newAction = new LocationAction
+            Action<Character> onAssignPlayerCharacter = character =>
             {
-                actionName = _locationActionDict[actionName].actionName,
-                actionDescription = _locationActionDict[actionName].actionDescription,
-                actionProgressIndicator = _locationActionDict[actionName].actionProgressIndicator,
-                actionFixedProgression = _locationActionDict[actionName].actionFixedProgression,
-                actionTypes = _locationActionDict[actionName].actionTypes,
-                ActionConditions = _locationActionDict[actionName].ActionConditions,
-                ActionEffects = _locationActionDict[actionName].ActionEffects,
-                ActionCosts = _locationActionDict[actionName].ActionCosts,
-                targetObject = locationData[0],
-                isActionPossible = true,
+                newAction.actionInvoker = character;
+                playerCharacterReceived = true;
             };
-            StartCoroutine(ExecuteActionTypeLogic(newAction));
-        }
-        /// <summary>
-        /// Used to execute character actions
-        /// </summary>
-        /// <param name="actionName"></param>
-        /// <param name="targetCharacters"></param>
-        private void CreateInvokedAction(string actionName, params Character[] targetCharacters)
-        {
-            
-        }
-        private IEnumerator ExecuteActionTypeLogic(BaseAction newAction)
-        {
-            // Run the character-based logic as a coroutine and wait for its completion
-            yield return StartCoroutine(ExecuteCharacterBasedTypeLogic(newAction));
+            Action onActionCancelled = () => isActionCancelled = true;
 
-            // Check if the character-based logic was successful
-            if (!newAction.isActionPossible)
+            CharacterManager.OnPassPlayerCharacter += onAssignPlayerCharacter;
+            UIController.OnCancelActionInvoking += onActionCancelled;
+
+            OnRequestPlayerCharacterForAction?.Invoke();
+
+            yield return new WaitUntil(() => playerCharacterReceived || isActionCancelled);
+
+            CharacterManager.OnPassPlayerCharacter -= onAssignPlayerCharacter;
+            UIController.OnCancelActionInvoking -= onActionCancelled;
+
+            if (isActionCancelled)
             {
-                Debug.Log("Action aborted due to character restrictions or action not possible. Action name: " + newAction.actionName);
-                _indicatorBasedActions.Remove(newAction);
-                _repeatableActions.Remove(newAction);
-                newAction = null;
-                yield break; // Stop the coroutine here
+                callback?.Invoke(false);
             }
-
-            Debug.Log($"Character invoker is: {newAction.actionInvoker.characterID}");
-
-            ExecuteTimeBasedTypeLogic(newAction);
-            ApplyActionCosts(newAction);
-        }
-
-        private IEnumerator ExecuteCharacterBasedTypeLogic(BaseAction newAction)
-        {
-            foreach (var type in newAction.actionTypes)
+            else if (playerCharacterReceived && newAction.actionInvoker != null)
             {
-                switch (type)
-                {
-                    case ActionTypes.Personal:
-                        // Handle the personal action and wait for it to complete
-                        yield return StartCoroutine(HandlePersonalAction(newAction, result => newAction.isActionPossible = result));
-                        break;
-                    case ActionTypes.Organization:
-                        // Handle the organization action and wait for it to complete
-                        yield return StartCoroutine(HandleOrganizationAction(newAction, result => newAction.isActionPossible = result));
-                        break;
-                }
-
-                // If at any point, the action is not possible, exit the coroutine early
-                if (!newAction.isActionPossible)
-                {
-                    yield break;
-                }
+                newAction.actionInvoker.currentAction = newAction;
+                callback?.Invoke(true);
+            }
+            else
+            {
+                callback?.Invoke(false);
             }
         }
-        private void ExecuteTimeBasedTypeLogic(BaseAction newAction)
+
+        private static IEnumerator HandleOrganizationAction(BaseAction newAction, Action<bool> callback)
         {
-            foreach (var type in newAction.actionTypes)
+            var characterReceived = false;
+            var isActionCancelled = false;
+
+            Action<Character> onAssignCharacter = character =>
             {
-                switch (type)
-                {
-                    case ActionTypes.Immediate:
-                        ApplyActionEffects(newAction);
-                        break;
-                    case ActionTypes.Indicator:
-                        RegisterIndicatorBasedAction(newAction);
-                        Debug.Log($"New time based action added: {newAction.actionName}");
-                        break;
-                    case ActionTypes.Repeatable:
-                        RegisterRepeatableAction(newAction);
-                        Debug.Log($"New time based non limited action added: {newAction.actionName}");
-                        break;
-                }
+                newAction.actionInvoker = character;
+                characterReceived = true;
+            };
+            Action onActionCancelled = () => isActionCancelled = true;
+
+            UIController.OnPassSelectedCharacterForAction += onAssignCharacter;
+            UIController.OnCancelActionInvoking += onActionCancelled;
+
+            OnRequestCharacterSelectionForAction?.Invoke();
+
+            yield return new WaitUntil(() => characterReceived || isActionCancelled);
+
+            UIController.OnPassSelectedCharacterForAction -= onAssignCharacter;
+            UIController.OnCancelActionInvoking -= onActionCancelled;
+
+            if (isActionCancelled || newAction.actionInvoker == null)
+            {
+                callback?.Invoke(false);
+            }
+            else if (characterReceived && newAction.actionInvoker != null)
+            {
+                newAction.actionInvoker.currentAction = newAction;
+                callback?.Invoke(true);
+            }
+            else
+            {
+                callback?.Invoke(false);
             }
         }
 

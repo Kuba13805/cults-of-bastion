@@ -176,6 +176,154 @@ MonoBehaviour:
     characterCulture:
       cultureName: 
       cultureDescription: 
+    CurrentAction:
+      actionName: 
+      actionDescription: 
+      actionDuration: 0
+      isActionPossible: 0
+      targetNumber: 0
+      actionProgressIndicator: 0
+      actionCurrentProgression: 0
+      actionCalculatedProgression: 0
+      actionFixedProgression: 0
+      actionTypes: 
+      isDuringAction: 0
+      isStopped: 0
+      actionInvoker:
+        characterID: 0
+        characterName: 
+        characterSurname: 
+        characterNickname: 
+        characterAge: 0
+        characterGender: 0
+        characterCulture:
+          cultureName: 
+          cultureDescription: 
+        CurrentAction:
+          actionName: 
+          actionDescription: 
+          actionDuration: 0
+          isActionPossible: 0
+          targetNumber: 0
+          actionProgressIndicator: 0
+          actionCurrentProgression: 0
+          actionCalculatedProgression: 0
+          actionFixedProgression: 0
+          actionTypes: 
+          isDuringAction: 0
+          isStopped: 0
+          actionInvoker:
+            characterID: 0
+            characterName: 
+            characterSurname: 
+            characterNickname: 
+            characterAge: 0
+            characterGender: 0
+            characterCulture:
+              cultureName: 
+              cultureDescription: 
+            CurrentAction:
+              actionName: 
+              actionDescription: 
+              actionDuration: 0
+              isActionPossible: 0
+              targetNumber: 0
+              actionProgressIndicator: 0
+              actionCurrentProgression: 0
+              actionCalculatedProgression: 0
+              actionFixedProgression: 0
+              actionTypes: 
+              isDuringAction: 0
+              isStopped: 0
+              actionInvoker:
+                characterID: 0
+                characterName: 
+                characterSurname: 
+                characterNickname: 
+                characterAge: 0
+                characterGender: 0
+                characterCulture:
+                  cultureName: 
+                  cultureDescription: 
+                CurrentAction:
+                  actionName: 
+                  actionDescription: 
+                  actionDuration: 0
+                  isActionPossible: 0
+                  targetNumber: 0
+                  actionProgressIndicator: 0
+                  actionCurrentProgression: 0
+                  actionCalculatedProgression: 0
+                  actionFixedProgression: 0
+                  actionTypes: 
+                  isDuringAction: 0
+                  isStopped: 0
+                  actionInvoker:
+                    characterID: 0
+                    characterName: 
+                    characterSurname: 
+                    characterNickname: 
+                    characterAge: 0
+                    characterGender: 0
+                    characterCulture:
+                      cultureName: 
+                      cultureDescription: 
+                    CurrentAction:
+                      actionName: 
+                      actionDescription: 
+                      actionDuration: 0
+                      isActionPossible: 0
+                      targetNumber: 0
+                      actionProgressIndicator: 0
+                      actionCurrentProgression: 0
+                      actionCalculatedProgression: 0
+                      actionFixedProgression: 0
+                      actionTypes: 
+                      isDuringAction: 0
+                      isStopped: 0
+                      actionInvoker:
+                        characterID: 0
+                        characterName: 
+                        characterSurname: 
+                        characterNickname: 
+                        characterAge: 0
+                        characterGender: 0
+                    characterOwnedLocations: []
+                    characterOrganization:
+                      organizationID: 0
+                      organizationName: 
+                      organizationDescription: 
+                      organizationMembers: []
+                      organizationType:
+                        typeName: 
+                        typeDescription: 
+                characterOwnedLocations: []
+                characterOrganization:
+                  organizationID: 0
+                  organizationName: 
+                  organizationDescription: 
+                  organizationMembers: []
+                  organizationType:
+                    typeName: 
+                    typeDescription: 
+            characterOwnedLocations: []
+            characterOrganization:
+              organizationID: 0
+              organizationName: 
+              organizationDescription: 
+              organizationMembers: []
+              organizationType:
+                typeName: 
+                typeDescription: 
+        characterOwnedLocations: []
+        characterOrganization:
+          organizationID: 0
+          organizationName: 
+          organizationDescription: 
+          organizationMembers: []
+          organizationType:
+            typeName: 
+            typeDescription: 
     characterOwnedLocations: []
     characterOrganization:
       organizationID: 0

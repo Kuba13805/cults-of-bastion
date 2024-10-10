@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using Locations;
 using Managers;
@@ -9,6 +10,8 @@ namespace CameraControllers
 {
     public class CityViewCameraController : MonoBehaviour
     {
+        #region CameraSettings
+
         [SerializeField] private CinemachineCamera virtualCamera;
         [SerializeField] private float maxCameraMovementSpeed;
         [SerializeField] private float minCameraMovementSpeed;
@@ -21,7 +24,11 @@ namespace CameraControllers
         [SerializeField] private float followOffsetMin;
         [SerializeField] private float followOffsetMax;
         [SerializeField] private float zoomValueOnLocationFocus;
-    
+
+        #endregion
+
+        #region CameraMovementVariables
+
         private Vector3 _followOffset;
         private CinemachineCameraOffset _cinemachineCameraOffsetComponent;
     
@@ -36,12 +43,35 @@ namespace CameraControllers
         private float _currentZoomSpeed;
         private float _currentRotationSpeed;
 
+        #endregion
+
+        #region CameraMovementCoroutines
+
         private Coroutine _cameraMovementCoroutine;
         private Coroutine _cameraRotationCoroutine;
         private Coroutine _cameraZoomCoroutine;
         private Coroutine _decelerateZoomCoroutine;
         private Coroutine _decelerateMovementCoroutine;
         private Coroutine _decelerateRotationCoroutine;
+
+        #endregion
+
+        #region Events
+
+        public static event Action OnCameraMovementStarted;
+
+        public static event Action OnCameraMovementStopped;
+
+        public static event Action OnCameraRotationStarted;
+
+        public static event Action OnCameraRotationStopped;
+
+        public static event Action OnCameraZoomStarted;
+
+        public static event Action OnCameraZoomStopped;
+        
+
+        #endregion
 
         private void OnDrawGizmos()
         {
@@ -127,6 +157,7 @@ namespace CameraControllers
         }
         private IEnumerator MoveCamera()
         {
+            OnCameraMovementStarted?.Invoke();
             while (true)
             {
                 var inputVector = _playerInputControls.CityViewActions.MoveCityCamera.ReadValue<Vector2>();
@@ -160,12 +191,13 @@ namespace CameraControllers
                 {
                     var position = focusPointTransform.position;
                     var newPosition = position;
-                    newPosition.y = hit.point.y + (position.y - position.y); // Adjust the height based on terrain and the original offset
+                    newPosition.y = hit.point.y + (position.y - position.y);
                     position = newPosition;
                     focusPointTransform.position = position;
                 }
 
                 yield return null;
+                OnCameraMovementStopped?.Invoke();
             }
         }
     

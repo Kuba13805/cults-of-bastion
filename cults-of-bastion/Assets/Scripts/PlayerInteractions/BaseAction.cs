@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Characters;
+using Locations;
 
 namespace PlayerInteractions
 {
@@ -26,7 +27,8 @@ namespace PlayerInteractions
         public bool isStopped;
 
         public Character actionInvoker;
-        public object targetObject;
+        public LocationData targetLocation;
+        public Character targetCharacter;
         
         //action icon
         

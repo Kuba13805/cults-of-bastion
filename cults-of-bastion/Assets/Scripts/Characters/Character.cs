@@ -20,7 +20,7 @@ namespace Characters
       public CharacterBackground ChildhoodBackground;
       public CharacterBackground AdulthoodBackground;
       
-      public BaseAction CurrentAction;
+      public BaseAction currentAction;
       public List<LocationData> characterOwnedLocations = new();
       public Organization characterOrganization;
       
