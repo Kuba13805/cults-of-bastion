@@ -474,7 +474,6 @@ namespace PlayerInteractions
 
         private IEnumerator VerifyRepeatableActionsConditions()
         {
-            Debug.Log($"Verifying time based non limited actions");
             var actionsToCancel = new List<BaseAction>();
             var actionsToRepeat = new List<BaseAction>();
             foreach (var repeatableAction in _repeatableActions)
