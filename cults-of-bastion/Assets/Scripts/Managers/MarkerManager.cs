@@ -1,8 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using CameraControllers;
-using Characters;
 using Locations;
 using PlayerInteractions;
 using UI.MapMarkers;
@@ -10,7 +7,7 @@ using UnityEngine;
 
 namespace Managers
 {
-    public class MarkerController : MonoBehaviour
+    public class MarkerManager : MonoBehaviour
     {
         #region Variables
         
