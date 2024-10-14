@@ -23,33 +23,30 @@ public class LocationMarker : MonoBehaviour
 
         StartCoroutine(UpdateMarkerPosition());
     }
+    public void RemoveMarker()
+    {
+        StopCoroutine(UpdateMarkerPosition());
+    }
 
     private IEnumerator UpdateMarkerPosition()
     {
         while (true)
         {
             yield return new WaitForEndOfFrame();
-            
-            // Convert world position to screen position
-            Vector3 targetScreenPosition = _camera.WorldToScreenPoint(_locationPosition);
 
-            // If the location is behind the camera, hide the marker
+            Vector3 targetScreenPosition = _camera.WorldToScreenPoint(_locationPosition);
+            
             if (targetScreenPosition.z < 0)
             {
                 _rectTransform.gameObject.SetActive(false);
                 continue;
             }
-            else
-            {
-                _rectTransform.gameObject.SetActive(true);
-            }
 
-            // Set the position directly without padding
-            // The marker will now be allowed to go to the very edges of the screen
+            _rectTransform.gameObject.SetActive(true);
+
             targetScreenPosition.x = Mathf.Clamp(targetScreenPosition.x, 0, Screen.width);
             targetScreenPosition.y = Mathf.Clamp(targetScreenPosition.y, 0, Screen.height);
-
-            // Smoothly move the UI marker towards the target position
+            
             Vector3 smoothedPosition = Vector3.Lerp(_rectTransform.position, targetScreenPosition, smoothSpeed * Time.deltaTime);
 
             _rectTransform.position = smoothedPosition;

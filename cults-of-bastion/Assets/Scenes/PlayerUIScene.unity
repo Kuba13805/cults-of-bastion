@@ -1323,6 +1323,17 @@ MonoBehaviour:
   preCreatedLocationMarkers: 5
   locationMarkerPrefab: {fileID: 1460263636732660150, guid: 6b3dd956a82032e40a88f51fe8a12132, type: 3}
   locationMarkerParent: {fileID: 257926770}
+  scaleChangeSpeed: 50
+  markerScaleLowZoom: 1
+  markerScaleMiddleZoom: 0.5
+  markerScaleHighZoom: 0.25
+  alphaChangeSpeed: 15
+  markerAlphaLowZoom: 1
+  markerAlphaMiddleZoom: 0.75
+  markerAlphaHighZoom: 0
+  lowZoomAmount: 10
+  middleZoomAmount: 25
+  highZoomAmount: 45
 --- !u!1 &286431279
 GameObject:
   m_ObjectHideFlags: 0

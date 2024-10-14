@@ -58,19 +58,8 @@ namespace CameraControllers
 
         #region Events
 
-        public static event Action OnCameraMovementStarted;
-
-        public static event Action OnCameraMovementStopped;
-
-        public static event Action OnCameraRotationStarted;
-
-        public static event Action OnCameraRotationStopped;
-
-        public static event Action OnCameraZoomStarted;
-
-        public static event Action OnCameraZoomStopped;
-        
-
+        public static event Action<float> OnCameraZoomUpdate;
+    
         #endregion
 
         private void OnDrawGizmos()
@@ -157,7 +146,6 @@ namespace CameraControllers
         }
         private IEnumerator MoveCamera()
         {
-            OnCameraMovementStarted?.Invoke();
             while (true)
             {
                 var inputVector = _playerInputControls.CityViewActions.MoveCityCamera.ReadValue<Vector2>();
@@ -197,7 +185,6 @@ namespace CameraControllers
                 }
 
                 yield return null;
-                OnCameraMovementStopped?.Invoke();
             }
         }
     
@@ -359,7 +346,8 @@ namespace CameraControllers
                 _cinemachineCameraOffsetComponent.Offset =
                     Vector3.Lerp(_cinemachineCameraOffsetComponent.Offset, new Vector3(0f, _cinemachineCameraOffsetComponent.Offset.y,_followOffset.z),
                         Time.deltaTime * cameraZoomSpeed);
-
+            
+                OnCameraZoomUpdate?.Invoke(_followOffset.magnitude);
                 yield return null;
             }
         }

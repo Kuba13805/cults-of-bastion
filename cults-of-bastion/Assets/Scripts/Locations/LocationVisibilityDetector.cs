@@ -27,7 +27,6 @@ namespace Locations
         public void InvokeLocationVisible()
         {
             OnLocationVisible?.Invoke(_locationIndex, transform.position);
-            Debug.Log($"Location with id {_locationIndex} visible at {transform.position}");
         }
 
         public void InvokeLocationHidden()

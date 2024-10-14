@@ -36,8 +36,6 @@ namespace CameraControllers
         {
             if (_virtualCamera != null)
             {
-                Debug.Log($"Virtual camera found: {_virtualCamera}");
-                
                 _activeCamera = Camera.main;
 
                 if (_activeCamera != null)
@@ -81,7 +79,6 @@ namespace CameraControllers
         {
             if (_activeCamera == null)
             {
-                Debug.Log($"Camera is null");
                 return;
             }
             

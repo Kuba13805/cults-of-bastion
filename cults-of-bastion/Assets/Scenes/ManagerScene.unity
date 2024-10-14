@@ -842,7 +842,7 @@ GameObject:
   - component: {fileID: 1314648336}
   - component: {fileID: 1314648335}
   m_Layer: 0
-  m_Name: MarkerController
+  m_Name: MarkerManager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
