@@ -1,5 +1,7 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using Characters;
 using Locations;
 using PlayerInteractions;
 using UI.MapMarkers;
@@ -15,11 +17,9 @@ namespace Managers
 
         #endregion
         
-        public static event Action<int> OnRequestMarkerDisplay;
+        public static event Action<LocationMarkerData, Vector3> OnRequestMarkerDisplay;
         public static event Action<int> OnRequestMarkerToBeHidden;
-        public static event Action<LocationMarkerData> OnLocationMarkerCreated;
-        public static event Action<int> OnLocationMarkerRemoved;
-        public static event Action<int> OnLocationMarkerUpdated;
+        public static event Action<int> OnRequestLocationPosition;
 
         private void Start()
         {
@@ -35,7 +35,7 @@ namespace Managers
         {
             PlayerActionsController.OnActionCreated += UpdateMarkers;
             PlayerActionsController.OnActionCancelled += RemoveActionMarkerData;
-            LocationVisibilityDetector.OnLocationVisible += RequestMarkerDisplay;
+            LocationVisibilityDetector.OnLocationVisible += InvokeMarkerDisplay;
             LocationVisibilityDetector.OnLocationHidden += RequestMarkerToBeHidden;
         }
 
@@ -43,20 +43,10 @@ namespace Managers
         {
             PlayerActionsController.OnActionCreated -= UpdateMarkers;
             PlayerActionsController.OnActionCancelled -= RemoveActionMarkerData;
-            LocationVisibilityDetector.OnLocationVisible -= RequestMarkerDisplay;
+            LocationVisibilityDetector.OnLocationVisible -= InvokeMarkerDisplay;
             LocationVisibilityDetector.OnLocationHidden -= RequestMarkerToBeHidden;
         }
-
-        private void RequestMarkerDisplay(int locationIndex)
-        {
-            var markerExists = CheckForMarkerDataExistence(locationIndex);
-            if (markerExists.Item1)
-            {
-                OnRequestMarkerDisplay?.Invoke(locationIndex);
-                Debug.Log($"Marker showing for: {_locationMarkers[locationIndex].LocationDataEntry.LocationName} while {_locationMarkers[locationIndex].CharacterMarker.Count} characters are interacting with it");
-            }
-        }
-
+        
         private void RequestMarkerToBeHidden(int locationIndex)
         {
             var markerExists = CheckForMarkerDataExistence(locationIndex);
@@ -64,6 +54,31 @@ namespace Managers
             {
                 OnRequestMarkerToBeHidden?.Invoke(locationIndex);
             }
+        }
+
+        private void InvokeMarkerDisplay(int locationIndex, Vector3 locationPositionInWorld)
+        {
+            var markerExists = CheckForMarkerDataExistence(locationIndex);
+            if (markerExists.Item1)
+            {
+                OnRequestMarkerDisplay?.Invoke(markerExists.Item2, locationPositionInWorld);
+                Debug.Log($"Marker showing for: {_locationMarkers[locationIndex].LocationDataEntry.LocationName} while {_locationMarkers[locationIndex].CharacterMarker.Count} characters are interacting with it");
+            }
+        }
+        private static IEnumerator RequestLocationPosition(int locationIndex, Action<Vector3> callback)
+        {
+            var positionReceived = false;
+            Action<Vector3> onPositionReceived = position =>
+            {
+                callback?.Invoke(position);
+                positionReceived = true;
+            };
+
+            OnRequestLocationPosition?.Invoke(locationIndex);
+            LocationManager.OnReturnLocationPosition += onPositionReceived;
+
+            yield return new WaitUntil(() => positionReceived);
+            LocationManager.OnReturnLocationPosition -= onPositionReceived;
         }
 
         private (bool, LocationMarkerData) CheckForMarkerDataExistence(int locationIndex)
@@ -77,33 +92,69 @@ namespace Managers
 
         private void UpdateMarkers(BaseAction actionMarkerEntry)
         {
+            // Check if actionMarkerEntry is null
+            if (actionMarkerEntry == null)
+            {
+                Debug.LogError("UpdateMarkers: actionMarkerEntry is null");
+                return;
+            }
+
+            // Check if targetLocation within actionMarkerEntry is null
+            if (actionMarkerEntry.targetLocation == null)
+            {
+                Debug.LogError($"UpdateMarkers: targetLocation is null for action {actionMarkerEntry}");
+                return;
+            }
+
+            // Fetch locationID from targetLocation and check marker data
             var (exists, markerData) = CheckForMarkerDataExistence(actionMarkerEntry.targetLocation.locationID);
-            
+
             if (!exists)
             {
-                CreateLocationMarker(actionMarkerEntry);
+                markerData = CreateLocationMarkerData(actionMarkerEntry);
                 Debug.Log($"New marker added: {actionMarkerEntry.targetLocation.locationName}");
             }
             else
             {
+                // Check if markerData is null before using it
+                if (markerData == null)
+                {
+                    Debug.LogError($"UpdateMarkers: markerData is null for locationID {actionMarkerEntry.targetLocation.locationID}");
+                    return;
+                }
+
                 markerData.ActionMarker.Add(actionMarkerEntry);
                 markerData.CharacterMarker.Add(actionMarkerEntry.actionInvoker);
                 Debug.Log($"Marker updated for: {actionMarkerEntry.targetLocation.locationName}");
-                OnLocationMarkerUpdated?.Invoke(actionMarkerEntry.targetLocation.locationID);
+            }
+
+            // Ensure markerData is not null before invoking display
+            if (markerData != null)
+            {
+                StartCoroutine(RequestLocationPosition(markerData.LocationDataEntry.LocationIndex,
+                    position => InvokeMarkerDisplay(markerData.LocationDataEntry.LocationIndex, position)));
+            }
+            else
+            {
+                Debug.LogError("UpdateMarkers: markerData is unexpectedly null after creation or update.");
             }
         }
 
-        private void CreateLocationMarker(BaseAction action)
+
+        private LocationMarkerData CreateLocationMarkerData(BaseAction action)
         {
             var newLocationMarkerData = new LocationMarkerData
             {
                 LocationDataEntry = CreateLocationDataEntry(action.targetLocation)
             };
+
             newLocationMarkerData.ActionMarker.Add(action);
             newLocationMarkerData.CharacterMarker.Add(action.actionInvoker);
+
             _locationMarkers.Add(action.targetLocation.locationID, newLocationMarkerData);
-            OnLocationMarkerCreated?.Invoke(newLocationMarkerData);
+            return newLocationMarkerData;
         }
+
 
         private void RemoveActionMarkerData(BaseAction actionToRemove)
         {
@@ -122,7 +173,7 @@ namespace Managers
                 if (markerData.ActionMarker.Count == 0)
                 {
                     _locationMarkers.Remove(actionToRemove.targetLocation.locationID);
-                    OnLocationMarkerRemoved?.Invoke(actionToRemove.targetLocation.locationID);
+                    OnRequestMarkerToBeHidden?.Invoke(actionToRemove.targetLocation.locationID);
                     Debug.Log($"Location marker removed: {markerData.LocationDataEntry.LocationName}");
                 }
             }

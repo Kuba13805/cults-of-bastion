@@ -27,6 +27,7 @@ namespace Managers
         public static event Action<LocationData> OnPassLocationDataOnInteraction;
         public static event Action<LocationData> OnPassLocationDataOnSelection;
         public static event Action OnLocationLoadingFinished;
+        public static event Action<Vector3> OnReturnLocationPosition;
 
         #endregion
 
@@ -47,6 +48,7 @@ namespace Managers
             CharacterManager.OnCharactersLoaded += AllowDataInjection;
             Location.OnInteractWithLocation += PassLocationDataOnInteraction;
             Location.OnSelectLocation += PassLocationDataOnSelection;
+            MarkerManager.OnRequestLocationPosition += ReturnLocationPosition;
         }
 
         private void UnsubscribeFromEvents()
@@ -57,6 +59,7 @@ namespace Managers
             CharacterManager.OnCharactersLoaded -= AllowDataInjection;
             Location.OnInteractWithLocation -= PassLocationDataOnInteraction;
             Location.OnSelectLocation -= PassLocationDataOnSelection;
+            MarkerManager.OnRequestLocationPosition -= ReturnLocationPosition;
         }
 
         #region LocationTypeLoading
@@ -177,11 +180,22 @@ namespace Managers
 
 
         #endregion
-
         #region LocationActionsHandling
 
         private static void PassLocationDataOnInteraction(LocationData locationData) => OnPassLocationDataOnInteraction?.Invoke(locationData);
         private static void PassLocationDataOnSelection(LocationData locationData) => OnPassLocationDataOnSelection?.Invoke(locationData);
+
+        #endregion
+
+        #region LocationPositionHandling
+
+        private void ReturnLocationPosition(int locationIndex)
+        {
+            foreach (var location in locations.Where(location => location.locationIndex == locationIndex))
+            {
+                OnReturnLocationPosition?.Invoke(location.transform.position);
+            }
+        }
 
         #endregion
     }
