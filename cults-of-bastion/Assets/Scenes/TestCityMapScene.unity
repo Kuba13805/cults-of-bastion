@@ -9,7 +9,7 @@ OcclusionCullingSettings:
     smallestHole: 0.25
     backfaceThreshold: 100
   m_SceneGUID: 8124e5870f4fd4c779e7a5f994e84ad1
-  m_OcclusionCullingData: {fileID: 36300000, guid: 1dcb46ec58c8b434c9deff66c1ca8e08, type: 2}
+  m_OcclusionCullingData: {fileID: 36300000, guid: d21764a008ad1d54193f7ffcc5037ed0, type: 2}
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -92,7 +93,7 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 112000000, guid: 3d3cfc949e5d0194abb2e4b7744bce22, type: 2}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
@@ -695,6 +696,7 @@ GameObject:
   m_Component:
   - component: {fileID: 638170920}
   - component: {fileID: 638170919}
+  - component: {fileID: 638170923}
   - component: {fileID: 638170921}
   - component: {fileID: 638170922}
   m_Layer: 0
@@ -756,7 +758,7 @@ Transform:
   m_GameObject: {fileID: 638170918}
   serializedVersion: 2
   m_LocalRotation: {x: 0.38268343, y: -0, z: -0, w: 0.92387956}
-  m_LocalPosition: {x: 0, y: 5, z: -5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -774,7 +776,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44d70cc20219cd84593f67d248eafe36, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Offset: {x: 0, y: 0, z: -3.5}
+  Offset: {x: 0, y: 0, z: -12}
   ApplyAfter: 1
   PreserveComposition: 0
 --- !u!114 &638170922
@@ -791,6 +793,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _locations: []
   batchSize: 10
+--- !u!114 &638170923
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 638170918}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b617507da6d07e749b7efdb34e1173e1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  TrackerSettings:
+    BindingMode: 4
+    PositionDamping: {x: 1.5, y: 1.5, z: 1.5}
+    AngularDampingMode: 0
+    RotationDamping: {x: 1, y: 1, z: 1}
+    QuaternionDamping: 1
+  FollowOffset: {x: 0, y: 0, z: 0}
 --- !u!1 &663648046
 GameObject:
   m_ObjectHideFlags: 0
@@ -1337,10 +1358,10 @@ MonoBehaviour:
   decelerationTime: 2
   cameraMovementDuration: 0.8
   cameraRotationSpeed: 0.2
-  cameraZoomSpeed: 40
-  followOffsetMin: 1
+  cameraZoomSpeed: 5
+  followOffsetMin: 8
   followOffsetMax: 60
-  zoomValueOnLocationFocus: 3
+  zoomValueOnLocationFocus: 10
 --- !u!4 &936952899
 Transform:
   m_ObjectHideFlags: 0
@@ -1350,7 +1371,7 @@ Transform:
   m_GameObject: {fileID: 936952894}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.54, y: 0.1, z: 9.51}
+  m_LocalPosition: {x: 13.17, y: 0.1, z: 9.99}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

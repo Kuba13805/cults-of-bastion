@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using Characters;
 using Locations;
+using UnityEngine;
 
 namespace PlayerInteractions
 {
@@ -54,6 +55,10 @@ namespace PlayerInteractions
             
             isDuringAction = false;
             isStopped = true;
+        }
+        public float GetProgression()
+        {
+            return actionProgressIndicator <= 0 ? 0f : Mathf.Clamp(actionCurrentProgression / actionProgressIndicator, 0f, 1f);
         }
     }
 

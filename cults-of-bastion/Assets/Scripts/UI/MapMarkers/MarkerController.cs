@@ -1,17 +1,24 @@
-using System;
 using System.Collections.Generic;
 using CameraControllers;
 using Managers;
+using PlayerInteractions;
 using UnityEngine;
-using UnityEngine.Serialization;
 
 namespace UI.MapMarkers
 {
     public class MarkerController : MonoBehaviour
     {
         [SerializeField] private int preCreatedLocationMarkers;
+        [SerializeField] private int preCreatedActionMarkers;
+        [SerializeField] private int preCreatedCharacterMarkers;
+        
+        [SerializeField] private GameObject characterInLocationMarkerPrefab;
+        [SerializeField] private GameObject actionInLocationMarkerPrefab;
         [SerializeField] private GameObject locationMarkerPrefab;
+        
         [SerializeField] private Transform locationMarkerParent;
+        [SerializeField] private Transform characterInLocationMarkerParent;
+        [SerializeField] private Transform actionInLocationMarkerParent;
 
         [SerializeField] private float scaleChangeSpeed = 5f;
         [SerializeField] private float markerScaleLowZoom;
@@ -27,8 +34,9 @@ namespace UI.MapMarkers
         [SerializeField] private float middleZoomAmount;
         [SerializeField] private float highZoomAmount;
         
-        private List<LocationMarker> _availableLocationMarkers = new();
-        private List<LocationMarker> _usedLocationMarkers = new();
+        private MarkerPool<LocationMarker> _locationMarkerPool;
+        private MarkerPool<ActionInLocationMarker> _actionMarkerPool;
+        private MarkerPool<CharacterInLocationMarker> _characterMarkerPool;
 
         private void Start()
         {
@@ -45,6 +53,7 @@ namespace UI.MapMarkers
         {
             MarkerManager.OnRequestMarkerDisplay += CreateLocationMarker;
             MarkerManager.OnRequestMarkerToBeHidden += RemoveLocationMarker;
+            MarkerManager.OnUpdateLocationMarker += UpdateLocationActions;
             CityViewCameraController.OnCameraZoomUpdate += UpdateMarkerScale;
             CityViewCameraController.OnCameraZoomUpdate += UpdateMarkerAlpha;
         }
@@ -53,6 +62,7 @@ namespace UI.MapMarkers
         {
             MarkerManager.OnRequestMarkerDisplay -= CreateLocationMarker;
             MarkerManager.OnRequestMarkerToBeHidden -= RemoveLocationMarker;
+            MarkerManager.OnUpdateLocationMarker -= UpdateLocationActions;
             CityViewCameraController.OnCameraZoomUpdate -= UpdateMarkerScale;
             CityViewCameraController.OnCameraZoomUpdate -= UpdateMarkerAlpha;
         }
@@ -61,41 +71,71 @@ namespace UI.MapMarkers
 
         private void InitializeLocationMarkers()
         {
-            for (int i = 0; i < preCreatedLocationMarkers; i++)
-            {
-                Debug.Log($"Marker number {i} created");
-                var newMarker = CreateMarker<LocationMarker>(locationMarkerPrefab, locationMarkerParent);
-                _availableLocationMarkers.Add(newMarker);
-            }
+            _locationMarkerPool = new MarkerPool<LocationMarker>(locationMarkerPrefab, locationMarkerParent, preCreatedLocationMarkers);
+            _actionMarkerPool = new MarkerPool<ActionInLocationMarker>(actionInLocationMarkerPrefab, actionInLocationMarkerParent, preCreatedActionMarkers);
+            _characterMarkerPool = new MarkerPool<CharacterInLocationMarker>(characterInLocationMarkerPrefab, characterInLocationMarkerParent, preCreatedCharacterMarkers);
         }
+
         private void CreateLocationMarker(LocationMarkerData locationMarkerData, Vector3 markerPosition)
         {
-            var markerExists = CheckForMarkerDataExistence(locationMarkerData.LocationDataEntry.LocationIndex) ??
-                               GetMarker(_availableLocationMarkers, _usedLocationMarkers, locationMarkerPrefab,
-                                   locationMarkerParent);
-
-            var newMarker = markerExists as LocationMarker;
-            if (newMarker != null) newMarker.InitializeMarker(locationMarkerData, markerPosition);
+            var marker = _locationMarkerPool.GetMarker();
+            marker.InitializeMarker(locationMarkerData, markerPosition);
         }
-
 
         private void RemoveLocationMarker(int locationIndex)
         {
-            var marker = _usedLocationMarkers.Find(m => m.LocationMarkerData.LocationDataEntry.LocationIndex == locationIndex);
+            var marker = _locationMarkerPool.UsedMarkers.Find(m => m.LocationMarkerData.LocationDataEntry.LocationIndex == locationIndex);
             if(marker == null) return;
             marker.RemoveMarker();
-            ReleaseMarker(marker, _availableLocationMarkers, _usedLocationMarkers, preCreatedLocationMarkers);
+            _locationMarkerPool.ReleaseMarker(marker);
         }
 
+        private void UpdateLocationActions(BaseAction newAction, int index)
+        {
+            var marker = _locationMarkerPool.UsedMarkers.Find(m => m.LocationMarkerData.LocationDataEntry.LocationIndex == index);
+            if (marker == null)
+            {
+                Debug.LogWarning("Marker not found for index: " + index);
+                return;
+            }
+
+            var actionMarkerParent = marker.GetActionParent();
+            var characterMarkerParent = marker.GetCharacterParent();
+
+            if (actionMarkerParent == null || characterMarkerParent == null)
+            {
+                Debug.LogWarning("Marker parents are null");
+                return;
+            }
+
+            var actionMarker = _actionMarkerPool.GetMarker();
+            var characterMarker = _characterMarkerPool.GetMarker();
+    
+            if (actionMarker == null || characterMarker == null)
+            {
+                Debug.LogError("Failed to get actionMarker or characterMarker from the pool");
+                return;
+            }
+
+            actionMarker.GetComponent<ActionInLocationMarker>().SetAction(newAction);
+            Debug.Log("Assigning actionMarker to new parent");
+            TransferMinorMarker(actionMarker, actionMarkerParent);
+        }
+
+        private static void TransferMinorMarker<T>(T marker, Transform targetParent) where T : MonoBehaviour
+        {
+            if (marker == null || targetParent == null)
+            {
+                Debug.LogError("Cannot transfer marker because it or targetParent is null");
+                return;
+            }
+
+            marker.transform.SetParent(targetParent);
+            Debug.Log("Marker transferred to new parent: " + targetParent.name);
+        }
         #endregion
 
         #region MarkerHandling
-
-        private object CheckForMarkerDataExistence(int locationIndex)
-        {
-            var marker = _usedLocationMarkers.Find(m => m.LocationMarkerData.LocationDataEntry.LocationIndex == locationIndex);
-            return marker;
-        }
 
         private void UpdateMarkerScale(float zoomLevel)
         {
@@ -113,21 +153,21 @@ namespace UI.MapMarkers
             {
                 targetScale = Mathf.Lerp(markerScaleHighZoom, markerScaleHighZoom, (zoomLevel - middleZoomAmount) / (highZoomAmount - middleZoomAmount));
             }
-            
-            _usedLocationMarkers.ForEach(m =>
-            {
-                m.transform.localScale = Vector3.Lerp(m.transform.localScale, Vector3.one * targetScale, Time.deltaTime * scaleChangeSpeed);
-            });
 
-            _availableLocationMarkers.ForEach(m =>
+            foreach (var marker in _locationMarkerPool.UsedMarkers)
             {
-                m.transform.localScale = Vector3.Lerp(m.transform.localScale, Vector3.one * targetScale, Time.deltaTime * scaleChangeSpeed);
-            });
+                float currentScale = marker.transform.localScale.x;
+                if (Mathf.Abs(currentScale - targetScale) > 0.01f)
+                {
+                    marker.transform.localScale = Vector3.Lerp(marker.transform.localScale, Vector3.one * targetScale, Time.deltaTime * scaleChangeSpeed);
+                }
+            }
         }
 
         private void UpdateMarkerAlpha(float zoomLevel)
         {
             float targetAlpha;
+
             if (zoomLevel < lowZoomAmount)
             {
                 targetAlpha = Mathf.Lerp(markerAlphaLowZoom, markerAlphaMiddleZoom, zoomLevel / lowZoomAmount);
@@ -140,58 +180,19 @@ namespace UI.MapMarkers
             {
                 targetAlpha = Mathf.Lerp(markerAlphaHighZoom, markerAlphaHighZoom, (zoomLevel - middleZoomAmount) / (highZoomAmount - middleZoomAmount));
             }
-            _usedLocationMarkers.ForEach(m =>
+
+            foreach (var marker in _locationMarkerPool.UsedMarkers)
             {
-                m.GetComponent<CanvasGroup>().alpha = Mathf.Lerp(m.GetComponent<CanvasGroup>().alpha, targetAlpha, Time.deltaTime * alphaChangeSpeed);
-            });
-            _availableLocationMarkers.ForEach(m =>
-            {
-                m.GetComponent<CanvasGroup>().alpha = Mathf.Lerp(m.GetComponent<CanvasGroup>().alpha, targetAlpha, Time.deltaTime * alphaChangeSpeed);
-            });
-        }
-
-        #endregion
-
-
-        #region GenericMarkerCreation
-
-        private static T GetMarker<T>(IList<T> availableMarkerList, ICollection<T> usedMarkerList, GameObject markerPrefab, Transform prefabParent) where T : MonoBehaviour
-        {
-            T marker;
-            if (availableMarkerList.Count > 0)
-            {
-                marker = availableMarkerList[0];
-                availableMarkerList.RemoveAt(0);
+                var canvasGroup = marker.GetComponent<CanvasGroup>();
+                if (canvasGroup != null)
+                {
+                    float currentAlpha = canvasGroup.alpha;
+                    if (Mathf.Abs(currentAlpha - targetAlpha) > 0.01f)
+                    {
+                        canvasGroup.alpha = Mathf.Lerp(currentAlpha, targetAlpha, Time.deltaTime * alphaChangeSpeed);
+                    }
+                }
             }
-            else
-            {
-                marker = CreateMarker<T>(markerPrefab, prefabParent);
-            }
-            usedMarkerList.Add(marker);
-            return marker;
-        }
-
-        private static void ReleaseMarker<T>(T marker, ICollection<T> availableMarkerList, ICollection<T> usedMarkerList, int poolSize) where T : MonoBehaviour
-        {
-            usedMarkerList.Remove(marker);
-            
-            if (availableMarkerList.Count >= poolSize)
-            {
-                Destroy(marker.gameObject);
-            }
-            else
-            {
-                availableMarkerList.Add(marker);
-                marker.gameObject.SetActive(false);
-            }
-        }
-
-        
-        private static T CreateMarker<T>(GameObject prefab, Transform prefabParent) where T : MonoBehaviour
-        {
-            var markerInstance = Instantiate(prefab, prefabParent).GetComponent<T>();
-            markerInstance.gameObject.SetActive(false);
-            return markerInstance;
         }
 
         #endregion

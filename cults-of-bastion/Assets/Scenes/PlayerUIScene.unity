@@ -42,7 +42,8 @@ RenderSettings:
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -1300,7 +1301,8 @@ RectTransform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 642491768}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
@@ -1321,19 +1323,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   preCreatedLocationMarkers: 5
+  preCreatedActionMarkers: 5
+  preCreatedCharacterMarkers: 5
+  characterInLocationMarkerPrefab: {fileID: 9141180883343154429, guid: ca5b6e840f662d44e9f614acfca92813, type: 3}
+  actionInLocationMarkerPrefab: {fileID: 4529169466593623854, guid: beb6ede31267a2348a36f917b786e053, type: 3}
   locationMarkerPrefab: {fileID: 1460263636732660150, guid: 6b3dd956a82032e40a88f51fe8a12132, type: 3}
   locationMarkerParent: {fileID: 257926770}
-  scaleChangeSpeed: 50
+  characterInLocationMarkerParent: {fileID: 642491768}
+  actionInLocationMarkerParent: {fileID: 642491768}
+  scaleChangeSpeed: 5
   markerScaleLowZoom: 1
-  markerScaleMiddleZoom: 0.5
-  markerScaleHighZoom: 0.25
-  alphaChangeSpeed: 15
+  markerScaleMiddleZoom: 0.75
+  markerScaleHighZoom: 0.3
+  alphaChangeSpeed: 40
   markerAlphaLowZoom: 1
   markerAlphaMiddleZoom: 0.75
   markerAlphaHighZoom: 0
-  lowZoomAmount: 10
-  middleZoomAmount: 25
-  highZoomAmount: 45
+  lowZoomAmount: 20
+  middleZoomAmount: 40
+  highZoomAmount: 50
 --- !u!1 &286431279
 GameObject:
   m_ObjectHideFlags: 0
@@ -2815,6 +2823,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &642491767
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 642491768}
+  - component: {fileID: 642491769}
+  m_Layer: 5
+  m_Name: Panel
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &642491768
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642491767}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 257926770}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0, y: 0}
+  m_AnchorMax: {x: 1, y: 1}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 0, y: 0}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &642491769
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 642491767}
+  m_CullTransparentMesh: 1
 --- !u!1 &668764417
 GameObject:
   m_ObjectHideFlags: 0

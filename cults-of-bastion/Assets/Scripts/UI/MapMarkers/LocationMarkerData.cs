@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using Characters;
-using Locations;
 using Managers;
 using PlayerInteractions;
-using UnityEngine;
 
 namespace UI.MapMarkers
 {

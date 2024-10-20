@@ -1,15 +1,27 @@
 using System.Collections;
-using UnityEngine;
+using System.Collections.Generic;
 using UI.MapMarkers;
-using Unity.Cinemachine;
+using UnityEngine;
+using UnityEngine.Serialization;
 
 public class LocationMarker : MonoBehaviour
 {
+    [SerializeField] private GameObject characterInLocationMarkerParent;
+    [SerializeField] private GameObject actionInLocationMarkerParent;
+    
+    [SerializeField] private float smoothSpeed = 100f;
+    
     public LocationMarkerData LocationMarkerData;
+    
     private Vector3 _locationPosition;
     private Camera _camera;
     private RectTransform _rectTransform;
-    [SerializeField] private float smoothSpeed = 100f;
+    
+    private List<GameObject> _characterMarkers = new();
+    private List<GameObject> _actionMarkers = new();
+    
+    private List<GameObject> _activeCharacterMarkers = new();
+    private List<GameObject> _activeActionMarkers = new();
 
     public void InitializeMarker(LocationMarkerData newLocationMarkerData, Vector3 locationPosition)
     {
@@ -51,5 +63,13 @@ public class LocationMarker : MonoBehaviour
 
             _rectTransform.position = smoothedPosition;
         }
+    }
+    public Transform GetActionParent()
+    {
+        return actionInLocationMarkerParent.transform;
+    }
+    public Transform GetCharacterParent()
+    {
+        return characterInLocationMarkerParent.transform;
     }
 }
