@@ -21,7 +21,6 @@ namespace Managers
         public static event Action<LocationMarkerData, Vector3> OnRequestMarkerDisplay;
         public static event Action<int> OnRequestMarkerToBeHidden;
         public static event Action<int> OnRequestLocationPosition;
-        public static event Action<BaseAction, int> OnUpdateLocationMarker;
         public static event Action<int> OnRemoveActionMarker;
 
         private void Start()
@@ -68,13 +67,12 @@ namespace Managers
             }
 
             var markerExists = CheckForMarkerDataExistence(locationIndex);
-            if (markerExists.Item1)
-            {
-                OnRequestMarkerDisplay?.Invoke(markerExists.Item2, locationPositionInWorld);
-                Debug.Log($"Marker showing for: {_locationMarkers[locationIndex].LocationDataEntry.LocationName} while {_locationMarkers[locationIndex].CharacterMarker.Count} characters are interacting with it");
+            if (!markerExists.Item1) return;
+            
+            OnRequestMarkerDisplay?.Invoke(markerExists.Item2, locationPositionInWorld);
+            Debug.Log($"Marker showing for: {_locationMarkers[locationIndex].LocationDataEntry.LocationName} while {_locationMarkers[locationIndex].CharacterMarker.Count} characters are interacting with it");
 
-                _locationVisibilityFlags[locationIndex] = true;
-            }
+            _locationVisibilityFlags[locationIndex] = true;
         }
         private static IEnumerator RequestLocationPosition(int locationIndex, Action<Vector3> callback)
         {
@@ -134,12 +132,12 @@ namespace Managers
                 markerData.CharacterMarker.Add(actionMarkerEntry.actionInvoker);
                 Debug.Log($"Marker updated for: {actionMarkerEntry.targetLocation.locationName}");
             }
-            OnUpdateLocationMarker?.Invoke(actionMarkerEntry, markerData.LocationDataEntry.LocationIndex);
             
             if (markerData != null)
             {
                 StartCoroutine(RequestLocationPosition(markerData.LocationDataEntry.LocationIndex,
                     position => InvokeMarkerDisplay(markerData.LocationDataEntry.LocationIndex, position)));
+                Debug.Log($"Showing marker for: {actionMarkerEntry.targetLocation.locationName}");
             }
             else
             {
@@ -180,6 +178,7 @@ namespace Managers
             if (markerData.ActionMarker.Count != 0) return;
                 
             _locationMarkers.Remove(actionToRemove.targetLocation.locationID);
+            _locationVisibilityFlags[actionToRemove.targetLocation.locationID] = false;
             OnRequestMarkerToBeHidden?.Invoke(actionToRemove.targetLocation.locationID);
             Debug.Log($"Location marker removed: {markerData.LocationDataEntry.LocationName}");
         }

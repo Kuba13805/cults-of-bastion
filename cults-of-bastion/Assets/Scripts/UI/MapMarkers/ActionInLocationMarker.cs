@@ -1,4 +1,4 @@
-using System.Collections;
+using System;
 using Managers;
 using PlayerInteractions;
 using UnityEngine;
@@ -12,8 +12,6 @@ namespace UI.MapMarkers
         [SerializeField] private Image actionIconBox;
 
         private BaseAction _action;
-        private float _currentProgress;
-        private const float LerpDuration = 1f;
 
         private void OnEnable()
         {
@@ -28,14 +26,15 @@ namespace UI.MapMarkers
         public void SetAction(BaseAction action)
         {
             _action = action;
-            _currentProgress = _action.GetProgression();
-            progressBar.fillAmount = _currentProgress;
+            progressBar.fillAmount = _action.GetProgression();
         }
+
         public void RemoveAction()
         {
             StopAllCoroutines();
+            _action = null;
         }
-        
+
         private void UpdateActionProgress(float f)
         {
             if (_action == null)
@@ -43,25 +42,11 @@ namespace UI.MapMarkers
                 Debug.LogWarning("No action set.");
                 return;
             }
-
-            var newProgress = _action.GetProgression();
-            StartCoroutine(SmoothProgressTransition(_currentProgress, newProgress));
-        }
-        
-        private IEnumerator SmoothProgressTransition(float startValue, float endValue)
-        {
-            float elapsedTime = 0f;
-            while (elapsedTime < LerpDuration)
+            progressBar.fillAmount = _action.GetProgression();
+            if (Math.Abs(progressBar.fillAmount - 1) < 0.05f)
             {
-                elapsedTime += Time.deltaTime;
-                _currentProgress = Mathf.Lerp(startValue, endValue, elapsedTime / LerpDuration);
-                progressBar.fillAmount = _currentProgress;
-                yield return null;
+                progressBar.fillAmount = 0;
             }
-            
-            _currentProgress = endValue;
-            progressBar.fillAmount = _currentProgress;
         }
     }
-
 }

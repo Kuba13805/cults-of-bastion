@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UI.MapMarkers;
 using UnityEngine;
 using UnityEngine.Serialization;
@@ -16,22 +17,16 @@ public class LocationMarker : MonoBehaviour
     private Vector3 _locationPosition;
     private Camera _camera;
     private RectTransform _rectTransform;
-    
-    private List<GameObject> _characterMarkers = new();
-    private List<GameObject> _actionMarkers = new();
-    
-    private List<GameObject> _activeCharacterMarkers = new();
-    private List<GameObject> _activeActionMarkers = new();
 
     public void InitializeMarker(LocationMarkerData newLocationMarkerData, Vector3 locationPosition)
     {
         LocationMarkerData = newLocationMarkerData;
+        Debug.Log($"Marker index: {LocationMarkerData.LocationDataEntry.LocationIndex}");
         _locationPosition = locationPosition;
         
         _camera = Camera.main;
 
         _rectTransform = GetComponent<RectTransform>();
-        gameObject.SetActive(true);
 
         StartCoroutine(UpdateMarkerPosition());
     }
@@ -46,7 +41,7 @@ public class LocationMarker : MonoBehaviour
         {
             yield return new WaitForEndOfFrame();
 
-            Vector3 targetScreenPosition = _camera.WorldToScreenPoint(_locationPosition);
+            var targetScreenPosition = _camera.WorldToScreenPoint(_locationPosition);
             
             if (targetScreenPosition.z < 0)
             {
@@ -71,5 +66,13 @@ public class LocationMarker : MonoBehaviour
     public Transform GetCharacterParent()
     {
         return characterInLocationMarkerParent.transform;
+    }
+    public List<ActionInLocationMarker> GetActionMarkers()
+    {
+        return actionInLocationMarkerParent.GetComponentsInChildren<ActionInLocationMarker>().ToList();
+    }
+    public List<CharacterInLocationMarker> GetCharacterMarkers()
+    {
+        return characterInLocationMarkerParent.GetComponentsInChildren<CharacterInLocationMarker>().ToList();
     }
 }

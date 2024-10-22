@@ -53,7 +53,6 @@ namespace UI.MapMarkers
         {
             MarkerManager.OnRequestMarkerDisplay += CreateLocationMarker;
             MarkerManager.OnRequestMarkerToBeHidden += RemoveLocationMarker;
-            MarkerManager.OnUpdateLocationMarker += UpdateLocationActions;
             CityViewCameraController.OnCameraZoomUpdate += UpdateMarkerScale;
             CityViewCameraController.OnCameraZoomUpdate += UpdateMarkerAlpha;
         }
@@ -62,7 +61,6 @@ namespace UI.MapMarkers
         {
             MarkerManager.OnRequestMarkerDisplay -= CreateLocationMarker;
             MarkerManager.OnRequestMarkerToBeHidden -= RemoveLocationMarker;
-            MarkerManager.OnUpdateLocationMarker -= UpdateLocationActions;
             CityViewCameraController.OnCameraZoomUpdate -= UpdateMarkerScale;
             CityViewCameraController.OnCameraZoomUpdate -= UpdateMarkerAlpha;
         }
@@ -78,27 +76,38 @@ namespace UI.MapMarkers
 
         private void CreateLocationMarker(LocationMarkerData locationMarkerData, Vector3 markerPosition)
         {
+            Debug.Log($"Marker for location: {locationMarkerData.LocationDataEntry.LocationName} created");
             var marker = _locationMarkerPool.GetMarker();
             marker.InitializeMarker(locationMarkerData, markerPosition);
+
+            foreach (var action in marker.LocationMarkerData.ActionMarker)
+            {
+                UpdateLocationActions(action, marker);
+            }
         }
 
         private void RemoveLocationMarker(int locationIndex)
         {
             var marker = _locationMarkerPool.UsedMarkers.Find(m => m.LocationMarkerData.LocationDataEntry.LocationIndex == locationIndex);
             if(marker == null) return;
+
+            foreach (var actionMarker in marker.GetActionMarkers())
+            {
+                actionMarker.RemoveAction();
+                _actionMarkerPool.ReleaseMarker(actionMarker);
+            }
+
+            foreach (var characterMarker in marker.GetCharacterMarkers())
+            {
+                _characterMarkerPool.ReleaseMarker(characterMarker);
+            }
             marker.RemoveMarker();
+            Debug.Log($"Location marker removed: {marker.LocationMarkerData.LocationDataEntry.LocationName}");
             _locationMarkerPool.ReleaseMarker(marker);
         }
 
-        private void UpdateLocationActions(BaseAction newAction, int index)
+        private void UpdateLocationActions(BaseAction newAction, LocationMarker marker)
         {
-            var marker = _locationMarkerPool.UsedMarkers.Find(m => m.LocationMarkerData.LocationDataEntry.LocationIndex == index);
-            if (marker == null)
-            {
-                Debug.LogWarning("Marker not found for index: " + index);
-                return;
-            }
-
             var actionMarkerParent = marker.GetActionParent();
             var characterMarkerParent = marker.GetCharacterParent();
 
@@ -110,16 +119,18 @@ namespace UI.MapMarkers
 
             var actionMarker = _actionMarkerPool.GetMarker();
             var characterMarker = _characterMarkerPool.GetMarker();
-    
+
             if (actionMarker == null || characterMarker == null)
             {
                 Debug.LogError("Failed to get actionMarker or characterMarker from the pool");
                 return;
             }
 
-            actionMarker.GetComponent<ActionInLocationMarker>().SetAction(newAction);
-            Debug.Log("Assigning actionMarker to new parent");
+            actionMarker.SetAction(newAction);
             TransferMinorMarker(actionMarker, actionMarkerParent);
+            TransferMinorMarker(characterMarker, characterMarkerParent);
+
+            Debug.Log("Action and Character markers assigned to respective parents");
         }
 
         private static void TransferMinorMarker<T>(T marker, Transform targetParent) where T : MonoBehaviour
@@ -130,8 +141,8 @@ namespace UI.MapMarkers
                 return;
             }
 
-            marker.transform.SetParent(targetParent);
-            Debug.Log("Marker transferred to new parent: " + targetParent.name);
+            marker.transform.SetParent(targetParent, false);
+            Debug.Log($"Marker transferred to new parent: {targetParent.name}");
         }
         #endregion
 

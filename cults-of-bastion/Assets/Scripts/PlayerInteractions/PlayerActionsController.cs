@@ -84,7 +84,6 @@ namespace PlayerInteractions
                 {
                     _ = result;
                     locationAction.isActionPossible = result;
-                    Debug.Log($"Action {locationAction.actionName} is possible: {result}");
                 }, locationData[0]));
 
                 if (locationAction.isActionPossible)
@@ -380,16 +379,13 @@ namespace PlayerInteractions
                 switch (type)
                 {
                     case ActionTypes.Personal:
-                        // Handle the personal action and wait for it to complete
                         yield return StartCoroutine(HandlePersonalAction(newAction, result => newAction.isActionPossible = result));
                         break;
                     case ActionTypes.Organization:
-                        // Handle the organization action and wait for it to complete
                         yield return StartCoroutine(HandleOrganizationAction(newAction, result => newAction.isActionPossible = result));
                         break;
                 }
 
-                // If at any point, the action is not possible, exit the coroutine early
                 if (!newAction.isActionPossible)
                 {
                     yield break;
@@ -521,7 +517,7 @@ namespace PlayerInteractions
             repeatableAction.actionCurrentProgression = 0;
             ApplyActionCosts(repeatableAction);
         }
-        private bool IncreaseProgression(BaseAction timeBasedAction)
+        private static bool IncreaseProgression(BaseAction timeBasedAction)
         {
             if (timeBasedAction == null)
             {
@@ -546,13 +542,12 @@ namespace PlayerInteractions
                                                               .BaseActionProgressIndicator;
 
             timeBasedAction.actionCurrentProgression += timeBasedAction.actionCalculatedProgression;
-
-            Debug.Log($"Action progression increased: {timeBasedAction.actionName} with progression: {timeBasedAction.actionCurrentProgression} out of {timeBasedAction.actionProgressIndicator}");
+            
             return !(timeBasedAction.actionProgressIndicator > timeBasedAction.actionCurrentProgression);
         }
 
 
-        private static IEnumerator HandlePersonalAction(BaseAction newAction, Action<bool> callback)
+        private IEnumerator HandlePersonalAction(BaseAction newAction, Action<bool> callback)
         {
             var playerCharacterReceived = false;
             var isActionCancelled = false;
@@ -580,6 +575,7 @@ namespace PlayerInteractions
             }
             else if (playerCharacterReceived && newAction.actionInvoker != null)
             {
+                if(newAction.actionInvoker.currentAction != null) CancelActionExecuting(newAction.actionInvoker.currentAction);
                 newAction.actionInvoker.currentAction = newAction;
                 callback?.Invoke(true);
             }
@@ -589,7 +585,7 @@ namespace PlayerInteractions
             }
         }
 
-        private static IEnumerator HandleOrganizationAction(BaseAction newAction, Action<bool> callback)
+        private IEnumerator HandleOrganizationAction(BaseAction newAction, Action<bool> callback)
         {
             var characterReceived = false;
             var isActionCancelled = false;
@@ -617,6 +613,7 @@ namespace PlayerInteractions
             }
             else if (characterReceived && newAction.actionInvoker != null)
             {
+                if(newAction.actionInvoker.currentAction != null) CancelActionExecuting(newAction.actionInvoker.currentAction);
                 newAction.actionInvoker.currentAction = newAction;
                 callback?.Invoke(true);
             }
