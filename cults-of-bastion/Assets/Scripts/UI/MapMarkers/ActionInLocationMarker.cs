@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using Managers;
 using PlayerInteractions;
 using UnityEngine;
@@ -12,6 +13,7 @@ namespace UI.MapMarkers
         [SerializeField] private Image actionIconBox;
 
         private BaseAction _action;
+        private Coroutine _updateProgressCoroutine;
 
         private void OnEnable()
         {
@@ -21,6 +23,10 @@ namespace UI.MapMarkers
         private void OnDisable()
         {
             TimeManager.OnHourChanged -= UpdateActionProgress;
+            if (_updateProgressCoroutine != null)
+            {
+                StopCoroutine(_updateProgressCoroutine);
+            }
         }
 
         public void SetAction(BaseAction action)
@@ -31,7 +37,10 @@ namespace UI.MapMarkers
 
         public void RemoveAction()
         {
-            StopAllCoroutines();
+            if (_updateProgressCoroutine != null)
+            {
+                StopCoroutine(_updateProgressCoroutine);
+            }
             _action = null;
         }
 
@@ -42,10 +51,38 @@ namespace UI.MapMarkers
                 Debug.LogWarning("No action set.");
                 return;
             }
-            progressBar.fillAmount = _action.GetProgression();
-            if (Math.Abs(progressBar.fillAmount - 1) < 0.05f)
+
+            if (_updateProgressCoroutine != null)
             {
-                progressBar.fillAmount = 0;
+                StopCoroutine(_updateProgressCoroutine);
+            }
+
+            _updateProgressCoroutine = StartCoroutine(SmoothUpdateProgressBar());
+        }
+
+        private IEnumerator SmoothUpdateProgressBar()
+        {
+            while (_action != null)
+            {
+                float targetProgress = _action.GetProgression();
+                float currentProgress = progressBar.fillAmount;
+
+                while (Math.Abs(progressBar.fillAmount - targetProgress) > 0.01f)
+                {
+                    progressBar.fillAmount = Mathf.Lerp(currentProgress, targetProgress, 0.1f);
+                    currentProgress = progressBar.fillAmount;
+
+                    yield return null;
+
+                    targetProgress = _action.GetProgression();
+                }
+
+                if (Math.Abs(progressBar.fillAmount - 1) < 0.05f)
+                {
+                    progressBar.fillAmount = 0;
+                }
+
+                yield return null;
             }
         }
     }

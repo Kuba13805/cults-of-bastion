@@ -44,13 +44,13 @@ namespace Characters
         {
             var character = new Character
             {
-                characterCulture = GetRandomCharacterCulture(),
+                CharacterCulture = GetRandomCharacterCulture(),
                 characterGender = GetRandomCharacterGender(),
                 characterAge = GetRandomCharacterAge(),
                 ChildhoodBackground = GetRandomCharacterBackground(_childhoodBackgrounds.Values.ToList()),
                 AdulthoodBackground = GetRandomCharacterBackground(_adulthoodBackgrounds.Values.ToList())
             };
-            LoadCultureNamings(character.characterCulture);
+            LoadCultureNamings(character.CharacterCulture);
             
             character.characterName = GetRandomCharacterName(character.characterGender == CharacterGender.Male ? _maleNames : _femaleNames);
             character.characterSurname = GetRandomCharacterName(_surnames);
@@ -65,7 +65,7 @@ namespace Characters
             
             var character = new Character
             {
-                characterCulture = _cultures.GetValueOrDefault(cultureName),
+                CharacterCulture = _cultures.GetValueOrDefault(cultureName),
                 characterGender = GetRandomCharacterGender(),
                 characterAge = GetRandomCharacterAge(),
                 ChildhoodBackground = GetRandomCharacterBackground(_childhoodBackgrounds.Values.ToList()),
@@ -84,7 +84,7 @@ namespace Characters
 
             var character = new Character
             {
-                characterCulture = _cultures.GetValueOrDefault(cultureName),
+                CharacterCulture = _cultures.GetValueOrDefault(cultureName),
                 characterGender = GetRandomCharacterGender(),
                 characterAge = GetRandomCharacterAge(),
             };
@@ -112,7 +112,7 @@ namespace Characters
 
             var character = new Character
             {
-                characterCulture = _cultures.GetValueOrDefault(cultureName),
+                CharacterCulture = _cultures.GetValueOrDefault(cultureName),
                 characterGender = GetRandomCharacterGender(),
                 characterAge = GetRandomCharacterAge(),
                 ChildhoodBackground = _childhoodBackgrounds.GetValueOrDefault(childhoodBackgroundName),
@@ -137,10 +137,10 @@ namespace Characters
                 characterAge = characterConstructor.characterAge,
                 characterGender = characterConstructor.characterGender == "Male" ? CharacterGender.Male : CharacterGender.Female,
             };
-            if(characterConstructor.characterCulture == null) character.characterCulture = GetRandomCharacterCulture();
+            if(characterConstructor.characterCulture == null) character.CharacterCulture = GetRandomCharacterCulture();
             else if (_cultures.TryGetValue(characterConstructor.characterCulture, out var culture))
             {
-                character.characterCulture = culture;
+                character.CharacterCulture = culture;
                 LoadCultureNamings(culture);
             }
             if(characterConstructor.characterSurname == null) character.characterSurname = GetRandomCharacterName(_surnames);
@@ -261,8 +261,8 @@ namespace Characters
         private Action ApplyCultureModifier(string cultureName, Character generatedCharacter)
         {
             if (!_cultures.ContainsKey(cultureName)) return () => { };
-            generatedCharacter.characterCulture = _cultures.GetValueOrDefault(cultureName);
-            Debug.Log($"Forced Character Culture: {generatedCharacter.characterCulture}");
+            generatedCharacter.CharacterCulture = _cultures.GetValueOrDefault(cultureName);
+            Debug.Log($"Forced Character Culture: {generatedCharacter.CharacterCulture}");
             return () => { };
         }
         private void ApplyTraitModifier(string traitName, Character generatedCharacter)

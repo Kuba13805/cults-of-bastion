@@ -82,7 +82,7 @@ namespace Managers
             if(character.characterID <= 0) return;
             _gameData.Characters.Add(character);
             Debug.Log($"Character {character.characterName} {character.characterSurname} vel {character.characterNickname} at {character.characterAge} " +
-                      $"added with id {character.characterID}. Character culture: {character.characterCulture} and backgrounds: {character.ChildhoodBackground.BackgroundName} and {character.AdulthoodBackground.BackgroundName}");
+                      $"added with id {character.characterID}. Character culture: {character.CharacterCulture} and backgrounds: {character.ChildhoodBackground.BackgroundName} and {character.AdulthoodBackground.BackgroundName}");
         }
 
         private void RemoveCharacter(int id)

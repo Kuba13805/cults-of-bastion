@@ -28,13 +28,12 @@ namespace UI.MainMenu.NewGameMenu.OrganizationCreation
         public static event Action<bool> OnLockTypeButtons;
         public static event Action<string, OrganizationType> OnOrganizationCreated;
         #endregion
-
         protected override void Start()
         {
             base.Start();
             UnsubscribeFromEvents();
             SubscribeToEvents();
-            CheckNameInputField(organizationNameInputField.text);
+            nextStageButton.interactable = false;
         }
 
         protected override void OnDestroy()

@@ -136,6 +136,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   progressBar: {fileID: 5846228432719099618}
   actionIconBox: {fileID: 1956870956896885823}
+  fillSpeed: 0.8
 --- !u!1 &5311384214371334946
 GameObject:
   m_ObjectHideFlags: 0

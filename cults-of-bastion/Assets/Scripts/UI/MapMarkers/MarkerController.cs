@@ -127,6 +127,7 @@ namespace UI.MapMarkers
             }
 
             actionMarker.SetAction(newAction);
+            characterMarker.SetCharacter(newAction.ActionInvoker);
             TransferMinorMarker(actionMarker, actionMarkerParent);
             TransferMinorMarker(characterMarker, characterMarkerParent);
 

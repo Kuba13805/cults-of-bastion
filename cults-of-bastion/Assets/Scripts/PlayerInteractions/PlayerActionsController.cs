@@ -160,7 +160,7 @@ namespace PlayerInteractions
                 foreach (var newType in locationAction.actionTypes.Select(CreateActionTypes))
                 {
                     if(!VerifyActionTypeConditions(newType, newAction)) continue;
-                    newAction.actionTypes.Add(newType);
+                    newAction.ActionTypes.Add(newType);
                 }
 
                 foreach (var newCondition in locationAction.conditions.Select(CreateActionCondition))
@@ -212,31 +212,31 @@ namespace PlayerInteractions
             switch (type)
             {
                 case ActionTypes.Personal:
-                    if (action.actionTypes.Any(previousType => previousType == ActionTypes.Organization))
+                    if (action.ActionTypes.Any(previousType => previousType == ActionTypes.Organization))
                     {
                         return false;
                     }
                     break;
                 case ActionTypes.Organization:
-                    if (action.actionTypes.Any(previousType => previousType == ActionTypes.Personal))
+                    if (action.ActionTypes.Any(previousType => previousType == ActionTypes.Personal))
                     {
                         return false;
                     }
                     break;
                 case ActionTypes.Immediate:
-                    if (action.actionTypes.Any(previousType => previousType is ActionTypes.Indicator or ActionTypes.Repeatable))
+                    if (action.ActionTypes.Any(previousType => previousType is ActionTypes.Indicator or ActionTypes.Repeatable))
                     {
                         return false;
                     }
                     break;
                 case ActionTypes.Indicator:
-                    if (action.actionTypes.Any(previousType => previousType is ActionTypes.Immediate or ActionTypes.Repeatable))
+                    if (action.ActionTypes.Any(previousType => previousType is ActionTypes.Immediate or ActionTypes.Repeatable))
                     {
                         return false;
                     }
                     break;
                 case ActionTypes.Repeatable:
-                    if (action.actionTypes.Any(previousType => previousType is ActionTypes.Indicator or ActionTypes.Immediate))
+                    if (action.ActionTypes.Any(previousType => previousType is ActionTypes.Indicator or ActionTypes.Immediate))
                     {
                         return false;
                     }
@@ -333,11 +333,11 @@ namespace PlayerInteractions
                 actionDescription = _locationActionDict[actionName].actionDescription,
                 actionProgressIndicator = _locationActionDict[actionName].actionProgressIndicator,
                 actionFixedProgression = _locationActionDict[actionName].actionFixedProgression,
-                actionTypes = _locationActionDict[actionName].actionTypes,
+                ActionTypes = _locationActionDict[actionName].ActionTypes,
                 ActionConditions = _locationActionDict[actionName].ActionConditions,
                 ActionEffects = _locationActionDict[actionName].ActionEffects,
                 ActionCosts = _locationActionDict[actionName].ActionCosts,
-                targetLocation = locationData[0],
+                TargetLocation = locationData[0],
                 isActionPossible = true,
             };
             StartCoroutine(ExecuteActionTypeLogic(newAction));
@@ -365,16 +365,16 @@ namespace PlayerInteractions
                 yield break;
             }
 
-            Debug.Log($"Character invoker is: {newAction.actionInvoker.characterID}");
+            Debug.Log($"Character invoker is: {newAction.ActionInvoker.characterID}");
 
             ExecuteTimeBasedTypeLogic(newAction);
             ApplyActionCosts(newAction);
-            if(!newAction.actionTypes.Contains(ActionTypes.Immediate)) OnActionCreated?.Invoke(newAction);
+            if(!newAction.ActionTypes.Contains(ActionTypes.Immediate)) OnActionCreated?.Invoke(newAction);
         }
 
         private IEnumerator ExecuteCharacterBasedTypeLogic(BaseAction newAction)
         {
-            foreach (var type in newAction.actionTypes)
+            foreach (var type in newAction.ActionTypes)
             {
                 switch (type)
                 {
@@ -394,7 +394,7 @@ namespace PlayerInteractions
         }
         private void ExecuteTimeBasedTypeLogic(BaseAction newAction)
         {
-            foreach (var type in newAction.actionTypes)
+            foreach (var type in newAction.ActionTypes)
             {
                 switch (type)
                 {
@@ -428,7 +428,7 @@ namespace PlayerInteractions
         private void CancelActionExecuting(BaseAction canceledAction)
         {
             Debug.Log($"Action canceled: {canceledAction.actionName}");
-            canceledAction.actionInvoker.currentAction = null;
+            canceledAction.ActionInvoker.currentAction = null;
             if (_indicatorBasedActions.Contains(canceledAction))
             {
                 _indicatorBasedActions.Remove(canceledAction);
@@ -453,7 +453,7 @@ namespace PlayerInteractions
             {
                 if (!IncreaseProgression(timeBasedAction)) continue;
                 ApplyActionEffects(timeBasedAction);
-                timeBasedAction.actionInvoker.currentAction = null;
+                timeBasedAction.ActionInvoker.currentAction = null;
                 tempActionList.Add(timeBasedAction);
             }
             foreach (var action in tempActionList)
@@ -487,7 +487,7 @@ namespace PlayerInteractions
                     _ = result;
                     repeatableAction.isActionPossible = result;
                     Debug.Log($"Action verified: {repeatableAction.actionName} with result: {result}");
-                }, repeatableAction.targetLocation));
+                }, repeatableAction.TargetLocation));
 
                 if (!repeatableAction.isActionPossible)
                 {
@@ -525,20 +525,20 @@ namespace PlayerInteractions
                 return false;
             }
 
-            if (timeBasedAction.actionInvoker == null)
+            if (timeBasedAction.ActionInvoker == null)
             {
                 Debug.LogError("actionInvoker is null in action: " + timeBasedAction.actionName);
                 return false;
             }
 
-            if (timeBasedAction.actionInvoker.CharacterIndicators == null)
+            if (timeBasedAction.ActionInvoker.CharacterIndicators == null)
             {
                 Debug.LogError("CharacterIndicators is null in action: " + timeBasedAction.actionName);
                 return false;
             }
 
             timeBasedAction.actionCalculatedProgression = timeBasedAction.actionFixedProgression +
-                                                          timeBasedAction.actionInvoker.CharacterIndicators
+                                                          timeBasedAction.ActionInvoker.CharacterIndicators
                                                               .BaseActionProgressIndicator;
 
             timeBasedAction.actionCurrentProgression += timeBasedAction.actionCalculatedProgression;
@@ -554,7 +554,7 @@ namespace PlayerInteractions
 
             Action<Character> onAssignPlayerCharacter = character =>
             {
-                newAction.actionInvoker = character;
+                newAction.ActionInvoker = character;
                 playerCharacterReceived = true;
             };
             Action onActionCancelled = () => isActionCancelled = true;
@@ -573,10 +573,10 @@ namespace PlayerInteractions
             {
                 callback?.Invoke(false);
             }
-            else if (playerCharacterReceived && newAction.actionInvoker != null)
+            else if (playerCharacterReceived && newAction.ActionInvoker != null)
             {
-                if(newAction.actionInvoker.currentAction != null) CancelActionExecuting(newAction.actionInvoker.currentAction);
-                newAction.actionInvoker.currentAction = newAction;
+                if(newAction.ActionInvoker.currentAction != null) CancelActionExecuting(newAction.ActionInvoker.currentAction);
+                newAction.ActionInvoker.currentAction = newAction;
                 callback?.Invoke(true);
             }
             else
@@ -592,7 +592,7 @@ namespace PlayerInteractions
 
             Action<Character> onAssignCharacter = character =>
             {
-                newAction.actionInvoker = character;
+                newAction.ActionInvoker = character;
                 characterReceived = true;
             };
             Action onActionCancelled = () => isActionCancelled = true;
@@ -607,14 +607,14 @@ namespace PlayerInteractions
             UIController.OnPassSelectedCharacterForAction -= onAssignCharacter;
             UIController.OnCancelActionInvoking -= onActionCancelled;
 
-            if (isActionCancelled || newAction.actionInvoker == null)
+            if (isActionCancelled || newAction.ActionInvoker == null)
             {
                 callback?.Invoke(false);
             }
-            else if (characterReceived && newAction.actionInvoker != null)
+            else if (characterReceived && newAction.ActionInvoker != null)
             {
-                if(newAction.actionInvoker.currentAction != null) CancelActionExecuting(newAction.actionInvoker.currentAction);
-                newAction.actionInvoker.currentAction = newAction;
+                if(newAction.ActionInvoker.currentAction != null) CancelActionExecuting(newAction.ActionInvoker.currentAction);
+                newAction.ActionInvoker.currentAction = newAction;
                 callback?.Invoke(true);
             }
             else
@@ -639,7 +639,7 @@ namespace PlayerInteractions
                 ApplyEffect(effect);
                 Debug.Log($"Action effect applied: {effect.Effect} with value {effect.Value}");
             }
-            Debug.Log($"Action applied: {newAction.actionName} with invoker {newAction.actionInvoker.characterName} {newAction.actionInvoker.characterSurname}");
+            Debug.Log($"Action applied: {newAction.actionName} with invoker {newAction.ActionInvoker.characterName} {newAction.ActionInvoker.characterSurname}");
         }
 
         private void ApplyEffect(ActionEffect effect)

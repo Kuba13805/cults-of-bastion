@@ -86,7 +86,7 @@ namespace UI.PlayerInspector
 
         private void DisplayCharacterCulture()
         {
-            characterCultureBox.text = _characterData.characterCulture.cultureName;
+            characterCultureBox.text = _characterData.CharacterCulture.cultureName;
         }
 
         private void DisplayCharacterStats()

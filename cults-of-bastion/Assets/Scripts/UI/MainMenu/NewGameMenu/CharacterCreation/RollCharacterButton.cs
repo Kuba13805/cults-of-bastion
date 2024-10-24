@@ -10,7 +10,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
 
         public static event Action OnRollCharacter;
 
-        private void Start()
+        private void OnEnable()
         {
             _rollButton = GetComponent<Button>();
             _rollButton.onClick.AddListener(RollCharacter);

@@ -20,8 +20,8 @@ namespace Managers
         public int currentDay;
         public int currentMonth;
         public int currentYear;
-        public float normalSpeed = 1f; // Real world seconds per game hour
-        public float highSpeed = 0.5f; // Real world seconds per game hour
+        public float normalSpeed = 1f;
+        public float highSpeed = 0.5f;
 
         private bool _paused;
         private JobHandle _timeCycleJobHandle;
@@ -58,6 +58,8 @@ namespace Managers
             
             OnDayChanged?.Invoke(currentDay, currentMonth, currentYear);
             OnHourChanged?.Invoke(currentTime);
+
+            _currentSpeed = normalSpeed;
         }
 
         private void OnDestroy()
@@ -164,7 +166,21 @@ namespace Managers
 
         private void PauseTheGame(InputAction.CallbackContext obj)
         {
-            PauseTheGame();
+            if (_paused)
+            {
+                if (Math.Abs(_currentSpeed - normalSpeed) < 0.5f)
+                {
+                    ResumeTheGameWithNormalSpeed();
+                }
+                else
+                {
+                    ResumeTheGameWithHighSpeed();
+                }
+            }
+            else
+            {
+                PauseTheGame();
+            }
         }
         private void ResumeTheGameWithNormalSpeed(InputAction.CallbackContext obj)
         {

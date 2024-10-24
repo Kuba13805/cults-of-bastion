@@ -3,6 +3,7 @@ using System.Collections;
 using Characters;
 using Locations;
 using Organizations;
+using UI.MapMarkers;
 using UI.Outliner;
 using UnityEngine;
 
@@ -42,6 +43,7 @@ namespace UI.PlayerInspector
             UIController.OnPassPlayerCharacter += ShowSelectedCharacter;
             OutlinerCharacterButton.OnCharacterButtonClicked += ShowSelectedCharacter;
             OutlinerLocationButton.OnLocationButtonClicked += ShowSelectedLocation;
+            CharacterInLocationMarker.OnInvokeSelectedCharacter += ShowSelectedCharacter;
         }
         private void UnsubscribeFromEvents()
         {
@@ -53,6 +55,7 @@ namespace UI.PlayerInspector
             UIController.OnPassPlayerCharacter -= ShowSelectedCharacter;
             OutlinerCharacterButton.OnCharacterButtonClicked -= ShowSelectedCharacter;
             OutlinerLocationButton.OnLocationButtonClicked -= ShowSelectedLocation;
+            CharacterInLocationMarker.OnInvokeSelectedCharacter -= ShowSelectedCharacter;
         }
         public void ToggleInspector()
         {

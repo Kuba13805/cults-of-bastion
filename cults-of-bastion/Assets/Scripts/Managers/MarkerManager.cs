@@ -107,37 +107,37 @@ namespace Managers
                 return;
             }
             
-            if (actionMarkerEntry.targetLocation == null)
+            if (actionMarkerEntry.TargetLocation == null)
             {
                 Debug.LogError($"UpdateMarkers: targetLocation is null for action {actionMarkerEntry}");
                 return;
             }
 
-            var (exists, markerData) = CheckForMarkerDataExistence(actionMarkerEntry.targetLocation.locationID);
+            var (exists, markerData) = CheckForMarkerDataExistence(actionMarkerEntry.TargetLocation.locationID);
 
             if (!exists)
             {
                 markerData = CreateLocationMarkerData(actionMarkerEntry);
-                Debug.Log($"New marker added: {actionMarkerEntry.targetLocation.locationName}");
+                Debug.Log($"New marker added: {actionMarkerEntry.TargetLocation.locationName}");
             }
             else
             {
                 if (markerData == null)
                 {
-                    Debug.LogError($"UpdateMarkers: markerData is null for locationID {actionMarkerEntry.targetLocation.locationID}");
+                    Debug.LogError($"UpdateMarkers: markerData is null for locationID {actionMarkerEntry.TargetLocation.locationID}");
                     return;
                 }
 
                 markerData.ActionMarker.Add(actionMarkerEntry);
-                markerData.CharacterMarker.Add(actionMarkerEntry.actionInvoker);
-                Debug.Log($"Marker updated for: {actionMarkerEntry.targetLocation.locationName}");
+                markerData.CharacterMarker.Add(actionMarkerEntry.ActionInvoker);
+                Debug.Log($"Marker updated for: {actionMarkerEntry.TargetLocation.locationName}");
             }
             
             if (markerData != null)
             {
                 StartCoroutine(RequestLocationPosition(markerData.LocationDataEntry.LocationIndex,
                     position => InvokeMarkerDisplay(markerData.LocationDataEntry.LocationIndex, position)));
-                Debug.Log($"Showing marker for: {actionMarkerEntry.targetLocation.locationName}");
+                Debug.Log($"Showing marker for: {actionMarkerEntry.TargetLocation.locationName}");
             }
             else
             {
@@ -150,36 +150,36 @@ namespace Managers
         {
             var newLocationMarkerData = new LocationMarkerData
             {
-                LocationDataEntry = CreateLocationDataEntry(action.targetLocation)
+                LocationDataEntry = CreateLocationDataEntry(action.TargetLocation)
             };
 
             newLocationMarkerData.ActionMarker.Add(action);
-            newLocationMarkerData.CharacterMarker.Add(action.actionInvoker);
+            newLocationMarkerData.CharacterMarker.Add(action.ActionInvoker);
 
-            _locationMarkers.Add(action.targetLocation.locationID, newLocationMarkerData);
+            _locationMarkers.Add(action.TargetLocation.locationID, newLocationMarkerData);
             return newLocationMarkerData;
         }
 
 
         private void RemoveActionMarkerData(BaseAction actionToRemove)
         {
-            if (!_locationMarkers.TryGetValue(actionToRemove.targetLocation.locationID, out var markerData)) return;
+            if (!_locationMarkers.TryGetValue(actionToRemove.TargetLocation.locationID, out var markerData)) return;
             
             for (int i = markerData.ActionMarker.Count - 1; i >= 0; i--)
             {
                 if (!ReferenceEquals(markerData.ActionMarker[i], actionToRemove)) continue;
                     
-                markerData.CharacterMarker.Remove(markerData.ActionMarker[i].actionInvoker);
-                Debug.Log($"Action marker removed for: {markerData.ActionMarker[i].targetLocation.locationName}");
+                markerData.CharacterMarker.Remove(markerData.ActionMarker[i].ActionInvoker);
+                Debug.Log($"Action marker removed for: {markerData.ActionMarker[i].TargetLocation.locationName}");
                 markerData.ActionMarker.RemoveAt(i);
                 OnRemoveActionMarker?.Invoke(i);
             }
 
             if (markerData.ActionMarker.Count != 0) return;
                 
-            _locationMarkers.Remove(actionToRemove.targetLocation.locationID);
-            _locationVisibilityFlags[actionToRemove.targetLocation.locationID] = false;
-            OnRequestMarkerToBeHidden?.Invoke(actionToRemove.targetLocation.locationID);
+            _locationMarkers.Remove(actionToRemove.TargetLocation.locationID);
+            _locationVisibilityFlags[actionToRemove.TargetLocation.locationID] = false;
+            OnRequestMarkerToBeHidden?.Invoke(actionToRemove.TargetLocation.locationID);
             Debug.Log($"Location marker removed: {markerData.LocationDataEntry.LocationName}");
         }
 

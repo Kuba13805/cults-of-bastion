@@ -129,7 +129,7 @@ namespace UI.MainMenu.NewGameMenu.CharacterCreation
             characterSurnameInputField.text = _generatedCharacter.characterSurname;
             characterAgeInputField.text = _generatedCharacter.characterAge.ToString();
             characterGenderText.text = _generatedCharacter.characterGender.ToString();
-            characterCultureText.text = _generatedCharacter.characterCulture.cultureName;
+            characterCultureText.text = _generatedCharacter.CharacterCulture.cultureName;
             characterChildhoodBackgroundText.text = _generatedCharacter.ChildhoodBackground.BackgroundName;
             characterAdulthoodBackgroundText.text = _generatedCharacter.AdulthoodBackground.BackgroundName;
         }

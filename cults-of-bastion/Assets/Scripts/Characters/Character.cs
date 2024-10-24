@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Characters.CharacterBackgrounds;
 using Cultures;
@@ -16,7 +17,7 @@ namespace Characters
       public string characterNickname;
       public int characterAge;
       public CharacterGender characterGender;
-      public Culture characterCulture;
+      [NonSerialized] public Culture CharacterCulture;
       public CharacterBackground ChildhoodBackground;
       public CharacterBackground AdulthoodBackground;
       

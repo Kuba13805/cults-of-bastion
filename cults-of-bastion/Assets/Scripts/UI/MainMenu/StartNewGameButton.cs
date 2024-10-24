@@ -9,7 +9,7 @@ namespace UI.MainMenu
     {
         public static event Action OnStartNewGameButtonClicked;
 
-        private void Start()
+        private void OnEnable()
         {
             GetComponent<Button>().onClick.AddListener(StartNewGameCreation);
         }

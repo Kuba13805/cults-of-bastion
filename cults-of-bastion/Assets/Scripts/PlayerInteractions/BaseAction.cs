@@ -19,17 +19,17 @@ namespace PlayerInteractions
         public float actionCalculatedProgression;
         public float actionFixedProgression;
 
-        public List<ActionTypes> actionTypes = new();
-        public List<ActionCondition> ActionConditions = new();
-        public List<ActionEffect> ActionEffects = new();
-        public List<ActionEffect> ActionCosts = new();
+        [NonSerialized] public List<ActionTypes> ActionTypes = new();
+        [NonSerialized] public List<ActionCondition> ActionConditions = new();
+        [NonSerialized] public List<ActionEffect> ActionEffects = new();
+        [NonSerialized] public List<ActionEffect> ActionCosts = new();
 
         public bool isDuringAction;
         public bool isStopped;
 
-        public Character actionInvoker;
-        public LocationData targetLocation;
-        public Character targetCharacter;
+        [NonSerialized] public Character ActionInvoker;
+        [NonSerialized] public LocationData TargetLocation;
+        [NonSerialized] public Character TargetCharacter;
         
         //action icon
         
