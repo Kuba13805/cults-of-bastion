@@ -49,14 +49,13 @@ namespace Cultures
 
         private IEnumerator LoadCultureData()
         {
-            var cultureDataConfig = Resources.Load<TextAsset>("DataToLoad/cultures");
-            
-            var parsedCultureData = JsonUtility.FromJson<CultureData>(cultureDataConfig.text);
+            var loadedCulturesData = FileManager.Instance.LoadFiles<CultureData>(FileManager.FileUsage.Cultures);
 
-            _cultureData = new CultureData
+            _cultureData = new CultureData();
+            foreach (var cultureConstructor in loadedCulturesData.SelectMany(cultureData => cultureData.CultureConstructors))
             {
-                CultureConstructors = parsedCultureData.CultureConstructors
-            };
+                _cultureData.CultureConstructors.Add(cultureConstructor);
+            }
 
             foreach (var constructor in _cultureData.CultureConstructors)
             {

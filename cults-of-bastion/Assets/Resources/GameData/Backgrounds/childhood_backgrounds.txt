@@ -1,0 +1,44 @@
+{
+  "ChildhoodBackgroundsConstructors": [
+    {
+        "backgroundName": "childhood_background_young_soldier",
+        "backgroundDescription": "childhood_background_young_soldier_desc",
+        "backgroundTypeName": "background_type_military",
+        "backgroundEffects": [
+            "ModifyStat Strength = 2",
+            "ModifyStat Dexterity = 1",
+            "ModifyStat Knowledge = -1"
+        ]
+    },
+    {
+        "backgroundName": "childhood_background_young_acolyte",
+        "backgroundDescription": "childhood_background_young_acolyte_desc",
+        "backgroundTypeName": "background_type_religious",
+        "backgroundEffects": [
+            "ModifyStat Knowledge = 2",
+            "ModifyStat Religious = 3",
+            "ModifyStat Strength = -1"
+        ]
+    },
+    {
+        "backgroundName": "childhood_background_merchant_apprentice",
+        "backgroundDescription": "childhood_background_merchant_apprentice_desc",
+        "backgroundTypeName": "background_type_mercantile",
+        "backgroundEffects": [
+            "ModifyStat Social = 2",
+            "ModifyStat Dexterity = 1",
+            "ModifyStat Strength = -1"
+        ]
+    },
+    {
+        "backgroundName": "childhood_background_researcher's_child",
+        "backgroundDescription": "childhood_background_researcher's_child_desc",
+        "backgroundTypeName": "background_type_scholar",
+        "backgroundEffects": [
+            "ModifyStat Knowledge = 2",
+            "ModifyStat Dexterity = 1",
+            "ModifyStat Social = -1"
+        ]
+    }
+  ]
+}

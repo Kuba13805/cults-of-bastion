@@ -14,7 +14,6 @@ namespace UI.MainMenu.NewGameMenu
         private void OnEnable()
         {
             _button = GetComponent<Button>();
-            _button.interactable = true;
             if (!invokePreviousStage)
             {
                 _button.onClick.AddListener(RequestNextStage);

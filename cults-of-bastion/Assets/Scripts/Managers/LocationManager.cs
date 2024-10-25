@@ -71,22 +71,12 @@ namespace Managers
 
         private IEnumerator LoadLocationTypes()
         {
-            var locationTypeConfig = Resources.Load<TextAsset>("DataToLoad/locationTypes");
-            if (locationTypeConfig == null)
+            _locationTypeData = new LocationTypeData();
+            var loadedLocationTypeData = FileManager.Instance.LoadFiles<LocationTypeData>(FileManager.FileUsage.LocationTypes);
+            foreach (var locationTypeData in loadedLocationTypeData)
             {
-                Debug.LogError("Location types config not found.");
-                yield break;
+                _locationTypeData.LocationTypeConstructors.AddRange(locationTypeData.LocationTypeConstructors);
             }
-
-            var parsedLocationTypeConfigData = JsonUtility.FromJson<LocationTypeData>(locationTypeConfig.text);
-            if (parsedLocationTypeConfigData == null)
-            {
-                Debug.LogError("Failed to parse location types config data.");
-                yield break;
-            }
-            
-            _locationTypeData = parsedLocationTypeConfigData;
-
             yield return StartCoroutine(InitializeLocationTypes());
 
             OnLocationManagerInitialized?.Invoke();

@@ -210,19 +210,16 @@ namespace Managers
         }
         private void LoadOrganizationTypes()
         {
-            var organizationTypeConfig = Resources.Load<TextAsset>("DataToLoad/organizationTypes");
-            if(organizationTypeConfig == null) return;
+            var loadedOrganizationTypesData =
+                FileManager.Instance.LoadFiles<OrganizationTypeData>(FileManager.FileUsage.OrganizationTypes);
 
-            var parsedOrganizationTypeConfigData =
-                JsonUtility.FromJson<OrganizationTypeData>(organizationTypeConfig.text);
-            if (parsedOrganizationTypeConfigData == null)
+            _organizationTypeData = new OrganizationTypeData();
+
+            foreach (var constructor in loadedOrganizationTypesData.SelectMany(loadedOrganizationTypeData => loadedOrganizationTypeData.OrganizationTypeConstructors))
             {
-                throw new Exception("Failed to parse organization types config data.");
+                _organizationTypeData.OrganizationTypeConstructors.Add(constructor);
             }
-            _organizationTypeData = new OrganizationTypeData
-            {
-                OrganizationTypeConstructors = parsedOrganizationTypeConfigData.OrganizationTypeConstructors
-            };
+            
             InitializeOrganizationTypes();
         }
         private void InitializeOrganizationTypes()

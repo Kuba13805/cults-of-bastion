@@ -127,19 +127,14 @@ namespace PlayerInteractions
 
         private void LoadActions()
         {
-            var actionsConfig = Resources.Load<TextAsset>("DataToLoad/testActions");
-            if (actionsConfig == null) return;
-            
-            var parsedActionsConfigData = JsonUtility.FromJson<ActionsData>(actionsConfig.text);
-            if (parsedActionsConfigData == null)
+            var loadedActionsData = FileManager.Instance.LoadFiles<ActionsData>(FileManager.FileUsage.Actions);
+
+            _actionsData = new ActionsData();
+            foreach (var actionsData in loadedActionsData)
             {
-                throw new Exception("Failed to parse actions config data.");
+                _actionsData.LocationActionConstructors.AddRange(actionsData.LocationActionConstructors);
+                _actionsData.CharacterActionConstructors.AddRange(actionsData.CharacterActionConstructors);
             }
-            
-            _actionsData = new ActionsData
-            {
-                LocationActionConstructors = parsedActionsConfigData.LocationActionConstructors
-            };
 
             InitializeLocationActions();
         }
@@ -677,5 +672,6 @@ namespace PlayerInteractions
     public class ActionsData
     {
         public List<ActionConstructor> LocationActionConstructors = new();
+        public List<ActionConstructor> CharacterActionConstructors = new();
     }
 }

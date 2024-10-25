@@ -144,19 +144,12 @@ namespace Managers
         }
         private void InitializeSavedGameData()
         {
-            var cityConfig = Resources.Load<TextAsset>("DataToLoad/gameData");
-            if(cityConfig == null) return;
-
-            var parsedCityConfigData = JsonUtility.FromJson<GameData>(cityConfig.text);
-
-            if (parsedCityConfigData == null)
-            {
-                throw new Exception("Failed to parse city config data.");
-            }
-
-            _gameData.LocationData = parsedCityConfigData.LocationData;
-            _gameData.OrganizationConstructors = parsedCityConfigData.OrganizationConstructors;
-            _gameData.CharacterConstructors = parsedCityConfigData.CharacterConstructors;
+            var newGamesData = FileManager.Instance.LoadFiles<GameData>(FileManager.FileUsage.NewGame);
+            
+            _gameData.LocationData = newGamesData[0].LocationData;
+            _gameData.OrganizationConstructors = newGamesData[0].OrganizationConstructors;
+            _gameData.CharacterConstructors = newGamesData[0].CharacterConstructors;
+            
             StartCoroutine(WaitForSavedGameDataLoading());
         }
 

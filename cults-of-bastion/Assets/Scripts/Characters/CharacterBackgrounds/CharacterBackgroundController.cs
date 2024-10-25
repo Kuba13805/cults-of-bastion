@@ -60,24 +60,15 @@ namespace Characters.CharacterBackgrounds
 
         private IEnumerator LoadBackgrounds()
         {
-            var backgroundConfig = Resources.Load<TextAsset>("DataToLoad/backgrounds");
-            if (backgroundConfig == null)
-            {
-                throw new Exception("Background config file could not be loaded. Ensure the file exists in the Resources/DataToLoad/ directory.");
-            }
-    
-            var parsedBackgroundConfigData = JsonUtility.FromJson<BackgroundData>(backgroundConfig.text);
-            if (parsedBackgroundConfigData == null)
-            {
-                throw new Exception("Failed to parse background config data.");
-            }
+            var loadedBackgroundData = FileManager.Instance.LoadFiles<BackgroundData>(FileManager.FileUsage.Backgrounds);
 
-            _backgroundData = new BackgroundData
+            _backgroundData = new BackgroundData();
+            foreach (var data in loadedBackgroundData)
             {
-                ChildhoodBackgroundsConstructors = parsedBackgroundConfigData.ChildhoodBackgroundsConstructors,
-                AdulthoodBackgroundsConstructors = parsedBackgroundConfigData.AdulthoodBackgroundsConstructors,
-                BackgroundTypes = parsedBackgroundConfigData.BackgroundTypes
-            };
+                _backgroundData.ChildhoodBackgroundsConstructors.AddRange(data.ChildhoodBackgroundsConstructors);
+                _backgroundData.AdulthoodBackgroundsConstructors.AddRange(data.AdulthoodBackgroundsConstructors);
+                _backgroundData.BackgroundTypes.AddRange(data.BackgroundTypes);
+            }
 
             if (_backgroundData.ChildhoodBackgroundsConstructors == null)
             {

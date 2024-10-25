@@ -57,19 +57,15 @@ namespace GameScenarios
 
         private IEnumerator LoadScenarios()
         {
-            var scenariosConfig = Resources.Load<TextAsset>("DataToLoad/scenarios");
-            if (scenariosConfig == null) yield return null;
-            
-            var parsedScenariosConfigData = JsonUtility.FromJson<ScenariosData>(scenariosConfig.text);
-            if (parsedScenariosConfigData == null)
-            {
-                throw new Exception("Failed to parse scenarios config data.");
-            }
+            var loadedScenariosData = FileManager.Instance.LoadFiles<ScenariosData>(FileManager.FileUsage.Scenarios);
 
-            _scenariosData = new ScenariosData
+            _scenariosData = new ScenariosData();
+
+            foreach (var constructor in loadedScenariosData.SelectMany(scenarioData => scenarioData.ScenarioConstructors))
             {
-                ScenarioConstructors = parsedScenariosConfigData.ScenarioConstructors
-            };
+                _scenariosData.ScenarioConstructors.Add(constructor);
+            }
+            Debug.Log($"Scenario data loaded with {_scenariosData.ScenarioConstructors.Count} scenario constructors");
 
             yield return StartCoroutine(GenerateScenarios());
             
@@ -246,6 +242,6 @@ namespace GameScenarios
 
     public class ScenariosData
     {
-        public List<ScenarioConstructor> ScenarioConstructors;
+        public List<ScenarioConstructor> ScenarioConstructors = new();
     }
 }
