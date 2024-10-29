@@ -31,11 +31,34 @@ namespace Managers
             {
                 Instance = this;
             }
+            _yamlDeserializer = new DeserializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+
+            _yamlSerializer = new SerializerBuilder()
+                .WithNamingConvention(CamelCaseNamingConvention.Instance)
+                .Build();
+            
+            #if !UNITY_EDITOR
+                
+                var fullName = Directory.GetParent(Application.dataPath)?.FullName;
+                if (fullName != null)
+                    _dataPath = Path.Combine(fullName, "GameData");
+            
+                if (!Directory.Exists(_dataPath))
+                {
+                    Directory.CreateDirectory(_dataPath);
+                }
+                CopyFilesToGameData();
+            #endif
         }
 
         private void OnValidate()
         {
-            _dataPath = Path.Combine(Application.persistentDataPath, "GameData");
+            var fullName = Directory.GetParent(Application.dataPath)?.FullName;
+            if (fullName != null)
+                _dataPath = Path.Combine(fullName, "GameData");
+            //_dataPath = Path.Combine(Application.persistentDataPath, "GameData");
         }
 
         private void Start()
@@ -44,13 +67,6 @@ namespace Managers
             {
                 Directory.CreateDirectory(_dataPath);
             }
-            _yamlDeserializer = new DeserializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
-
-            _yamlSerializer = new SerializerBuilder()
-                .WithNamingConvention(CamelCaseNamingConvention.Instance)
-                .Build();
         }
         public List<T> LoadFiles<T>(FileUsage fileUsage)
         {
@@ -60,8 +76,8 @@ namespace Managers
                     return LoadJsonFilesFromPath<T>("SavedGames");
                 case FileUsage.NewGame:
                     return LoadJsonFilesFromPath<T>("NewGames");
-                case FileUsage.Localization:
-                    return LoadYamlFilesFromPath<T>("Localization");
+                // case FileUsage.Localization:
+                //     return LoadYamlFilesFromPath<T>("Localizations");
                 case FileUsage.Actions:
                     return LoadJsonFilesFromPath<T>("Actions");
                 case FileUsage.Backgrounds:
@@ -79,7 +95,7 @@ namespace Managers
             }
         }
 
-        private List<T> LoadYamlFilesFromPath<T>(string path)
+        public List<T> LoadYamlFilesFromPath<T>(string path)
         {
             var fullPath = Path.Combine(_dataPath, path);
             var files = LoadAllYamlFiles<T>(fullPath);
@@ -94,7 +110,7 @@ namespace Managers
             return files;
         }
 
-        private List<T> LoadAllJsonFiles<T>(string path)
+        private static List<T> LoadAllJsonFiles<T>(string path)
         {
             return Directory.GetFiles(path, "*.json", SearchOption.AllDirectories)
                 .Concat(Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories))
@@ -106,12 +122,17 @@ namespace Managers
 
         private List<T> LoadAllYamlFiles<T>(string path)
         {
-            return Directory.GetFiles(path, "*.yaml", SearchOption.AllDirectories)
-                .Concat(Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories))
-                .Where(IsYamlFile)
-                .Select(File.ReadAllText)
-                .Select(yamlContent => _yamlDeserializer.Deserialize<T>(yamlContent))
-                .ToList();
+            if (_yamlDeserializer != null)
+                return Directory.GetFiles(path, "*.yaml", SearchOption.AllDirectories)
+                    .Concat(Directory.GetFiles(path, "*.txt", SearchOption.AllDirectories))
+                    .Where(IsYamlFile)
+                    .Select(File.ReadAllText)
+                    .Select(yamlContent => _yamlDeserializer.Deserialize<T>(yamlContent))
+                    .ToList();
+            
+            Debug.LogError("YAML Deserializer is not initialized.");
+            return new List<T>();
+
         }
         private static bool IsJsonFile(string filePath)
         {

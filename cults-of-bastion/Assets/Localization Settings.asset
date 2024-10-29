@@ -31,8 +31,6 @@ MonoBehaviour:
   references:
     version: 2
     RefIds:
-    - rid: -2
-      type: {class: , ns: , asm: }
     - rid: 1593251198695375098
       type: {class: CommandLineLocaleSelector, ns: UnityEngine.Localization.Settings, asm: Unity.Localization}
       data:
@@ -54,9 +52,9 @@ MonoBehaviour:
         m_DefaultTableReference:
           m_TableCollectionName: 
         m_CustomTableProvider:
-          rid: -2
+          rid: 1593251289273991473
         m_CustomTablePostprocessor:
-          rid: -2
+          rid: 1593251289273991468
         m_AsynchronousBehaviour: 0
         m_UseFallback: 0
     - rid: 1593251198695375103
@@ -65,9 +63,9 @@ MonoBehaviour:
         m_DefaultTableReference:
           m_TableCollectionName: 
         m_CustomTableProvider:
-          rid: -2
+          rid: 1593251289273991473
         m_CustomTablePostprocessor:
-          rid: -2
+          rid: 1593251289273991468
         m_AsynchronousBehaviour: 0
         m_UseFallback: 0
         m_MissingTranslationState: 1
@@ -205,3 +203,9 @@ MonoBehaviour:
         - default
         - d
         - 
+    - rid: 1593251289273991468
+      type: {class: CustomTablePatcher, ns: Managers, asm: Assembly-CSharp}
+      data: 
+    - rid: 1593251289273991473
+      type: {class: CustomTableProvider, ns: Managers, asm: Assembly-CSharp}
+      data: 

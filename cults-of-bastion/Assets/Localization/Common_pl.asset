@@ -17,11 +17,7 @@ MonoBehaviour:
   m_SharedData: {fileID: 11400000, guid: 9eaf786c5cf894d46a58082c9ce374d6, type: 2}
   m_Metadata:
     m_Items: []
-  m_TableData:
-  - m_Id: 65373396992
-    m_Localized: "Testowe wej\u015Bcie"
-    m_Metadata:
-      m_Items: []
+  m_TableData: []
   references:
     version: 2
     RefIds: []

@@ -2,14 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Managers;
+using GameScenarios;
 using NewGame;
-using UI.MainMenu.NewGameMenu;
 using UnityEngine;
 
-namespace GameScenarios
+namespace Managers
 {
-    public class ScenarioController : MonoBehaviour
+    public class ScenarioManager : MonoBehaviour
     {
         #region Variables
 

@@ -14,7 +14,7 @@ using UnityEngine;
 
 namespace Managers
 {
-    [RequireComponent(typeof(CharacterBackgroundController), typeof(CharacterModificationController))]
+    [RequireComponent(typeof(CharacterBackgroundManager), typeof(CharacterModificationController))]
     public class CharacterManager : MonoBehaviour
     {
         private readonly HashSet<int> _characterIDsInUse = new();
@@ -48,7 +48,7 @@ namespace Managers
             NewGameController.OnRequestCharacterGeneration += ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization += AllowCharacterManagerInitialization;
             UIController.OnRequestPlayerCharacter += PassPlayerCharacter;
-            PlayerActionsController.OnRequestPlayerCharacterForAction += PassPlayerCharacter;
+            ActionManager.OnRequestPlayerCharacterForAction += PassPlayerCharacter;
         }
 
         private void UnsubscribeFromEvents()
@@ -57,7 +57,7 @@ namespace Managers
             NewGameController.OnRequestCharacterGeneration -= ReturnGeneratedCharacter;
             GameManager.OnAllowCharacterManagerInitialization -= AllowCharacterManagerInitialization;
             UIController.OnRequestPlayerCharacter -= PassPlayerCharacter;
-            PlayerActionsController.OnRequestPlayerCharacterForAction -= PassPlayerCharacter;
+            ActionManager.OnRequestPlayerCharacterForAction -= PassPlayerCharacter;
         }
         private void InitializeCharacterIDs()
         {
@@ -130,15 +130,15 @@ namespace Managers
                 tempBackgroundList = backgrounds;
                 backgroundsReceived = true;
             };
-            CultureController.OnReturnCultureList += onCultureListReceived;
-            CharacterBackgroundController.OnReturnBackgrounds += onBackgroundListReceived;
+            CultureManager.OnReturnCultureList += onCultureListReceived;
+            CharacterBackgroundManager.OnReturnBackgrounds += onBackgroundListReceived;
             
             OnRequestCharacterGeneratorData?.Invoke();
 
             yield return new WaitUntil(() => culturesReceived && backgroundsReceived);
             
-            CultureController.OnReturnCultureList -= onCultureListReceived;
-            CharacterBackgroundController.OnReturnBackgrounds -= onBackgroundListReceived;
+            CultureManager.OnReturnCultureList -= onCultureListReceived;
+            CharacterBackgroundManager.OnReturnBackgrounds -= onBackgroundListReceived;
             
             yield return new WaitUntil(() => _characterGenerator.InitializeGenerator(tempCultureList, tempBackgroundList.Item1, tempBackgroundList.Item2));
             

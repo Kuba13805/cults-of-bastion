@@ -121,20 +121,20 @@ namespace NewGame
                 _adulthoodBackgrounds = backgrounds.Item2;
                 areBackgroundsLoaded = true;
             };
-            ScenarioController.OnPassScenarios += onScenariosLoaded;
+            ScenarioManager.OnPassScenarios += onScenariosLoaded;
             OrganizationManager.OnPassOrganizationTypes += onOrganizationTypesLoaded;
-            CultureController.OnReturnCultureList += onCulturesLoaded;
-            CharacterBackgroundController.OnReturnBackgrounds += onBackgroundsLoaded;
+            CultureManager.OnReturnCultureList += onCulturesLoaded;
+            CharacterBackgroundManager.OnReturnBackgrounds += onBackgroundsLoaded;
             
             OnRequestGameData?.Invoke();
             
             yield return new WaitUntil(() => areScenariosLoaded && areOrganizationTypesLoaded && 
                                              areCulturesLoaded && areBackgroundsLoaded);
             
-            ScenarioController.OnPassScenarios -= onScenariosLoaded;
+            ScenarioManager.OnPassScenarios -= onScenariosLoaded;
             OrganizationManager.OnPassOrganizationTypes -= onOrganizationTypesLoaded;
-            CultureController.OnReturnCultureList -= onCulturesLoaded;
-            CharacterBackgroundController.OnReturnBackgrounds -= onBackgroundsLoaded;
+            CultureManager.OnReturnCultureList -= onCulturesLoaded;
+            CharacterBackgroundManager.OnReturnBackgrounds -= onBackgroundsLoaded;
             
             OnNewGameControllerInitialized?.Invoke();
             PassGameData();

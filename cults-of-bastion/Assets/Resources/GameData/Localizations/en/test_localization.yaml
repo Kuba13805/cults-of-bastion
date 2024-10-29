@@ -1,0 +1,5 @@
+Common:
+  StartGame: "Start Game"
+  Options: "Options"
+  Exit: "Exit"
+  LanguageChange: "Language changed to {0}."

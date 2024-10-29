@@ -1,0 +1,12 @@
+{
+  "ScenarioConstructors": [
+    {
+       "scenarioName": "poor_artist",
+       "scenarioDescription": "poor_artist_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "StartingResources Money = 10"
+       ]
+    }
+  ]
+}

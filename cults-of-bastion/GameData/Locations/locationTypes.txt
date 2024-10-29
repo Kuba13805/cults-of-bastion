@@ -1,0 +1,16 @@
+{
+  "LocationTypeConstructors": [
+      {
+        "typeName": "location_type_house",
+        "typeDescription": "A single house for one or two people."
+      },
+      {
+        "typeName": "location_type_bakery",
+        "typeDescription": "Normal bakery."
+      },
+      {
+        "typeName": "location_type_pharmacy",
+        "typeDescription": "An old pharmacy in the middle of the city."
+      }
+  ]
+}

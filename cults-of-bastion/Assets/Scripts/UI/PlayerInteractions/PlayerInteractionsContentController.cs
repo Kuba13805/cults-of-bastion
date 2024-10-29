@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using Managers;
 using NUnit.Framework;
 using PlayerInteractions;
 using TMPro;
@@ -26,13 +27,13 @@ namespace UI.PlayerInteractions
         private void Start()
         {
             StartCoroutine(GetAllPlayerActions());
-            PlayerActionsController.OnPassPossiblePlayerActions += ActivateLocationActionButtons;
+            ActionManager.OnPassPossiblePlayerActions += ActivateLocationActionButtons;
             PlayerInteractionButton.OnActionInvoked += InvokeActionExecution;
         }
 
         private void OnDestroy()
         {
-            PlayerActionsController.OnPassPossiblePlayerActions -= ActivateLocationActionButtons;
+            ActionManager.OnPassPossiblePlayerActions -= ActivateLocationActionButtons;
             PlayerInteractionButton.OnActionInvoked -= InvokeActionExecution;
         }
         private void InvokeActionExecution(string actionName)

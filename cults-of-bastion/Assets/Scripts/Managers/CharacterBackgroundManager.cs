@@ -2,13 +2,14 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Managers;
+using Characters;
+using Characters.CharacterBackgrounds;
 using NewGame;
 using UnityEngine;
 
-namespace Characters.CharacterBackgrounds
+namespace Managers
 {
-    public class CharacterBackgroundController : MonoBehaviour
+    public class CharacterBackgroundManager : MonoBehaviour
     {
         #region Variables
 

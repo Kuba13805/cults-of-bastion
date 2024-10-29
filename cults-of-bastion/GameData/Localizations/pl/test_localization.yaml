@@ -1,0 +1,8 @@
+Test_table:
+  StartGame: "Rozpocznij grę"
+  Options: "Opcje"
+  Exit: "Wyjście"
+  LanguageChange: "Zmieniono język na {0}. Wybrano z {1:plural:1 języka|{} języków}"
+  
+  
+  

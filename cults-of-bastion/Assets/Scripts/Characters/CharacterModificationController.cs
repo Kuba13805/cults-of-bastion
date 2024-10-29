@@ -12,13 +12,13 @@ namespace Characters
         public static event Action<List<CharacterModification>> OnReturnCharacterModifiers; 
         private void Awake()
         {
-            CharacterBackgroundController.OnRequestBackgroundEffectsCreation += ReturnCharacterModifications;
+            CharacterBackgroundManager.OnRequestBackgroundEffectsCreation += ReturnCharacterModifications;
             CharacterManager.OnRequestCharacterModificationFromModifiers += ModifyCharacter;
         }
 
         private void OnDestroy()
         {
-            CharacterBackgroundController.OnRequestBackgroundEffectsCreation -= ReturnCharacterModifications;
+            CharacterBackgroundManager.OnRequestBackgroundEffectsCreation -= ReturnCharacterModifications;
             CharacterManager.OnRequestCharacterModificationFromModifiers -= ModifyCharacter;
         }
 

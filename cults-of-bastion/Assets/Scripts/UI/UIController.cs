@@ -62,10 +62,10 @@ namespace UI
             TimeManager.OnDayChanged += UpdateInGameDate;
             TimeManager.OnHourChanged += UpdateInGameTime;
             PlayerInteractionsContentController.OnGetAllPlayerActions += RequestAllPlayerActions;
-            PlayerActionsController.OnPassAllPlayerActions += PassAllPlayerActions;
+            ActionManager.OnPassAllPlayerActions += PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection += PassLocationDataOnSelection;
             PlayerCharacterButton.OnInspectPlayerCharacter += RequestPlayerCharacter;
-            PlayerActionsController.OnRequestCharacterSelectionForAction += RequestCharacterSelection;
+            ActionManager.OnRequestCharacterSelectionForAction += RequestCharacterSelection;
             CharacterSelectionForActionController.OnPassSelectedCharacterForAction += PassSelectedCharacter;
             CharacterSelectionForActionController.OnCancelActionInvoking += CancelActionInvoking;
         }
@@ -76,10 +76,10 @@ namespace UI
             TimeManager.OnDayChanged -= UpdateInGameDate;
             TimeManager.OnHourChanged -= UpdateInGameTime;
             PlayerInteractionsContentController.OnGetAllPlayerActions -= RequestAllPlayerActions;
-            PlayerActionsController.OnPassAllPlayerActions -= PassAllPlayerActions;
+            ActionManager.OnPassAllPlayerActions -= PassAllPlayerActions;
             LocationManager.OnPassLocationDataOnSelection -= PassLocationDataOnSelection;
             PlayerCharacterButton.OnInspectPlayerCharacter -= RequestPlayerCharacter;
-            PlayerActionsController.OnRequestCharacterSelectionForAction -= RequestCharacterSelection;
+            ActionManager.OnRequestCharacterSelectionForAction -= RequestCharacterSelection;
             CharacterSelectionForActionController.OnPassSelectedCharacterForAction -= PassSelectedCharacter;
             CharacterSelectionForActionController.OnCancelActionInvoking -= CancelActionInvoking;
         }

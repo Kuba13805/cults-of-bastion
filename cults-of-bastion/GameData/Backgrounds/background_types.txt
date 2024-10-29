@@ -1,0 +1,20 @@
+{
+  "BackgroundTypes": [
+    {
+        "backgroundTypeName": "background_type_military",
+        "backgroundTypeDescription": "background_type_military_desc"
+    },
+    {
+        "backgroundTypeName": "background_type_religious",
+        "backgroundTypeDescription": "background_type_religious_desc"
+    },
+    {
+        "backgroundTypeName": "background_type_mercantile",
+        "backgroundTypeDescription": "background_type_mercantile_desc"
+    },
+    {
+        "backgroundTypeName": "background_type_scholar",
+        "backgroundTypeDescription": "background_type_scholar_desc"
+    }
+  ]
+}

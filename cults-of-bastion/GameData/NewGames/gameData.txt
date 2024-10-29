@@ -1,0 +1,68 @@
+{
+  "LocationData": [
+    {
+      "locationID": 1,
+      "locationName": "Green House",
+      "locationTypeName": "location_type_house"
+    },
+    {
+      "locationID": 2,
+      "locationName": "Blue Bakery",
+      "locationTypeName": "location_type_bakery"
+    },
+    {
+      "locationID": 3,
+      "locationName": "Pharmacy",
+      "locationTypeName": "location_type_pharmacy"
+    },
+    {
+      "locationID": 4,
+      "locationName": "Oak St. 54",
+      "locationTypeName": "location_type_house"
+    },
+    {
+      "locationID": 5,
+      "locationName": "Oak St. 30",
+      "locationTypeName": "location_type_bakery"
+    }
+  ],
+  "CharacterConstructors": [
+    {
+      "characterName": "Anthony",
+      "characterGender": "Male",
+      "ownLocationIds": [1],
+      "organizationId": 1,
+      "characterCulture": "culture_british"
+    },
+    {
+      "characterName": "Sara",
+      "characterGender": "Female",
+      "ownLocationIds": [2],
+      "organizationId": 3,
+      "characterCulture": "culture_british"
+    }
+  ],
+  "OrganizationConstructors": [
+    {
+        "name": "The Black Brotherhood",
+        "description": "black_brotherhood_desc",
+        "typeName": "cult_organization_type",
+        "id": 3
+    },
+    {
+        "name": "The Rooks",
+        "description": "rooks_desc",
+        "typeName": "detective_organization_type"
+    },
+    {
+        "name": "Golden Path",
+        "description": "rooks_desc",
+        "typeName": "detective_organization_type"
+    },
+    {
+        "name": "Echims",
+        "description": "rooks_desc",
+        "typeName": "detective_organization_type"
+    }
+  ]
+}

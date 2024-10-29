@@ -2,20 +2,19 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using Characters;
 using Locations;
-using Managers;
+using PlayerInteractions;
 using PlayerInteractions.LocationActions;
 using PlayerResources;
 using UI;
 using UI.PlayerInteractions;
 using UnityEngine;
 
-namespace PlayerInteractions
+namespace Managers
 {
     [RequireComponent(typeof(ActionConditionVerifier))]
-    public class PlayerActionsController : MonoBehaviour
+    public class ActionManager : MonoBehaviour
     {
         private ActionsData _actionsData;
         private ActionConditionVerifier _actionConditionVerifier;
@@ -38,12 +37,12 @@ namespace PlayerInteractions
         private void Awake()
         {
             SubscribeToEvents();
-            LoadActions();
         }
 
         private void Start()
         {
             _actionConditionVerifier = GetComponent<ActionConditionVerifier>();
+            LoadActions();
         }
 
         private void OnDestroy()

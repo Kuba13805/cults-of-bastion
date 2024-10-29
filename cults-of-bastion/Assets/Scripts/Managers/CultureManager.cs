@@ -2,13 +2,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Managers;
+using Cultures;
 using NewGame;
 using UnityEngine;
 
-namespace Cultures
+namespace Managers
 {
-    public class CultureController : MonoBehaviour
+    public class CultureManager : MonoBehaviour
     {
         private Dictionary<string, Culture> _cultures = new();
         private CultureData _cultureData;

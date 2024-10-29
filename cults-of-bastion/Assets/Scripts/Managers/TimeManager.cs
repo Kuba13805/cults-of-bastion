@@ -78,7 +78,7 @@ namespace Managers
                 ResumeTheGameWithNormalSpeed;
             InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed +=
                 ResumeTheGameWithHighSpeed;
-            PlayerActionsController.OnRequestCharacterSelectionForAction += PauseTheGame;
+            ActionManager.OnRequestCharacterSelectionForAction += PauseTheGame;
         }
 
         private void UnsubscribeFromEvents()
@@ -91,7 +91,7 @@ namespace Managers
                 ResumeTheGameWithNormalSpeed;
             InputManager.Instance.PlayerInputControls.CityViewActions.ResumeGameHighSpeed.performed -=
                 ResumeTheGameWithHighSpeed;
-            PlayerActionsController.OnRequestCharacterSelectionForAction -= PauseTheGame;
+            ActionManager.OnRequestCharacterSelectionForAction -= PauseTheGame;
         }
         
         #region TimeJobSystem

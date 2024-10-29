@@ -92,18 +92,18 @@ namespace Managers
             Action onOrganizationLoaded = () => loadingStates[ControllerType.Organization] = true;
             Action onLocationLoaded = () => loadingStates[ControllerType.Location] = true;
 
-            CultureController.OnCultureControllerInitialized += onCultureLoaded;
-            CharacterBackgroundController.OnCharacterBackgroundControllerInitialized += onBackgroundLoaded;
-            ScenarioController.OnScenarioControllerInitialized += onScenarioLoaded;
+            CultureManager.OnCultureControllerInitialized += onCultureLoaded;
+            CharacterBackgroundManager.OnCharacterBackgroundControllerInitialized += onBackgroundLoaded;
+            ScenarioManager.OnScenarioControllerInitialized += onScenarioLoaded;
             OrganizationManager.OnOrganizationManagerInitialized += onOrganizationLoaded;
             LocationManager.OnLocationManagerInitialized += onLocationLoaded;
             OnStartDataLoading?.Invoke();
 
             yield return new WaitUntil(() => loadingStates.Values.All(loaded => loaded));
 
-            CultureController.OnCultureControllerInitialized -= onCultureLoaded;
-            CharacterBackgroundController.OnCharacterBackgroundControllerInitialized -= onBackgroundLoaded;
-            ScenarioController.OnScenarioControllerInitialized -= onScenarioLoaded;
+            CultureManager.OnCultureControllerInitialized -= onCultureLoaded;
+            CharacterBackgroundManager.OnCharacterBackgroundControllerInitialized -= onBackgroundLoaded;
+            ScenarioManager.OnScenarioControllerInitialized -= onScenarioLoaded;
             OrganizationManager.OnOrganizationManagerInitialized -= onOrganizationLoaded;
             LocationManager.OnLocationManagerInitialized -= onLocationLoaded;
 

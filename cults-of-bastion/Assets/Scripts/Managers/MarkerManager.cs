@@ -35,16 +35,16 @@ namespace Managers
 
         private void SubscribeToEvents()
         {
-            PlayerActionsController.OnActionCreated += UpdateMarkers;
-            PlayerActionsController.OnActionCancelled += RemoveActionMarkerData;
+            ActionManager.OnActionCreated += UpdateMarkers;
+            ActionManager.OnActionCancelled += RemoveActionMarkerData;
             LocationVisibilityDetector.OnLocationVisible += InvokeMarkerDisplay;
             LocationVisibilityDetector.OnLocationHidden += RequestMarkerToBeHidden;
         }
 
         private void UnsubscribeFromEvents()
         {
-            PlayerActionsController.OnActionCreated -= UpdateMarkers;
-            PlayerActionsController.OnActionCancelled -= RemoveActionMarkerData;
+            ActionManager.OnActionCreated -= UpdateMarkers;
+            ActionManager.OnActionCancelled -= RemoveActionMarkerData;
             LocationVisibilityDetector.OnLocationVisible -= InvokeMarkerDisplay;
             LocationVisibilityDetector.OnLocationHidden -= RequestMarkerToBeHidden;
         }

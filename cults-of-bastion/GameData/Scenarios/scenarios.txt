@@ -1,0 +1,44 @@
+{
+  "ScenarioConstructors": [
+    {
+       "scenarioName": "new_life",
+       "scenarioDescription": "new_life_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "StartingResources Money = 100"
+       ]
+    },
+    {
+       "scenarioName": "trading_company",
+       "scenarioDescription": "trading_company_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "StartingResources Money = 200",
+            "OrganizationExists = true"
+       ]
+    },
+    {
+       "scenarioName": "young_cultist",
+       "scenarioDescription": "young_cultist_desc",
+       "scenarioStartingCharacterNumber": 1,
+       "scenarioModifiers": [
+            "OrganizationExists = true",
+            "TypeOfOrganization = cult_organization_type",
+            "StartingResources Money = 100",
+            "ChanceForCharacterBackground = childhood_background_young_acolyte 100 1"
+       ]
+    },
+    {
+       "scenarioName": "old_detective",
+       "scenarioDescription": "old_detective_desc",
+       "scenarioStartingCharacterNumber": 2,
+       "scenarioModifiers": [
+            "OrganizationExists = true",
+            "TypeOfOrganization = detective_organization_type",
+            "ChanceForCharacterBackground soldier = 25 1",
+            "StartingResources Money = 100",
+            "ChanceForCharacterCulture = culture_german 50 1"
+       ]
+    }
+  ]
+}
