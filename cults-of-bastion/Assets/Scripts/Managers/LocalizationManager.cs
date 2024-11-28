@@ -3,25 +3,30 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
+using LocalizationSystem;
 using UnityEngine;
 using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.Localization.Tables;
 using UnityEngine.ResourceManagement.AsyncOperations;
-using NaughtyAttributes;
-using UnityEditor;
-using UnityEditor.Localization;
 using UnityEngine.AddressableAssets;
+using NaughtyAttributes;
+using UnityEngine.Localization.SmartFormat.Extensions;
 
 namespace Managers
 {
     public class LocalizationManager : MonoBehaviour, ITableProvider
     {
         [SerializeField] private GameLanguage chosenGameLanguage;
+        private DynamicVariableProvider dynamicVariableProvider;
 
         public static event Action<string> OnSendLocalizedString;
+
         private void Start()
         {
+            dynamicVariableProvider = new DynamicVariableProvider();
+            InitializeSmartFormatter();
+
             TestLocalizedText.OnGetLocalizedString += LocalizeText;
         }
 
@@ -30,10 +35,22 @@ namespace Managers
             TestLocalizedText.OnGetLocalizedString -= LocalizeText;
         }
 
+        private void InitializeSmartFormatter()
+        {
+            var smartFormatter = LocalizationSettings.StringDatabase.SmartFormatter;
+
+            smartFormatter.AddExtensions(
+                new PluralLocalizationFormatter(),
+                new ChooseFormatter()
+            );
+
+            smartFormatter.AddExtensions(dynamicVariableProvider);
+        }
+
+
         private void LocalizeText(string obj)
         {
             var localizedString = LocalizationSettings.StringDatabase.GetTableEntry("Test_table", obj);
-
             OnSendLocalizedString?.Invoke(localizedString.Entry.GetLocalizedString());
         }
 
@@ -41,12 +58,6 @@ namespace Managers
         public void TestStart()
         {
             LoadLocalizationFiles();
-        }
-
-        [Button]
-        public void TestClear()
-        {
-            StartCoroutine(ClearAllLocalizationTables());
         }
 
         private void LoadLocalizationFiles()
@@ -66,7 +77,7 @@ namespace Managers
 
         private IEnumerator LoadLocalizationToAsset(Dictionary<string, Dictionary<string, string>> localizationData)
         {
-            var patcher = new CustomTablePatcher();
+            //var patcher = new CustomTablePatcher();
 
             foreach (var tableNamespace in localizationData)
             {
@@ -76,12 +87,11 @@ namespace Managers
                     {
                         AddStringEntry(table, entry.Key, entry.Value);
                     }
-                    
-                    patcher.PostprocessTable(table);
+
+                    //patcher.PostprocessTable(table);
                 }));
             }
         }
-
 
         private IEnumerator AddStringTable(string tableName, Action<StringTable> onTableLoaded)
         {
@@ -114,7 +124,6 @@ namespace Managers
             Addressables.Release(tableOperation);
         }
 
-
         private void AddStringEntry(StringTable table, string key, string value)
         {
             if (table.GetEntry(key) == null)
@@ -145,42 +154,6 @@ namespace Managers
             LoadLocalizationFiles();
         }
 
-        [Button]
-        public void GetTestMessage()
-        {
-            var paramsString = new object[] { chosenGameLanguage.ToString(), 64 };
-            var localizedString = LocalizationSettings.StringDatabase.GetLocalizedString("Test_table", "LanguageChange", paramsString);
-            Debug.Log($"{localizedString}");
-        }
-
-        private static IEnumerator ClearAllLocalizationTables()
-        {
-            AsyncOperationHandle<IList<StringTable>> handle = LocalizationSettings.StringDatabase.GetAllTables();
-            yield return handle;
-
-            if (handle.Status == AsyncOperationStatus.Succeeded)
-            {
-                foreach (StringTable table in handle.Result)
-                {
-                    foreach (var tableEntry in new List<TableEntry>(table.Values))
-                    {
-                        table.RemoveEntry(((StringTableEntry)tableEntry).KeyId);
-                    }
-                    Debug.Log($"Cleared all entries from table: {table.TableCollectionName}");
-                    table.SharedData.Clear();
-                }
-            }
-            else
-            {
-                Debug.LogError("Failed to load localization tables.");
-            }
-        }
-
-        public void OnApplicationQuit()
-        {
-            StartCoroutine(ClearAllLocalizationTables());
-        }
-
         public AsyncOperationHandle<TTable> ProvideTableAsync<TTable>(string tableCollectionName, Locale locale) where TTable : LocalizationTable
         {
             var provider = new CustomTableProvider();
@@ -207,52 +180,31 @@ namespace Managers
                 table.SharedData.name = $"{tableCollectionName}SharedData";
                 table.SharedData.TableCollectionName = tableCollectionName;
                 table.LocaleIdentifier = locale.Identifier;
-                
 
-                table.AddEntry("MyEntry1", "My localized value 1");
-                table.AddEntry("MyEntry2", "My localized value 2");
-
-                Debug.Log($"Table with name '{table.name}' created for collection '{tableCollectionName}' and locale '{locale.Identifier} with shared data name '{table.SharedData.name}'");
+                Debug.Log($"Table with name '{table.name}' created for collection '{tableCollectionName}' and locale '{locale.Identifier}'");
                 return Addressables.ResourceManager.CreateCompletedOperation(table as TTable, null);
             }
 
             Debug.LogWarning($"Table '{tableCollectionName}' not found for locale '{locale.Identifier}'");
             return default;
         }
-
     }
-
-    [Serializable]
-    public class CustomTablePatcher : ITablePostprocessor
-    {
-        public void PostprocessTable(LocalizationTable table)
-        {
-            if (table is StringTable stringTable)
-            {
-                stringTable.AddEntry("some new entry", "localized value");
-
-                var entry = stringTable.GetEntry("some existing value");
-                if (entry != null)
-                {
-                    entry.Value = "updated localized value";
-                }
-            }
-        }
-    }
-
-    public static class AssignCustomTablePatcherExample
-    {
-        [MenuItem("Localization Samples/Assign Custom table postprocessor")]
-        public static void AssignTablePostprocessor()
-        {
-            var provider = new CustomTablePatcher();
-            var settings = LocalizationEditorSettings.ActiveLocalizationSettings;
-
-            settings.GetStringDatabase().TablePostprocessor = provider;
-            settings.GetAssetDatabase().TablePostprocessor = provider;
-
-            EditorUtility.SetDirty(settings);
-            Debug.Log("CustomTablePatcher has been assigned as the table postprocessor.");
-        }
-    }
+    //
+    // [Serializable]
+    // public class CustomTablePatcher : ITablePostprocessor
+    // {
+    //     public void PostprocessTable(LocalizationTable table)
+    //     {
+    //         if (table is StringTable stringTable)
+    //         {
+    //             stringTable.AddEntry("some new entry", "localized value");
+    //
+    //             var entry = stringTable.GetEntry("some existing value");
+    //             if (entry != null)
+    //             {
+    //                 entry.Value = "updated localized value";
+    //             }
+    //         }
+    //     }
+    // }
 }
